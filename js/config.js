@@ -4,8 +4,9 @@
 
 export const CONFIG = Object.freeze({
   // Jumlah tebasan yang kena sampai HP boss tersisa 20%. Sama untuk semua tahap
-  // dan tidak memengaruhi p. Nilai akhir disetel saat combat dibuat (Fase 3).
-  bossHitsToThreshold: 45,
+  // dan tidak memengaruhi p. Uji bot: pemain sempurna butuh sekitar 1 menit;
+  // pemain biasa yang juga menghindar diperkirakan 2 sampai 3 menit per tahap.
+  bossHitsToThreshold: 120,
 
   stages: Object.freeze([
     Object.freeze({

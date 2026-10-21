@@ -100,19 +100,140 @@
       </div>
     </section>
 
-    <!-- ============ PILIH KARAKTER (diisi pada Fase 2) ============ -->
-    <section id="screen-character" class="screen screen-page" aria-labelledby="character-title">
-      <header class="page-head">
-        <button class="btn btn-ghost" data-go="menu">← Kembali ke Menu</button>
-        <h2 id="character-title">Pilih Karakter</h2>
-      </header>
-      <div class="page-body">
-        <p id="character-greeting" class="prose"></p>
-      </div>
-    </section>
-
     <!-- ============ AREA GAME 3D ============ -->
-    <div id="game-root" class="game-root" hidden></div>
+    <div id="game-root" class="game-root" hidden>
+      <div id="canvas-wrap" class="canvas-wrap"></div>
+      <div id="dmg-layer" class="dmg-layer" aria-hidden="true"></div>
+
+      <!-- HUD -->
+      <div id="hud" class="hud" hidden>
+        <div class="hud-left g-panel">
+          <p id="hud-stage" class="hud-stage">Tahap 1</p>
+          <div class="bar-row"><span class="bar-label">HP</span>
+            <div class="bar-track"><div id="hp-player" class="bar-fill bar-player"></div></div>
+            <b id="hp-player-num" class="bar-num">100</b>
+          </div>
+        </div>
+        <div class="hud-center g-panel">
+          <p class="boss-name">Arca Durgaraksa</p>
+          <div class="bar-track bar-boss-track"><div id="hp-boss" class="bar-fill bar-boss"></div><i class="bar-mark" title="20%"></i></div>
+        </div>
+        <div class="hud-right">
+          <div class="hud-tools">
+            <div id="hud-prob" class="g-panel prob-mini"></div>
+            <button type="button" class="btn btn-icon" id="btn-pause" aria-label="Jeda">II</button>
+          </div>
+          <ol id="mini-table" class="g-panel mini-table" aria-label="Hasil tahap"></ol>
+        </div>
+      </div>
+      <p id="prompt" class="prompt" hidden></p>
+      <p id="lock-hint" class="lock-hint" hidden>Klik area game untuk mengunci kursor</p>
+
+      <!-- Dialog Resi Bayang -->
+      <div id="resi-box" class="resi-box g-panel" hidden>
+        <div class="portrait" aria-hidden="true"><i></i><i></i></div>
+        <div><p class="resi-name">Resi Bayang</p><p id="resi-text"></p></div>
+      </div>
+
+      <!-- Pilih karakter -->
+      <section id="ov-char" class="overlay overlay-side" hidden aria-labelledby="char-title">
+        <div class="g-panel char-panel">
+          <h2 id="char-title">Pilih Karakter</h2>
+          <p class="muted small">Pilihan karakter hanya tampilan dan tidak mengubah peluang menang.</p>
+          <fieldset class="choice"><legend>Tubuh</legend>
+            <div class="choice-row" data-choice="gender">
+              <button type="button" class="btn chip-btn" data-value="laki">Laki-laki</button>
+              <button type="button" class="btn chip-btn" data-value="perempuan">Perempuan</button>
+            </div>
+          </fieldset>
+          <fieldset class="choice"><legend>Warna baju</legend>
+            <div class="choice-row" data-choice="shirt">
+              <button type="button" class="btn chip-btn" data-value="biru"><i class="sw" style="background:#3f6fd8"></i>Biru</button>
+              <button type="button" class="btn chip-btn" data-value="merah"><i class="sw" style="background:#c94040"></i>Merah</button>
+              <button type="button" class="btn chip-btn" data-value="hijau"><i class="sw" style="background:#3f9a52"></i>Hijau</button>
+              <button type="button" class="btn chip-btn" data-value="ungu"><i class="sw" style="background:#7b4fc4"></i>Ungu</button>
+            </div>
+          </fieldset>
+          <fieldset class="choice"><legend>Warna rambut</legend>
+            <div class="choice-row" data-choice="hair">
+              <button type="button" class="btn chip-btn" data-value="hitam"><i class="sw" style="background:#1b1820"></i>Hitam</button>
+              <button type="button" class="btn chip-btn" data-value="cokelat"><i class="sw" style="background:#6b4126"></i>Cokelat</button>
+              <button type="button" class="btn chip-btn" data-value="pirang"><i class="sw" style="background:#e3c065"></i>Pirang</button>
+            </div>
+          </fieldset>
+          <button type="button" class="btn btn-primary btn-lg" id="btn-pick">Pilih</button>
+        </div>
+      </section>
+
+      <!-- Pembuka tahap -->
+      <section id="ov-intro" class="overlay" hidden aria-labelledby="intro-title">
+        <div class="g-panel intro-panel">
+          <p class="eyebrow" id="intro-eyebrow"></p>
+          <h2 id="intro-title"></h2>
+          <dl class="cond">
+            <div><dt>Kondisimu</dt><dd id="intro-player"></dd></div>
+            <div><dt>Arca Durgaraksa</dt><dd id="intro-boss"></dd></div>
+          </dl>
+          <div id="intro-prob" class="prob-box"></div>
+          <div class="resi-line"><div class="portrait" aria-hidden="true"><i></i><i></i></div><div id="intro-resi"></div></div>
+          <div id="intro-controls" class="intro-controls"></div>
+          <div class="row-buttons">
+            <button type="button" class="btn btn-primary btn-lg" id="btn-fight">Mulai Pertarungan</button>
+            <button type="button" class="btn" id="btn-stop-intro">Berhenti di Sini</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Menu jeda -->
+      <section id="ov-pause" class="overlay" hidden aria-labelledby="pause-title">
+        <div class="g-panel pause-panel">
+          <h2 id="pause-title">Jeda</h2>
+          <div class="pause-buttons">
+            <button type="button" class="btn btn-primary btn-lg" id="btn-resume">Lanjut</button>
+            <button type="button" class="btn" id="btn-controls" aria-expanded="false" aria-controls="pause-controls">Daftar Kontrol</button>
+            <button type="button" class="btn btn-danger" id="btn-stop-pause">Berhenti</button>
+          </div>
+          <div id="pause-controls" class="intro-controls" hidden></div>
+        </div>
+      </section>
+
+      <!-- Serangan Penentu -->
+      <section id="ov-decisive" class="decisive" hidden aria-live="assertive">
+        <p class="decisive-title">Serangan Penentu</p>
+        <div id="decisive-prob" class="prob-box"></div>
+        <p id="decisive-result" class="decisive-result" hidden></p>
+        <p id="decisive-u" class="decisive-u" hidden></p>
+      </section>
+
+      <!-- Hasil tahap -->
+      <section id="ov-result" class="overlay" hidden aria-labelledby="result-title">
+        <div class="g-panel result-panel">
+          <p class="eyebrow" id="result-eyebrow"></p>
+          <h2 id="result-title"></h2>
+          <p id="result-line" class="result-line"></p>
+          <div class="row-buttons">
+            <button type="button" class="btn btn-primary btn-lg" id="btn-next">Lanjut ke Tahap Berikutnya</button>
+            <button type="button" class="btn" id="btn-stop-result">Berhenti dan Lihat Rekap</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Rekap akhir -->
+      <section id="ov-recap" class="overlay overlay-scroll" hidden aria-labelledby="recap-title">
+        <div class="g-panel recap-panel" id="recap"></div>
+      </section>
+
+      <!-- Konfirmasi berhenti -->
+      <dialog id="dlg-stop" class="dialog">
+        <form method="dialog">
+          <p>Yakin berhenti? Tahap yang belum dimainkan tidak dihitung menang atau kalah.</p>
+          <div class="row-buttons">
+            <button class="btn btn-danger" value="ok">Ya, berhenti</button>
+            <button class="btn" value="cancel">Kembali</button>
+          </div>
+        </form>
+      </dialog>
+    </div>
 
     <!-- ============ PESAN TANPA INTERNET ============ -->
     <div id="offline-message" class="offline" role="alert" hidden>
