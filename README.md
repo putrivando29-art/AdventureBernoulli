@@ -176,7 +176,7 @@ berguling, **sapuan** (satu lengan ditarik ke samping) dihindari dengan jongkok,
   Safari atau iPhone. Di HP dan di perangkat yang fps-nya di bawah 40, bloom, bayangan, dan
   sebagian partikel dimatikan otomatis.
 - Jika browser menolak kunci kursor, kamera tetap bisa diputar dengan menyeret mouse.
-- Jika unduhan PDF tidak muncul di HP, tekan **Buka PDF** untuk membukanya di tab baru
+- Jika unduhan PDF tidak muncul di HP, tekan **Buka PDF di Tab Baru**
   (izinkan pop-up bila diminta).
 
 ## Struktur folder
