@@ -1,98 +1,126 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 const B = require("../js/bernoulli.js");
 
-test("data tahap bawaan sesuai lembar contoh", () => {
-  assert.deepEqual(B.DEFAULT_STAGES.map((s) => s.p), [50, 60, 70, 50, 40]);
-  assert.deepEqual(B.DEFAULT_STAGES.map((s) => s.kondisi), [
-    "Setara", "Dapat senjata", "Senjata + armor", "Boss lebih kuat", "Boss mode marah",
-  ]);
+// js/config.js adalah ES module. File yang sama dibaca lalu di-import sebagai modul data: URL,
+// sehingga tes memakai data tahap yang persis sama dengan game.
+const configSrc = fs.readFileSync(path.join(__dirname, "..", "js", "config.js"), "utf8");
+const loadConfig = () => import("data:text/javascript," + encodeURIComponent(configSrc)).then((m) => m.CONFIG);
+
+test("config: 5 tahap dengan p sesuai spesifikasi", async () => {
+  const CONFIG = await loadConfig();
+  assert.deepEqual(CONFIG.stages.map((s) => s.p), [50, 60, 70, 50, 40]);
+  assert.deepEqual(CONFIG.stages.map((s) => s.id), [1, 2, 3, 4, 5]);
+  CONFIG.stages.forEach((s) => assert.ok(B.isValidP(s.p), `p tahap ${s.id} valid`));
+  assert.ok(Number.isInteger(CONFIG.bossHitsToThreshold) && CONFIG.bossHitsToThreshold > 0);
 });
 
-test("format desimal eksak berkoma", () => {
-  assert.equal(B.fmtP(50), "0,5");
-  assert.equal(B.fmtP(5), "0,05");
-  assert.equal(B.fmtP(100), "1");
-  assert.equal(B.fmtScaled(42000000, 10), "0,0042");
-  assert.equal(B.fmtScaled(270, 2), "2,7");
-  assert.equal(B.fmtScaled(2400, 4), "0,24");
-  assert.equal(B.fmtRounded(123456, 6, 3), "0,123");
+test("config: data tahap tidak bisa diubah saat game berjalan", async () => {
+  const CONFIG = await loadConfig();
+  assert.throws(() => {
+    "use strict";
+    CONFIG.stages[0].p = 99;
+  }, TypeError);
+  assert.equal(CONFIG.stages[0].p, 50);
 });
 
-test("fungsi peluang, E dan Var seperti lembar contoh", () => {
-  assert.equal(B.pmfText(50, 1), "0,5¹ × 0,5⁰ = 0,5");
-  assert.equal(B.pmfText(60, 1), "0,6¹ × 0,4⁰ = 0,6");
-  assert.equal(B.pmfText(50, 0), "0,5⁰ × 0,5¹ = 0,5");
-  assert.equal(B.pmfText(40, 1), "0,4¹ × 0,6⁰ = 0,4");
-  assert.equal(B.pmfText(70, 0), "0,7⁰ × 0,3¹ = 0,3");
-  assert.equal(B.varianceText(50), "0,5 × 0,5 = 0,25");
-  assert.equal(B.varianceText(60), "0,6 × 0,4 = 0,24");
-  assert.equal(B.varianceText(70), "0,7 × 0,3 = 0,21");
-  assert.equal(B.varianceText(40), "0,4 × 0,6 = 0,24");
+test("pmf, mean, variance", () => {
+  assert.equal(B.pmf(1, 60), 0.6);
+  assert.equal(B.pmf(0, 60), 0.4);
+  assert.equal(B.mean(60), 0.6);
+  assert.equal(B.variance(60), 0.24);
+  assert.equal(B.variance(50), 0.25);
+  assert.equal(B.variance(70), 0.21);
+  assert.equal(B.variance(40), 0.24);
+  assert.equal(B.pmf(0, 70), 0.3);
+  assert.throws(() => B.pmf(2, 60), RangeError);
 });
 
-test("analisis sesi contoh PDF: M M M K M", () => {
-  const xs = [1, 1, 1, 0, 1];
-  const a = B.analyze(B.DEFAULT_STAGES.map((s, i) => ({ p: s.p, x: xs[i] })));
-  assert.equal(a.wins, 4);
-  assert.equal(a.losses, 1);
-  assert.equal(B.fmtScaled(a.seqNum, a.seqDigits), "0,042");
-  assert.deepEqual(B.percentText(a.seqNum, a.seqDigits), { text: "4,2%", exact: true });
-  assert.equal(B.fmtScaled(a.expectedNum, 2), "2,7");
-  assert.equal(B.fmtScaled(a.varNum, 4), "1,19");
-  assert.equal(a.allSame, false);
+test("validasi: p = 0 dan p = 100 ditolak", () => {
+  assert.equal(B.isValidP(0), false);
+  assert.equal(B.isValidP(100), false);
+  assert.equal(B.isValidP(-5), false);
+  assert.equal(B.isValidP(60.5), false);
+  assert.equal(B.isValidP("60"), false);
+  assert.equal(B.isValidP(60), true);
+  assert.throws(() => B.decisiveRoll(0), RangeError);
+  assert.throws(() => B.decisiveRoll(100), RangeError);
+  assert.throws(() => B.mean(0), RangeError);
 });
 
-test("distribusi jumlah menang berjumlah 1 dan rata-ratanya = jumlah p", () => {
-  const ps = [50, 60, 70, 50, 40];
-  const d = B.sumDistribution(ps);
-  const den = 100 ** ps.length;
-  assert.equal(d.reduce((a, b) => a + b, 0), den);
-  const mean = d.reduce((a, v, k) => a + k * v, 0) / den;
-  assert.ok(Math.abs(mean - 2.7) < 1e-12);
-  const v = d.reduce((a, val, k) => a + (k - 2.7) ** 2 * val, 0) / den;
-  assert.ok(Math.abs(v - 1.19) < 1e-12);
-  // P(W = 5) = 0,5 × 0,6 × 0,7 × 0,5 × 0,4
-  assert.equal(B.fmtScaled(d[5], 10), "0,042");
-  // P(W = 0) = 0,5 × 0,4 × 0,3 × 0,5 × 0,6
-  assert.equal(B.fmtScaled(d[0], 10), "0,018");
+test("pecahan peluang", () => {
+  assert.equal(B.fraction(40), "2/5");
+  assert.equal(B.fraction(50), "1/2");
+  assert.equal(B.fraction(60), "3/5");
+  assert.equal(B.fraction(70), "7/10");
 });
 
-test("p sama -> distribusi sama dengan binomial", () => {
-  const d = B.sumDistribution([30, 30, 30]);
-  // Binomial(3; 0,3): 0,343 0,441 0,189 0,027
-  assert.deepEqual(d.map((v) => B.fmtScaled(v, 6)), ["0,343", "0,441", "0,189", "0,027"]);
-  assert.equal(B.analyze([30, 30, 30].map((p) => ({ p, x: 1 }))).allSame, true);
+test("format angka berkoma", () => {
+  assert.equal(B.fmtP(60), "0,6");
+  assert.equal(B.fmtP(B.complement(60)), "0,4");
+  assert.equal(B.fmtVar(60), "0,24");
+  assert.equal(B.fmtVar(50), "0,25");
+  assert.equal(B.fmtPmf(1, 60), "0,60");
+  assert.equal(B.fmtPmf(0, 70), "0,30");
+  assert.equal(B.fmtPercent(40), "40%");
+  assert.equal(B.fmtFixed(125, 3, 2), "0,13");
 });
 
-test("undian: batas U < p tepat", () => {
+test("decisiveRoll: batas U < p tepat dan hanya dua hasil", () => {
   const T = 4294967296;
-  assert.equal(B.drawFromU32(50, 0).x, 1);
-  assert.equal(B.drawFromU32(50, T / 2 - 1).x, 1);
-  assert.equal(B.drawFromU32(50, T / 2).x, 0);
-  assert.equal(B.drawFromU32(50, T - 1).x, 0);
-  assert.equal(B.drawFromU32(1, T - 1).x, 0);
-  assert.equal(B.drawFromU32(99, 0).x, 1);
-  // tampilan U dipotong, tidak dibulatkan ke atas melewati p
-  const r = B.drawFromU32(60, Math.floor(0.59999 * T));
-  assert.equal(r.x, 1);
-  assert.equal(B.fmtU(r.u), "0,5999");
-});
-
-test("frekuensi relatif undian mendekati p (200.000 percobaan)", () => {
-  for (const p of [40, 50, 60, 70]) {
-    let w = 0;
-    const n = 200000;
-    for (let i = 0; i < n; i++) w += B.trial(p).x;
-    const f = w / n;
-    // simpangan baku ~ 0,0011; batas 5 simpangan baku
-    assert.ok(Math.abs(f - p / 100) < 0.006, `p=${p} f=${f}`);
+  assert.deepEqual(B.rollFromU32(50, 0), { U: 0, X: 1 });
+  assert.equal(B.rollFromU32(50, T / 2 - 1).X, 1);
+  assert.equal(B.rollFromU32(50, T / 2).X, 0);
+  assert.equal(B.rollFromU32(99, T - 1).X, 0);
+  assert.equal(B.fmtU(B.rollFromU32(60, Math.floor(0.59999 * T)).U), "0,5999");
+  for (let i = 0; i < 1000; i++) {
+    const r = B.decisiveRoll(60);
+    assert.ok(r.U >= 0 && r.U < 1);
+    assert.ok(r.X === 0 || r.X === 1);
+    assert.equal(r.X, r.U < 0.6 ? 1 : 0);
   }
 });
 
-test("clampP menolak nilai di luar 0,01..0,99", () => {
-  assert.equal(B.clampP(0), null);
-  assert.equal(B.clampP(100), null);
-  assert.equal(B.clampP("abc"), null);
-  assert.equal(B.clampP(55), 55);
+test("decisiveRoll: 10.000 undian p = 60 memberi frekuensi 0,58 sampai 0,62", () => {
+  let w = 0;
+  for (let i = 0; i < 10000; i++) w += B.decisiveRoll(60).X;
+  const f = w / 10000;
+  assert.ok(f >= 0.58 && f <= 0.62, "frekuensi " + f);
+});
+
+test("rekap: 5 tahap dimainkan (M M M K M)", () => {
+  const ps = [50, 60, 70, 50, 40];
+  const xs = [1, 1, 1, 0, 1];
+  const s = B.summarize(ps.map((p, i) => ({ p, x: xs[i] })));
+  assert.equal(s.played, 5);
+  assert.equal(s.wins, 4);
+  assert.equal(s.losses, 1);
+  assert.deepEqual(B.fmtSequence(s), { decimal: "0,0420", percent: "4,20%" });
+  assert.equal(s.expectedWins, 2.7);
+});
+
+test("rekap: tahap tidak dimainkan tidak dihitung", () => {
+  const recs = [
+    { p: 50, x: 0 },
+    { p: 60, x: 1 },
+    { p: 70, x: null },
+    { p: 50, x: null },
+    { p: 40, x: null },
+  ];
+  const s = B.summarize(recs);
+  assert.equal(s.played, 2);
+  assert.equal(s.notPlayed, 3);
+  assert.equal(s.losses, 1);
+  assert.deepEqual(B.fmtSequence(s), { decimal: "0,3000", percent: "30,00%" });
+  assert.equal(s.expectedWins, 1.1);
+});
+
+test("rekap: belum ada percobaan", () => {
+  const s = B.summarize([50, 60, 70, 50, 40].map((p) => ({ p, x: null })));
+  assert.equal(s.played, 0);
+  assert.equal(s.sequenceProbability, null);
+  assert.equal(s.expectedWins, null);
+  assert.equal(B.fmtSequence(s), null);
 });

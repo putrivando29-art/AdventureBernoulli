@@ -2,13 +2,21 @@
 <html lang="id">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Adventure Bernoulli</title>
-  <meta name="description" content="Game petualangan 5 tahap untuk belajar distribusi Bernoulli: setiap pertarungan adalah satu percobaan Bernoulli.">
+  <meta name="description" content="Game 3D hack and slash untuk belajar distribusi Bernoulli: setiap pertarungan adalah satu percobaan Bernoulli.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&display=swap">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
 </head>
 <body>
   <div id="app">
@@ -33,265 +41,87 @@
       </div>
 
       <div class="menu-card">
-        <p class="eyebrow">Game Peluang · 5 Tahap</p>
+        <p class="eyebrow">Universitas Sriwijaya</p>
         <h1 id="menu-title" class="game-title">Adventure<br><span>Bernoulli</span></h1>
-        <p class="menu-sub">Setiap pertarungan hanya punya dua hasil: <strong>menang (X = 1)</strong> atau <strong>kalah (X = 0)</strong>. Itulah satu percobaan Bernoulli.</p>
+        <p class="menu-by">by Kelompok 17</p>
 
-        <label class="field" for="player-name">
-          <span>Nama pemain</span>
-          <input id="player-name" type="text" maxlength="30" autocomplete="off" placeholder="Tulis namamu">
-        </label>
-
-        <nav class="menu-buttons" aria-label="Menu utama">
-          <button class="btn btn-primary btn-lg" data-action="start">Mulai Petualangan</button>
-          <button class="btn" data-go="howto">Cara Bermain</button>
-          <button class="btn" data-go="theory">Materi Bernoulli</button>
-          <button class="btn" data-go="lab">Lab Simulasi</button>
-          <button class="btn" data-go="history">Riwayat Sesi</button>
-          <button class="btn" data-go="settings">Pengaturan</button>
-        </nav>
-
-        <p class="menu-note">Hasil menang-kalah diundi oleh komputer dengan bilangan acak, bukan data siswa sebenarnya.</p>
+        <form id="menu-form" class="menu-form" novalidate>
+          <label class="field" for="student-name">
+            <span>Nama Siswa</span>
+            <input id="student-name" name="nama" type="text" maxlength="40" autocomplete="off" required>
+          </label>
+          <label class="field" for="student-class">
+            <span>Kelas</span>
+            <input id="student-class" name="kelas" type="text" maxlength="20" autocomplete="off" required>
+          </label>
+          <p id="menu-msg" class="form-msg" role="alert"></p>
+          <div class="menu-buttons">
+            <button type="submit" class="btn btn-primary btn-lg" id="btn-start">Mulai Petualangan</button>
+            <button type="button" class="btn" data-go="howto">Cara Bermain</button>
+          </div>
+        </form>
       </div>
     </section>
 
     <!-- ============ CARA BERMAIN ============ -->
     <section id="screen-howto" class="screen screen-page" aria-labelledby="howto-title">
       <header class="page-head">
-        <button class="btn btn-ghost" data-go="menu">← Menu</button>
+        <button class="btn btn-ghost" data-go="menu">← Kembali ke Menu</button>
         <h2 id="howto-title">Cara Bermain</h2>
       </header>
       <div class="page-body prose">
-        <ol class="steps">
-          <li><strong>Tulis nama</strong> di menu utama, lalu tekan <em>Mulai Petualangan</em>.</li>
-          <li>Ada <strong>5 tahap</strong>. Setiap tahap punya lokasi, musuh, dan kondisi sendiri, sehingga peluang menang <em>p</em> tiap tahap berbeda.</li>
-          <li>Tekan <strong>Serang!</strong>. Komputer mengambil satu bilangan acak <em>U</em> antara 0 dan 1. Jika <em>U &lt; p</em> kamu <strong>menang (X = 1)</strong>, jika tidak kamu <strong>kalah (X = 0)</strong>. Jarum roda berhenti tepat di posisi <em>U</em>: daerah hijau = menang, daerah merah = kalah.</li>
-          <li>Kalah tidak mengakhiri permainan. Kelima tahap tetap dimainkan karena setiap tahap adalah percobaan yang terpisah.</li>
-          <li>Setiap hasil otomatis tercatat di <strong>lembar catatan</strong>. Setelah tahap 5 kamu mendapat analisis lengkap: fungsi peluang, E(X), Var(X), peluang urutan hasil, dan jumlah menang yang diharapkan.</li>
-          <li>Lembar hasil bisa dicetak atau disimpan sebagai PDF, dan diunduh sebagai CSV.</li>
-        </ol>
-        <div class="table-scroll"><table class="data-table">
-          <caption>Kondisi tiap tahap</caption>
-          <thead><tr><th>Tahap</th><th>Lokasi</th><th>Kondisi</th><th>p (menang)</th><th>1 − p (kalah)</th></tr></thead>
-          <tbody id="howto-stage-rows"></tbody>
-        </table></div>
-        <p class="muted small">Nilai p dapat diubah di menu Pengaturan (misalnya oleh guru). Tabel di atas mengikuti pengaturan yang sedang aktif.</p>
+        <p>Lawan Arca Durgaraksa dalam 5 tahap. Tebas sang arca sampai HP-nya tinggal 20%, lalu <strong>Serangan Penentu</strong> menentukan hasil akhirnya.</p>
+        <p>Setiap tahap adalah <strong>satu percobaan Bernoulli</strong>: hasilnya hanya dua, <strong>MENANG (X = 1)</strong> atau <strong>KALAH (X = 0)</strong>. Peluang menang <em>p</em> tiap tahap sudah ditetapkan dari awal dan tidak berubah karena cara bermainmu. Menang atau kalah, kamu tetap lanjut ke tahap berikutnya.</p>
+
+        <div class="controls-grid">
+          <div>
+            <h3>Laptop</h3>
+            <ul class="controls-list">
+              <li><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> bergerak</li>
+              <li>Gerakkan mouse: putar kamera (klik area game untuk mengunci kursor)</li>
+              <li>Klik kiri: tebas (combo 3 tebasan)</li>
+              <li><kbd>Space</kbd> lompat</li>
+              <li><kbd>C</kbd> atau <kbd>Ctrl</kbd> jongkok</li>
+              <li><kbd>Shift</kbd> menghindar (berguling)</li>
+              <li><kbd>Esc</kbd> jeda</li>
+            </ul>
+          </div>
+          <div>
+            <h3>HP</h3>
+            <ul class="controls-list">
+              <li>Joystick kiri: bergerak</li>
+              <li>Geser di sisi kanan layar: putar kamera</li>
+              <li>Tombol Tebas, Lompat, Jongkok, Hindar di kanan bawah</li>
+              <li>Tombol jeda di kanan atas</li>
+              <li>Putar HP ke mode landscape agar lebih nyaman</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- ============ MATERI ============ -->
-    <section id="screen-theory" class="screen screen-page" aria-labelledby="theory-title">
+    <!-- ============ PILIH KARAKTER (diisi pada Fase 2) ============ -->
+    <section id="screen-character" class="screen screen-page" aria-labelledby="character-title">
       <header class="page-head">
-        <button class="btn btn-ghost" data-go="menu">← Menu</button>
-        <h2 id="theory-title">Materi Distribusi Bernoulli</h2>
-      </header>
-      <div class="page-body prose">
-        <h3>1. Percobaan Bernoulli</h3>
-        <p>Percobaan Bernoulli adalah percobaan yang dilakukan <strong>satu kali</strong> dan hanya punya <strong>dua kemungkinan hasil</strong>: sukses atau gagal. Dalam game ini sukses = menang (X = 1) dan gagal = kalah (X = 0). Peluang sukses ditulis <em>p</em>, peluang gagal <em>1 − p</em>.</p>
-        <p>Variabel acak X yang demikian ditulis <span class="math">X ~ Bernoulli(p)</span>.</p>
-
-        <h3>2. Fungsi peluang</h3>
-        <div class="formula">P(X = x) = p<sup>x</sup>(1 − p)<sup>1 − x</sup>, untuk x = 0 atau 1</div>
-        <p>Jadi P(X = 1) = p dan P(X = 0) = 1 − p.</p>
-
-        <h3>3. Nilai harapan dan varians</h3>
-        <div class="formula">E(X) = 1 · p + 0 · (1 − p) = p</div>
-        <div class="formula">E(X²) = 1² · p + 0² · (1 − p) = p</div>
-        <div class="formula">Var(X) = E(X²) − [E(X)]² = p − p² = p(1 − p)</div>
-
-        <h3>4. Beberapa tahap sekaligus</h3>
-        <p>Hasil satu tahap tidak memengaruhi tahap lain (saling bebas). Karena itu peluang sebuah <strong>urutan hasil</strong> adalah perkalian peluang tiap tahap:</p>
-        <div class="formula">P(X₁ = x₁, …, X₅ = x₅) = P(X₁ = x₁) × … × P(X₅ = x₅)</div>
-        <p>Jumlah menang W = X₁ + X₂ + X₃ + X₄ + X₅ memiliki nilai harapan</p>
-        <div class="formula">E(W) = p₁ + p₂ + p₃ + p₄ + p₅</div>
-        <p>dan, karena saling bebas, varians Var(W) = Σ pᵢ(1 − pᵢ).</p>
-
-        <h3>5. Kapan jumlahnya binomial?</h3>
-        <p>W berdistribusi <strong>binomial</strong> hanya jika semua tahap punya p yang <strong>sama</strong>. Jika p tiap tahap berbeda (seperti pengaturan bawaan game ini), W <strong>bukan</strong> binomial; distribusinya disebut distribusi <em>Poisson-binomial</em>. Lab Simulasi menghitung distribusi eksaknya.</p>
-
-        <h3>Rujukan</h3>
-        <ul class="refs">
-          <li>Wikipedia, "Bernoulli distribution": <a href="https://en.wikipedia.org/wiki/Bernoulli_distribution" target="_blank" rel="noopener">en.wikipedia.org/wiki/Bernoulli_distribution</a></li>
-          <li>Wikipedia, "Poisson binomial distribution": <a href="https://en.wikipedia.org/wiki/Poisson_binomial_distribution" target="_blank" rel="noopener">en.wikipedia.org/wiki/Poisson_binomial_distribution</a></li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- ============ PENGATURAN ============ -->
-    <section id="screen-settings" class="screen screen-page" aria-labelledby="settings-title">
-      <header class="page-head">
-        <button class="btn btn-ghost" data-go="menu">← Menu</button>
-        <h2 id="settings-title">Pengaturan</h2>
+        <button class="btn btn-ghost" data-go="menu">← Kembali ke Menu</button>
+        <h2 id="character-title">Pilih Karakter</h2>
       </header>
       <div class="page-body">
-        <form id="settings-form" class="settings-form" novalidate>
-          <fieldset>
-            <legend>Peluang menang (p) tiap tahap</legend>
-            <p class="muted small">Isi angka antara 0,01 dan 0,99 (maksimal dua desimal). Nilai bawaan mengikuti contoh lembar catatan: 0,5; 0,6; 0,7; 0,5; 0,4.</p>
-            <div id="settings-stage-fields" class="stage-fields"></div>
-          </fieldset>
-          <fieldset>
-            <legend>Suara</legend>
-            <label class="switch"><input type="checkbox" id="sound-toggle"> <span>Efek suara aktif</span></label>
-          </fieldset>
-          <p id="settings-msg" class="form-msg" role="status" aria-live="polite"></p>
-          <div class="row-buttons">
-            <button type="submit" class="btn btn-primary">Simpan</button>
-            <button type="button" class="btn" data-action="reset-settings">Kembalikan bawaan</button>
-          </div>
-        </form>
+        <p id="character-greeting" class="prose"></p>
       </div>
     </section>
 
-    <!-- ============ RIWAYAT ============ -->
-    <section id="screen-history" class="screen screen-page" aria-labelledby="history-title">
-      <header class="page-head">
-        <button class="btn btn-ghost" data-go="menu">← Menu</button>
-        <h2 id="history-title">Riwayat Sesi</h2>
-      </header>
-      <div class="page-body">
-        <p class="muted small">Riwayat disimpan hanya di browser ini (maksimal 30 sesi terakhir).</p>
-        <div id="history-list"></div>
-        <div class="row-buttons">
-          <button class="btn btn-danger" data-action="clear-history">Hapus semua riwayat</button>
-        </div>
-      </div>
-    </section>
+    <!-- ============ AREA GAME 3D ============ -->
+    <div id="game-root" class="game-root" hidden></div>
 
-    <!-- ============ LAB SIMULASI ============ -->
-    <section id="screen-lab" class="screen screen-page" aria-labelledby="lab-title">
-      <header class="page-head">
-        <button class="btn btn-ghost" data-go="menu">← Menu</button>
-        <h2 id="lab-title">Lab Simulasi</h2>
-      </header>
-      <div class="page-body">
-        <p class="prose">Mainkan banyak sesi sekaligus secara otomatis untuk melihat bahwa <strong>frekuensi relatif menang</strong> tiap tahap mendekati p jika jumlah sesi besar, dan bahwa satu sesi saja bisa jauh dari p.</p>
-        <div class="lab-controls">
-          <label class="field inline" for="lab-n"><span>Jumlah sesi</span>
-            <select id="lab-n">
-              <option value="10">10</option>
-              <option value="100">100</option>
-              <option value="1000" selected>1.000</option>
-              <option value="10000">10.000</option>
-              <option value="100000">100.000</option>
-            </select>
-          </label>
-          <button class="btn btn-primary" data-action="lab-run">Jalankan simulasi</button>
-        </div>
-        <p id="lab-status" class="form-msg" role="status" aria-live="polite"></p>
-        <div id="lab-output"></div>
-      </div>
-    </section>
-
-    <!-- ============ PERMAINAN ============ -->
-    <section id="screen-game" class="screen screen-game" aria-labelledby="stage-title">
-      <header class="hud">
-        <button class="btn btn-ghost btn-sm" data-action="quit">← Menu</button>
-        <ol class="stage-dots" id="stage-dots" aria-label="Kemajuan tahap"></ol>
-        <div class="tally" aria-live="polite"><span class="tally-win" id="tally-win">Menang 0</span><span class="tally-lose" id="tally-lose">Kalah 0</span></div>
-      </header>
-
-      <div class="game-grid">
-        <div class="scene" id="scene" data-theme="forest">
-          <div class="scene-bg" id="scene-bg" aria-hidden="true"></div>
-          <div class="scene-banner"><span id="scene-stage">Tahap 1</span> · <span id="scene-location">Hutan Gerbang</span></div>
-          <div class="fighters">
-            <figure class="fighter hero" id="hero"><div class="sprite" id="hero-sprite"></div><figcaption id="hero-name">Pemain</figcaption></figure>
-            <div class="vs" aria-hidden="true">VS</div>
-            <figure class="fighter enemy" id="enemy"><div class="sprite" id="enemy-sprite"></div><figcaption id="enemy-name">Goblin</figcaption></figure>
-          </div>
-          <div class="fx" id="fx" aria-hidden="true"></div>
-        </div>
-
-        <div class="side">
-        <div class="panel stage-info">
-          <p class="eyebrow" id="stage-eyebrow">Tahap 1 dari 5</p>
-          <h2 id="stage-title">Setara</h2>
-          <p id="stage-story" class="story"></p>
-          <div class="chips">
-            <span class="chip chip-win">p (menang) = <strong id="chip-p">0,5</strong></span>
-            <span class="chip chip-lose">1 − p (kalah) = <strong id="chip-q">0,5</strong></span>
-          </div>
-          <p class="notation" id="stage-notation">X₁ ~ Bernoulli(0,5)</p>
-        </div>
-
-        <div class="panel wheel-panel">
-          <div class="wheel-wrap">
-            <svg class="wheel" viewBox="-14 -14 228 228" role="img" aria-labelledby="wheel-label">
-              <title id="wheel-label">Roda peluang</title>
-              <circle cx="100" cy="100" r="92" class="wheel-rim"/>
-              <circle cx="100" cy="100" r="70" class="wheel-lose" id="wheel-lose" transform="rotate(-90 100 100)"/>
-              <circle cx="100" cy="100" r="70" class="wheel-win" id="wheel-win" transform="rotate(-90 100 100)"/>
-              <g id="wheel-ticks"></g>
-              <text x="100" y="-2" class="wheel-plabel">0</text>
-              <g class="needle" id="needle">
-                <line x1="100" y1="100" x2="100" y2="30"/>
-                <polygon points="100,22 94,36 106,36"/>
-              </g>
-              <circle cx="100" cy="100" r="9" class="wheel-hub"/>
-            </svg>
-            <div class="wheel-legend"><span class="lg lg-win">Menang: 0 ≤ U &lt; p</span><span class="lg lg-lose">Kalah: p ≤ U &lt; 1</span></div>
-          </div>
-          <button class="btn btn-primary btn-lg btn-attack" id="btn-attack" data-action="attack">⚔ Serang!</button>
-
-          <div class="result" id="result" hidden>
-            <p class="result-title" id="result-title" role="status" aria-live="assertive"></p>
-            <dl class="result-calc">
-              <div><dt>Bilangan acak</dt><dd id="res-u"></dd></div>
-              <div><dt>Hasil</dt><dd id="res-x"></dd></div>
-              <div><dt>P(X = x)</dt><dd id="res-pmf"></dd></div>
-              <div><dt>E(X)</dt><dd id="res-e"></dd></div>
-              <div><dt>Var(X)</dt><dd id="res-var"></dd></div>
-            </dl>
-            <button class="btn btn-primary" id="btn-next" data-action="next">Lanjut</button>
-          </div>
-        </div>
-        </div>
-
-        <div class="panel log-panel">
-          <h3>Lembar catatan</h3>
-          <div class="table-scroll">
-            <table class="data-table compact">
-              <thead><tr><th>Tahap</th><th>Kondisi</th><th>p</th><th>1 − p</th><th>Hasil</th><th>X</th></tr></thead>
-              <tbody id="log-rows"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ HASIL AKHIR ============ -->
-    <section id="screen-summary" class="screen screen-page" aria-labelledby="summary-title">
-      <header class="page-head no-print">
-        <button class="btn btn-ghost" data-go="menu">← Menu</button>
-        <h2>Hasil Akhir</h2>
-      </header>
-      <div class="page-body report" id="report"></div>
-      <div class="page-body row-buttons no-print">
-        <button class="btn btn-primary" data-action="start">Main lagi</button>
-        <button class="btn" data-action="print">Cetak / Simpan PDF</button>
-        <button class="btn" data-action="csv">Unduh CSV</button>
-        <button class="btn" data-go="menu">Kembali ke menu</button>
-      </div>
-    </section>
-
-    <!-- ============ DIALOG KONFIRMASI ============ -->
-    <dialog id="confirm-dialog" class="dialog">
-      <form method="dialog">
-        <h3 id="confirm-title">Keluar dari petualangan?</h3>
-        <p id="confirm-text">Sesi ini belum selesai. Hasil tahap yang sudah dimainkan tidak akan disimpan.</p>
-        <div class="row-buttons">
-          <button class="btn" value="cancel">Batal</button>
-          <button class="btn btn-danger" value="ok" id="confirm-ok">Ya, keluar</button>
-        </div>
-      </form>
-    </dialog>
-
-    <button class="sound-btn no-print" id="sound-btn" data-action="toggle-sound" aria-pressed="true" title="Suara">🔊</button>
+    <!-- ============ PESAN TANPA INTERNET ============ -->
+    <div id="offline-message" class="offline" role="alert" hidden>
+      <p>Game membutuhkan koneksi internet. Periksa koneksi lalu muat ulang halaman.</p>
+      <button type="button" class="btn btn-primary" onclick="location.reload()">Muat Ulang</button>
+    </div>
   </div>
 
-  <script src="js/bernoulli.js"></script>
-  <script src="js/art.js"></script>
-  <script src="js/game.js"></script>
+  <script src="./js/bernoulli.js"></script>
+  <script type="module" src="./js/main.js"></script>
 </body>
 </html>
