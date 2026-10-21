@@ -130,7 +130,7 @@ export class Adventure {
     ui.$("#btn-sound").addEventListener("click", () => {
       setMuted(!isMuted());
       const b = ui.$("#btn-sound");
-      b.textContent = isMuted() ? "🔇" : "🔊";
+      b.innerHTML = ui.soundIcon(isMuted());
       b.setAttribute("aria-pressed", String(isMuted()));
       b.setAttribute("aria-label", isMuted() ? "Nyalakan suara" : "Matikan suara");
     });
@@ -255,6 +255,7 @@ export class Adventure {
     ui.$("#intro-player").textContent = s.kondisiPlayer;
     ui.$("#intro-boss").textContent = s.kondisiBoss;
     ui.$("#intro-prob").innerHTML = ui.probBoxHtml(s.p);
+    ui.$("#intro-prob-hint").textContent = ui.probHint(s.p);
     ui.$("#intro-resi").innerHTML =
       (i === 0 ? `<p>${ui.escapeHtml(CONFIG.dialog.pembuka)}</p>` : "") + `<p>${ui.escapeHtml(s.resi)}</p>`;
     // Tahap 1: daftar kontrol sesuai perangkat
@@ -714,11 +715,11 @@ export class Adventure {
         doc.save(pdfFileName(this.student.nama));
       }
       msg.className = "form-msg txt-win";
-      msg.textContent = openInTab ? "PDF dibuka di tab baru." : "PDF sedang diunduh. Jika tidak muncul, tekan Buka PDF.";
+      msg.textContent = openInTab ? "PDF dibuka di tab baru." : "PDF sedang diunduh. Jika tidak muncul, tekan Buka PDF di Tab Baru.";
     } catch (err) {
       console.error(err);
       msg.className = "form-msg";
-      msg.textContent = "PDF gagal dibuat atau diunduh. Coba tombol Buka PDF, atau izinkan pop-up untuk situs ini.";
+      msg.textContent = "PDF gagal dibuat atau diunduh. Coba tombol Buka PDF di Tab Baru, dan izinkan pop-up untuk situs ini bila diminta.";
     }
   }
 

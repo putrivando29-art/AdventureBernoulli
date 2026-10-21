@@ -96,7 +96,14 @@ export function probParts(p) {
 
 export function probBoxHtml(p) {
   const t = probParts(p);
-  return `<span class="pb-win">${t.win}</span><span class="pb-sep" aria-hidden="true">|</span><span class="pb-lose">${t.lose}</span>`;
+  // persen dibungkus <b> agar bisa ditonjolkan; isi teks sama dengan probParts
+  const pct = (s) => s.replace(/(\d+(?:,\d+)?%)/, '<b class="pb-pct">$1</b>').replace(/(\(.*\))/, '<span class="pb-frac">$1</span>');
+  return `<span class="pb-win">${pct(t.win)}</span><span class="pb-sep" aria-hidden="true">|</span><span class="pb-lose">${pct(t.lose)}</span>`;
+}
+
+/** Satu baris keterangan bahwa peluang bukan jaminan. */
+export function probHint(p) {
+  return `Peluang bukan jaminan: dari 100 pertarungan seperti ini, kira-kira ${p} berakhir menang.`;
 }
 
 export const CONTROLS_LAPTOP = [
@@ -247,9 +254,10 @@ export function showStageResult(stage, record, isLast) {
   const t = $("#result-title");
   t.textContent = record.x === 1 ? "MENANG (X = 1)" : "KALAH (X = 0)";
   t.className = record.x === 1 ? "txt-win" : "txt-lose";
-  const trig = record.trigger === "player" ? "dipicu saat kamu sekarat" : "dipicu saat arca sekarat";
+  const trig = record.trigger === "player" ? "kamu sekarat" : "arca sekarat";
   $("#result-line").textContent =
-    `Tercatat: Tahap ${stage.id} | ${stage.kondisi} | p = ${b.fmtP(stage.p)} | 1 - p = ${b.fmtP(b.complement(stage.p))} | X = ${record.x} (${trig}, peluangnya tetap p)`;
+    `Tercatat: Tahap ${stage.id} · ${stage.kondisi} · p = ${b.fmtP(stage.p)} · 1 - p = ${b.fmtP(b.complement(stage.p))} · X = ${record.x}`;
+  $("#result-trig").textContent = `Serangan Penentu dipicu saat ${trig}; peluangnya tetap p.`;
   $("#btn-next").textContent = isLast ? "Lihat Rekap" : "Lanjut ke Tahap Berikutnya";
   $("#btn-stop-result").hidden = isLast;
   showOverlay("#ov-result");
@@ -292,6 +300,11 @@ export function renderRecap({ student, character, stages, records, closing, date
       <tbody>${rows}</tbody>
     </table></div>
     <p class="muted small">P(X = x) = p^x (1 - p)^(1 - x); E(X) = p; Var(X) = p(1 - p).</p>
+    <ul class="muted small col-legend">
+      <li><strong>P(hasil)</strong>: peluang hasil yang terjadi di tahap itu (p jika menang, 1 - p jika kalah).</li>
+      <li><strong>E(X)</strong>: nilai harapan, yaitu rata-rata X jika tahap itu diulang sangat banyak kali.</li>
+      <li><strong>Var(X)</strong>: ukuran seberapa jauh X biasanya menyimpang dari E(X).</li>
+    </ul>
     <p>Tahap dimainkan: <strong>${summary.played}</strong> · Menang: <strong>${summary.wins}</strong> · Kalah: <strong>${summary.losses}</strong></p>
     ${calc}
     <p class="note">Jumlah kemenangan ini bukan distribusi binomial karena peluang tiap tahap berbeda.</p>
@@ -300,12 +313,19 @@ export function renderRecap({ student, character, stages, records, closing, date
     <p class="muted small">Jawab pertanyaan refleksi dengan tulisan tangan di PDF. Data tidak disimpan; semua hilang saat halaman ditutup.</p>
     <p id="pdf-msg" class="form-msg" role="status"></p>
     <div class="row-buttons" id="recap-buttons">
-      <button type="button" class="btn btn-primary btn-lg" id="btn-pdf">Unduh PDF</button>
-      <button type="button" class="btn" id="btn-pdf-open">Buka PDF</button>
+      <button type="button" class="btn btn-primary btn-lg" id="btn-pdf">Unduh PDF Rekap</button>
+      <button type="button" class="btn" id="btn-pdf-open">Buka PDF di Tab Baru</button>
       <button type="button" class="btn" id="btn-menu">Kembali ke Menu Utama</button>
     </div>`;
   showOverlay("#ov-recap");
   return summary;
+}
+
+// ---------- ikon ----------
+// Gong (suara) dan bingkai sudut (layar penuh), digambar garis emas lewat CSS .icon
+const GONG = '<path d="M3 3h18M8 3v4M16 3v4"/><circle cx="12" cy="14" r="7"/><circle cx="12" cy="14" r="2.2"/>';
+export function soundIcon(muted) {
+  return `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${GONG}${muted ? '<path d="M4 21L20 7"/>' : ""}</svg>`;
 }
 
 // ---------- layar penuh ----------

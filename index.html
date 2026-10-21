@@ -27,8 +27,8 @@
         <span class="star s1"></span><span class="star s2"></span><span class="star s3"></span>
         <span class="star s4"></span><span class="star s5"></span><span class="star s6"></span>
         <svg class="menu-castle" viewBox="0 0 400 140" preserveAspectRatio="xMidYMax meet">
-          <path d="M0 140 L0 110 Q60 90 120 108 Q180 124 240 104 Q320 82 400 106 L400 140 Z" fill="#1a1530"/>
-          <g fill="#241d40">
+          <path d="M0 140 L0 110 Q60 90 120 108 Q180 124 240 104 Q320 82 400 106 L400 140 Z" fill="#17130f"/>
+          <g fill="#221b13">
             <rect x="250" y="40" width="22" height="70"/><rect x="246" y="32" width="30" height="10"/>
             <rect x="246" y="26" width="6" height="8"/><rect x="258" y="26" width="6" height="8"/><rect x="270" y="26" width="6" height="8"/>
             <rect x="272" y="66" width="60" height="44"/>
@@ -79,6 +79,32 @@
         <p>Lawan Arca Durgaraksa dalam 5 tahap. Tebas sang arca sampai HP-nya tinggal 20%, lalu <strong>Serangan Penentu</strong> menentukan hasil akhirnya.</p>
         <p>Setiap tahap adalah <strong>satu percobaan Bernoulli</strong>: hasilnya hanya dua, <strong>MENANG (X = 1)</strong> atau <strong>KALAH (X = 0)</strong>. Peluang menang <em>p</em> tiap tahap sudah ditetapkan dari awal dan tidak berubah karena cara bermainmu. Menang atau kalah, kamu tetap lanjut ke tahap berikutnya.</p>
 
+        <div class="controls-grid">
+          <div>
+            <h3>Kontrol Laptop</h3>
+            <ul class="controls-list keys">
+              <li><span><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>:</span> bergerak</li>
+              <li><span>Gerakkan mouse:</span> putar kamera (klik area game untuk mengunci kursor)</li>
+              <li><span>Klik kiri:</span> tebas (combo 3 tebasan)</li>
+              <li><span><kbd>Space</kbd>:</span> lompat</li>
+              <li><span><kbd>C</kbd> atau <kbd>Ctrl</kbd>:</span> jongkok</li>
+              <li><span><kbd>Shift</kbd>:</span> menghindar (berguling)</li>
+              <li><span><kbd>Q</kbd>:</span> pakai sihir</li>
+              <li><span><kbd>Esc</kbd>:</span> jeda</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Kontrol HP</h3>
+            <ul class="controls-list keys">
+              <li><span>Joystick kiri:</span> bergerak</li>
+              <li><span>Geser layar kanan:</span> putar kamera</li>
+              <li><span>Tombol kanan bawah:</span> Tebas, Lompat, Jongkok, Hindar, Sihir</li>
+              <li><span>Tombol kanan atas:</span> jeda</li>
+            </ul>
+            <p class="muted small">Putar HP ke mode landscape agar lebih nyaman.</p>
+          </div>
+        </div>
+        <h3 class="tips-title">Tips</h3>
         <ul class="controls-list tips">
           <li><strong>Ramuan Darah</strong> (merah) menambah HP. <strong>Ramuan Serangan</strong> (oranye) membuat tebasanmu bernilai 2 kali selama 15 detik. Sentuh ramuan untuk mengambilnya.</li>
           <li><strong>Gulungan sihir</strong>: Bola Api atau Petir (Petir membuat arca terpaku sebentar). Ambil gulungan, lalu tekan <kbd>Q</kbd> atau tombol Sihir.</li>
@@ -88,31 +114,6 @@
           <li>Di Serangan Penentu, tekan tombol yang muncul untuk memilih gaya serangan. Tombol itu <strong>tidak</strong> mengubah peluang menang; hasilnya tetap dari satu undian dengan peluang p.</li>
           <li>Di HP, tekan <strong>Layar Penuh</strong> di menu agar game memenuhi layar.</li>
         </ul>
-        <div class="controls-grid">
-          <div>
-            <h3>Laptop</h3>
-            <ul class="controls-list">
-              <li><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> bergerak</li>
-              <li>Gerakkan mouse: putar kamera (klik area game untuk mengunci kursor)</li>
-              <li>Klik kiri: tebas (combo 3 tebasan)</li>
-              <li><kbd>Space</kbd> lompat</li>
-              <li><kbd>C</kbd> atau <kbd>Ctrl</kbd> jongkok</li>
-              <li><kbd>Shift</kbd> menghindar (berguling)</li>
-              <li><kbd>Q</kbd> pakai sihir</li>
-              <li><kbd>Esc</kbd> jeda</li>
-            </ul>
-          </div>
-          <div>
-            <h3>HP</h3>
-            <ul class="controls-list">
-              <li>Joystick kiri: bergerak</li>
-              <li>Geser di sisi kanan layar: putar kamera</li>
-              <li>Tombol Tebas, Lompat, Jongkok, Hindar, Sihir di kanan bawah</li>
-              <li>Tombol jeda di kanan atas</li>
-              <li>Putar HP ke mode landscape agar lebih nyaman</li>
-            </ul>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -182,8 +183,8 @@
         </div>
       </div>
       <p class="rotate-hint">Putar HP ke mode landscape agar lebih nyaman</p>
-      <button type="button" class="btn btn-icon sound-btn" id="btn-sound" aria-pressed="false" aria-label="Matikan suara">🔊</button>
-      <button type="button" class="btn btn-icon fs-corner" data-fullscreen aria-label="Layar penuh">⛶</button>
+      <button type="button" class="btn btn-icon sound-btn" id="btn-sound" aria-pressed="false" aria-label="Matikan suara"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18M8 3v4M16 3v4"/><circle cx="12" cy="14" r="7"/><circle cx="12" cy="14" r="2.2"/></svg></button>
+      <button type="button" class="btn btn-icon fs-corner" data-fullscreen aria-label="Layar penuh"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg></button>
 
       <!-- Percakapan singkat (gaya visual novel) -->
       <div id="vn" class="vn" hidden>
@@ -234,11 +235,12 @@
             <div><dt>Arca Durgaraksa</dt><dd id="intro-boss"></dd></div>
           </dl>
           <div id="intro-prob" class="prob-box"></div>
+          <p id="intro-prob-hint" class="prob-hint"></p>
           <div class="resi-line"><div class="portrait" aria-hidden="true"><i></i><i></i></div><div id="intro-resi"></div></div>
           <div id="intro-controls" class="intro-controls"></div>
           <div class="row-buttons">
             <button type="button" class="btn btn-primary btn-lg" id="btn-fight">Mulai Pertarungan</button>
-            <button type="button" class="btn" id="btn-stop-intro">Berhenti di Sini</button>
+            <button type="button" class="btn" id="btn-stop-intro">Berhenti dan Lihat Rekap</button>
           </div>
         </div>
       </section>
@@ -248,11 +250,11 @@
         <div class="g-panel pause-panel">
           <h2 id="pause-title">Jeda</h2>
           <div class="pause-buttons">
-            <button type="button" class="btn btn-primary btn-lg" id="btn-resume">Lanjut</button>
+            <button type="button" class="btn btn-primary btn-lg" id="btn-resume">Lanjut Bertarung</button>
             <button type="button" class="btn" id="btn-controls" aria-expanded="false" aria-controls="pause-controls">Daftar Kontrol</button>
             <button type="button" class="btn fs-btn" data-fullscreen>Layar Penuh</button>
             <button type="button" class="btn" id="btn-motion" aria-pressed="true">Efek gerak: Nyaman</button>
-            <button type="button" class="btn btn-danger" id="btn-stop-pause">Berhenti</button>
+            <button type="button" class="btn btn-danger" id="btn-stop-pause">Berhenti dan Lihat Rekap</button>
           </div>
           <div id="pause-controls" class="intro-controls" hidden></div>
         </div>
@@ -277,6 +279,7 @@
           <p class="eyebrow" id="result-eyebrow"></p>
           <h2 id="result-title"></h2>
           <p id="result-line" class="result-line"></p>
+          <p id="result-trig" class="result-trig"></p>
           <div class="row-buttons">
             <button type="button" class="btn btn-primary btn-lg" id="btn-next">Lanjut ke Tahap Berikutnya</button>
             <button type="button" class="btn" id="btn-stop-result">Berhenti dan Lihat Rekap</button>
@@ -292,10 +295,10 @@
       <!-- Konfirmasi berhenti -->
       <dialog id="dlg-stop" class="dialog">
         <form method="dialog">
-          <p>Yakin berhenti? Tahap yang belum dimainkan tidak dihitung menang atau kalah.</p>
+          <p>Yakin berhenti? Tahap yang belum dimainkan dicatat "Tidak dimainkan": tidak dihitung menang atau kalah. Setelah itu rekap langsung tampil.</p>
           <div class="row-buttons">
             <button class="btn btn-danger" value="ok">Ya, berhenti</button>
-            <button class="btn" value="cancel">Kembali</button>
+            <button class="btn" value="cancel">Batal</button>
           </div>
         </form>
       </dialog>
