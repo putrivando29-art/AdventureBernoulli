@@ -13,7 +13,7 @@ export class Controls {
     this.enabled = false;
     this.keys = new Set();
     this.look = { dx: 0, dy: 0 };
-    this.edges = { attack: false, jump: false, dodge: false };
+    this.edges = { attack: false, jump: false, dodge: false, spell: false };
     this.touch = isTouchDevice();
     this.locked = false;
     this.lockDenied = false;
@@ -56,13 +56,14 @@ export class Controls {
 
   keyDown(e) {
     if (!this.enabled || e.code === "Escape") return; // Esc ditangani stages.js
-    if (["Space", "ShiftLeft", "ShiftRight", "KeyC", "ControlLeft", "ControlRight", "KeyW", "KeyA", "KeyS", "KeyD"].includes(e.code)) {
+    if (["Space", "ShiftLeft", "ShiftRight", "KeyC", "ControlLeft", "ControlRight", "KeyW", "KeyA", "KeyS", "KeyD", "KeyQ"].includes(e.code)) {
       e.preventDefault();
     }
     if (e.repeat) return;
     this.keys.add(e.code);
     if (e.code === "Space") this.edges.jump = true;
     if (e.code === "ShiftLeft" || e.code === "ShiftRight") this.edges.dodge = true;
+    if (e.code === "KeyQ") this.edges.spell = true;
   }
 
   mouseDown(e) {
@@ -132,8 +133,8 @@ export class Controls {
     });
     look.addEventListener("pointermove", (e) => {
       if (e.pointerId !== lookId || !this.enabled) return;
-      this.look.dx += (e.clientX - lastX) * 1.6;
-      this.look.dy += (e.clientY - lastY) * 1.6;
+      this.look.dx += (e.clientX - lastX) * 1.15;
+      this.look.dy += (e.clientY - lastY) * 1.15;
       lastX = e.clientX;
       lastY = e.clientY;
     });
@@ -164,7 +165,7 @@ export class Controls {
   setEnabled(on) {
     this.enabled = on;
     this.keys.clear();
-    this.edges = { attack: false, jump: false, dodge: false };
+    this.edges = { attack: false, jump: false, dodge: false, spell: false };
     this.look.dx = this.look.dy = 0;
     this.dragging = false;
     this.resetTouch?.();
@@ -191,9 +192,10 @@ export class Controls {
       attack: this.edges.attack,
       jump: this.edges.jump,
       dodge: this.edges.dodge,
+      spell: this.edges.spell,
       look: { dx: this.look.dx, dy: this.look.dy },
     };
-    this.edges = { attack: false, jump: false, dodge: false };
+    this.edges = { attack: false, jump: false, dodge: false, spell: false };
     this.look.dx = this.look.dy = 0;
     return out;
   }

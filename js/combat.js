@@ -1,32 +1,35 @@
 // Interaksi pertarungan: tebasan player ke boss, serangan boss ke player, dan efek visual.
-// HP boss berhenti di 20% (lalu Serangan Penentu), HP player berhenti di 1. Tidak ada yang mati di sini.
+// HP boss berhenti di 20%, HP player berhenti di 1. Yang lebih dulu terjadi memicu Serangan Penentu.
+// Kerusakan dan HP di sini hanya menentukan KAPAN undian terjadi, tidak pernah peluangnya.
 import * as THREE from "three";
 
 const REACH = 1.7; // jangkauan pedang dari permukaan boss
-const BOSS_MAX_HP = 1000;
 const THRESHOLD = 0.2;
-const DAMAGE = { slam: 14, sweep: 12, stomp: 10 };
+const DAMAGE = { slam: 14, sweep: 12, stomp: 10 }; // dikali kekuatan pukulan boss tahap itu
 
 export class Combat {
   constructor(scene, camera, layer, hooks) {
     this.scene = scene;
     this.camera = camera;
     this.layer = layer; // elemen HTML untuk angka kerusakan
-    this.hooks = hooks; // { onThreshold, onPlayerHit, onBossHit, onPrompt, shake }
+    this.hooks = hooks; // { onThreshold, onPlayerDying, onPlayerHit, onBossHit, onPrompt, shake }
     this.numbers = [];
     this.rings = [];
     this.decal = null;
     this.buildParticles();
     this.buildTrail();
     this.buildDecals();
-    this.reset(1);
+    this.reset({ damage: 10, bossHp: 1000, bossHit: 1 });
   }
 
-  reset(hitsToThreshold) {
-    this.hitsToThreshold = hitsToThreshold;
-    this.bossHits = 0;
-    this.multiplier = 1; // Ramuan Serangan membuat tiap tebasan bernilai lebih
+  /** power: { damage, bossHp, bossHit } dari tahap yang sedang dimainkan. */
+  reset(power) {
+    this.power = power;
+    this.bossMax = power.bossHp;
+    this.dealt = 0;
+    this.multiplier = 1; // Ramuan Serangan membuat tebasan lebih kuat
     this.thresholdReached = false;
+    this.playerDying = false;
     this.rings.forEach((r) => (r.mesh.visible = false));
     this.rings = [];
     this.clearDecal();
@@ -36,11 +39,19 @@ export class Combat {
 
   /** HP boss dalam persen (100 sampai 20). */
   get bossHpPct() {
-    return 100 - (100 - THRESHOLD * 100) * Math.min(1, this.bossHits / this.hitsToThreshold);
+    return Math.max(THRESHOLD * 100, 100 - (100 * this.dealt) / this.bossMax);
   }
 
-  get damagePerHit() {
-    return Math.round((BOSS_MAX_HP * (1 - THRESHOLD)) / this.hitsToThreshold);
+  /** Beri kerusakan ke boss (tebasan atau sihir). Memicu Serangan Penentu di HP 20%. */
+  damageBoss(amount, point, cls = "dmg-boss") {
+    if (this.thresholdReached) return;
+    this.dealt = Math.min(this.bossMax * (1 - THRESHOLD), this.dealt + amount);
+    this.number(point, String(amount), cls);
+    this.hooks.onBossHit?.(this.bossHpPct);
+    if (this.dealt >= this.bossMax * (1 - THRESHOLD)) {
+      this.thresholdReached = true;
+      this.hooks.onThreshold?.();
+    }
   }
 
   update(dt, player, boss, active) {
@@ -64,23 +75,20 @@ export class Combat {
     ang = Math.atan2(Math.sin(ang), Math.cos(ang));
     if (dist - boss.radius > REACH || Math.abs(ang) > 1.25) return;
     atk.hitDone = true;
-    this.bossHits = Math.min(this.hitsToThreshold, this.bossHits + this.multiplier);
     boss.flash.value = 1;
     const hitPoint = new THREE.Vector3(pp.x + (dx / dist) * (dist - boss.radius * 0.8), 1.3 + Math.random() * 0.8, pp.z + (dz / dist) * (dist - boss.radius * 0.8));
     this.burst(hitPoint, 0xcfd8c8, 9);
     this.spark(hitPoint);
-    this.number(hitPoint, String(this.damagePerHit * this.multiplier), this.multiplier > 1 ? "dmg-boss dmg-buff" : "dmg-boss");
     this.hooks.shake?.(0.12);
-    this.hooks.onBossHit?.(this.bossHpPct);
-    if (this.bossHits >= this.hitsToThreshold) {
-      this.thresholdReached = true;
-      this.hooks.onThreshold?.();
-    }
+    // tebasan ketiga combo sedikit lebih kuat; variasi kecil agar angka tidak monoton
+    const combo = atk.idx === 2 ? 1.4 : 1;
+    const amount = Math.round(this.power.damage * this.multiplier * combo * (0.9 + Math.random() * 0.2));
+    this.damageBoss(amount, hitPoint, this.multiplier > 1 ? "dmg-boss dmg-buff" : "dmg-boss");
   }
 
   hitPlayer(player, type) {
-    if (player.invulnerable) return false;
-    const n = DAMAGE[type];
+    if (player.invulnerable || this.thresholdReached || this.playerDying) return false;
+    const n = Math.round(DAMAGE[type] * this.power.bossHit);
     player.damage(n);
     const p = player.position.clone();
     p.y += 1.6;
@@ -88,6 +96,10 @@ export class Combat {
     this.burst(p.setY(1.0), 0xff6b6b, 6);
     this.hooks.shake?.(0.3);
     this.hooks.onPlayerHit?.(player.hp);
+    if (player.hp <= 1) {
+      this.playerDying = true;
+      this.hooks.onPlayerDying?.();
+    }
     return true;
   }
 
@@ -195,6 +207,13 @@ export class Combat {
       mesh.position.set(bp.x, 0.05, bp.z);
       mesh.scale.setScalar(1.6 * s + this.decal.t * 0.5);
     }
+  }
+
+  /** Hapus semua bahaya di arena (gelombang hentakan, penanda) saat Serangan Penentu mulai. */
+  clearHazards() {
+    this.rings.forEach((r) => (r.mesh.visible = false));
+    this.rings = [];
+    this.clearDecal();
   }
 
   clearDecal() {

@@ -61,9 +61,9 @@ function createEngine(L) {
   // grading: desaturasi dan vignette bergerak halus ke target
   const grade = { desat: 0, vig: 0.45, tDesat: 0, tVig: 0.45, flash: 0 };
   engine.grading = (desat, vig) => Object.assign(grade, { tDesat: desat, tVig: vig });
-  engine.flash = (hex, amount = 0.65) => {
+  engine.flash = (hex, amount = 0.5) => {
     gradingPass.uniforms.uFlashColor.value.set(hex);
-    grade.flash = amount;
+    grade.flash = amount * (engine.rig.comfort ? 0.55 : 1); // kilatan layar diredam di mode nyaman
   };
 
   // 10. Kualitas otomatis: di HP sudah rendah sejak awal; di laptop turun jika fps rata-rata < 40 selama 3 detik.
@@ -140,20 +140,21 @@ function createRig(THREE, camera) {
   const wantLook = new THREE.Vector3();
   const rig = {
     mode: "intro", yaw: Math.PI, pitch: 0.32, dist: 5.6, shakeAmt: 0, t: 0,
-    orbit: { center: new THREE.Vector3(), angle: 0, radius: 7 },
+    // Efek gerak "nyaman" (bawaan): guncangan kamera kecil, tanpa ayunan kamera. "penuh": guncangan normal.
+    comfort: true,
     focus: { point: new THREE.Vector3(), dist: 6 },
     addLook(dx, dy) {
-      this.yaw -= dx * 0.0035;
-      this.pitch = Math.min(1.05, Math.max(-0.25, this.pitch + dy * 0.0035));
+      this.yaw -= dx * 0.0028;
+      this.pitch = Math.min(1.05, Math.max(-0.25, this.pitch + dy * 0.0028));
     },
-    shake(a) { this.shakeAmt = Math.max(this.shakeAmt, a); },
-    startOrbit(a, b) {
-      this.orbit.center.set((a.x + b.x) / 2, 1.6, (a.z + b.z) / 2);
-      this.orbit.radius = Math.max(6, Math.hypot(a.x - b.x, a.z - b.z) * 0.5 + 5);
-      this.orbit.angle = Math.atan2(pos.x - this.orbit.center.x, pos.z - this.orbit.center.z);
-      this.mode = "orbit";
+    shake(a) { this.shakeAmt = Math.max(this.shakeAmt, a * (this.comfort ? 0.25 : 1)); },
+    /** Bidikan sinematik: kamera bergeser pelan dari `from` ke `to` sambil menatap `at` (tanpa berputar). */
+    shot(from, to, at, ms = 1500) {
+      this.shotData = { from: from.clone(), to: to.clone(), at: at.clone(), ms, t0: performance.now() };
+      this.mode = "shot";
+      this.snap = true;
     },
-    stopOrbit() { this.mode = "follow"; },
+    stopShot() { this.mode = "follow"; },
     focusOn(p, d) { this.focus.point.set(p.x, 0.8, p.z); this.focus.dist = d; this.mode = "focus"; },
     /** Kamera percakapan: di depan pembicara (arah hadap facing), melihat setinggi kepala. */
     talk(p, facing, headY, dist) {
@@ -182,14 +183,15 @@ function createRig(THREE, camera) {
         k = 1 - Math.exp(-real * 4);
       } else if (this.mode === "intro") {
         wantLook.set(0, 1.8, -2);
-        wantPos.set(Math.sin(this.t * 0.12) * 6, 4.2, 12.5);
+        wantPos.set(Math.sin(this.t * 0.12) * (this.comfort ? 2.5 : 6), 4.2, 12.5);
         k = 1 - Math.exp(-real * 2);
-      } else if (this.mode === "orbit") {
-        this.orbit.angle += real * 0.55;
-        const c = this.orbit.center;
-        wantLook.copy(c);
-        wantPos.set(c.x + Math.sin(this.orbit.angle) * this.orbit.radius, 3.2, c.z + Math.cos(this.orbit.angle) * this.orbit.radius);
-        k = 1 - Math.exp(-real * 3);
+      } else if (this.mode === "shot") {
+        const s = this.shotData;
+        const u = Math.min(1, (performance.now() - s.t0) / s.ms);
+        const e = u * u * (3 - 2 * u);
+        wantPos.lerpVectors(s.from, s.to, e);
+        wantLook.copy(s.at);
+        k = 1;
       } else if (this.mode === "talk") {
         wantLook.copy(this.talkLook);
         wantPos.copy(this.talkPos);

@@ -72,18 +72,20 @@ export const CONTROLS_LAPTOP = [
   "Space: lompat",
   "C atau Ctrl: jongkok",
   "Shift: menghindar (berguling)",
+  "Q: pakai sihir dari gulungan (Bola Api atau Petir)",
   "Esc: jeda",
 ];
 export const CONTROLS_HP = [
   "Joystick kiri: bergerak",
   "Geser di sisi kanan layar: putar kamera",
-  "Tombol Tebas, Lompat, Jongkok, Hindar di kanan bawah",
+  "Tombol Tebas, Lompat, Jongkok, Hindar, Sihir di kanan bawah",
   "Tombol jeda di kanan atas",
 ];
 
 const TIPS = [
-  "Ramuan Darah (merah): tambah HP. Ramuan Serangan (oranye): tebasan 2 kali lebih kuat selama 15 detik. Sentuh untuk mengambil.",
-  "Serangan Penentu: tombol yang muncul hanya memilih gaya serangan, tidak mengubah peluang menang.",
+  "Ramuan Darah (merah): tambah HP. Ramuan Serangan (oranye): tebasan 2 kali lebih kuat selama 15 detik. Gulungan sihir (Bola Api atau Petir): ambil, lalu pakai. Sentuh benda untuk mengambil.",
+  "Serangan Penentu terjadi saat arca sekarat (HP 20%) atau saat kamu sekarat (HP 1). Peluangnya sama: p tahap itu.",
+  "Tombol yang muncul di Serangan Penentu hanya memilih gaya serangan, tidak mengubah peluang menang.",
 ];
 
 export function controlsHtml(touch) {
@@ -174,8 +176,13 @@ export function confirmStop() {
 }
 
 // ---------- Serangan Penentu ----------
-export function showDecisive(p) {
+export function showDecisive(p, sub = "") {
   $("#decisive-prob").innerHTML = probBoxHtml(p);
+  $("#decisive-sub").textContent = sub;
+  const title = $("#decisive-title");
+  title.classList.remove("slam");
+  void title.offsetWidth; // ulangi animasi judul
+  title.classList.add("slam");
   $("#decisive-result").hidden = true;
   $("#decisive-u").hidden = true;
   $("#ov-decisive").hidden = false;
@@ -203,8 +210,9 @@ export function showStageResult(stage, record, isLast) {
   const t = $("#result-title");
   t.textContent = record.x === 1 ? "MENANG (X = 1)" : "KALAH (X = 0)";
   t.className = record.x === 1 ? "txt-win" : "txt-lose";
+  const trig = record.trigger === "player" ? "dipicu saat kamu sekarat" : "dipicu saat arca sekarat";
   $("#result-line").textContent =
-    `Tercatat: Tahap ${stage.id} | ${stage.kondisi} | p = ${b.fmtP(stage.p)} | 1 - p = ${b.fmtP(b.complement(stage.p))} | X = ${record.x}`;
+    `Tercatat: Tahap ${stage.id} | ${stage.kondisi} | p = ${b.fmtP(stage.p)} | 1 - p = ${b.fmtP(b.complement(stage.p))} | X = ${record.x} (${trig}, peluangnya tetap p)`;
   $("#btn-next").textContent = isLast ? "Lihat Rekap" : "Lanjut ke Tahap Berikutnya";
   $("#btn-stop-result").hidden = isLast;
   showOverlay("#ov-result");
@@ -347,4 +355,14 @@ export function setBuffText(text) {
   const el = $("#hud-buff");
   el.hidden = !text;
   if (text) el.textContent = text;
+}
+
+export function setSpellText(text) {
+  const el = $("#hud-spell");
+  el.hidden = !text;
+  if (text) el.textContent = text;
+}
+
+export function setLetterbox(on) {
+  $("#letterbox").classList.toggle("is-on", on);
 }

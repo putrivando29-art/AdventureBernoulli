@@ -68,7 +68,8 @@ besar-kecil.
 | Klik kiri | tebas (combo 3 tebasan) |
 | Space | lompat |
 | C atau Ctrl | jongkok |
-| Shift | menghindar (berguling) |
+| Shift | menghindar (berguling); lompat, jongkok, dan hindar membatalkan tebasan |
+| Q | pakai sihir dari gulungan |
 | Esc | jeda |
 
 **HP**
@@ -77,7 +78,7 @@ besar-kecil.
 |---|---|
 | Joystick kiri | bergerak |
 | Geser di sisi kanan layar | putar kamera |
-| Tombol Tebas, Lompat, Jongkok, Hindar (kanan bawah) | aksi |
+| Tombol Tebas, Lompat, Jongkok, Hindar, Sihir (kanan bawah) | aksi |
 | Tombol jeda (kanan atas) | jeda |
 
 Perangkat sentuh dideteksi otomatis. Putar HP ke mode landscape agar lebih nyaman. Tombol
@@ -94,12 +95,19 @@ mendukung).
 - **Perlengkapan berbeda tiap tahap**: pedang kayu (1), pedang besi bercahaya biru (2), pedang
   besi + armor perak (3), pedang ksatria + armor perak + perisai (4), pedang api + armor emas +
   perisai emas + jubah (5).
-- **Ramuan** di arena: Ramuan Darah (merah) menambah 35 HP; Ramuan Serangan (oranye) membuat
-  tiap tebasan bernilai 2 kali selama 15 detik. Saat HP 20 atau kurang, Resi Bayang memulihkan
-  HP ke 60 (jeda 25 detik).
-- **Serangan Penentu dengan QTE**: dua tombol cepat (Serangan Beruntun, Lompatan) memilih
-  animasi (menekan: menyerang; tidak: bertahan/berguling). QTE terakhir sama untuk semua pemain;
-  setelahnya satu undian menentukan hasil: MENANG = player menebas, KALAH = arca menghantam.
+- **Kekuatan naik tiap tahap**: kerusakan tebasan 10, 14, 17, 22, 28 (sesuai perlengkapan);
+  HP arca 1000, 1000, 1000, 1400, 1800 dan pukulannya makin keras di tahap 4 dan 5.
+- **Ramuan dan sihir** di arena: Ramuan Darah (+35 HP), Ramuan Serangan (kerusakan x2 selama
+  15 detik), gulungan Bola Api (6 kali kerusakan tebasan) dan Petir (8 kali, arca terpaku 1,5
+  detik). Gulungan dipakai dengan Q atau tombol Sihir.
+- **Serangan Penentu, dua pemicu**: yang lebih dulu terjadi antara arca sekarat (HP 20%,
+  "gacha serangan") dan player sekarat (HP 1, "gacha kabur"). Keduanya satu undian dengan p
+  tahap itu. Jika menang saat sekarat, Resi Bayang tertawa: "Hahaha! Kau sangat beruntung!".
+- **Adegan sinematik**: bilah hitam, judul, potongan kamera (close-up arca, dari balik bahu,
+  sudut rendah, samping), dua QTE yang hanya memilih animasi, QTE terakhir yang sama untuk semua,
+  lalu benturan dan hasil: MENANG = player menebas dan arca berlutut, KALAH = arca menghantam.
+- **Efek gerak Nyaman** (bawaan, bisa diubah di menu jeda): guncangan dan kilatan layar
+  diredam, kamera tidak berputar-putar.
 - **Musik latar** sintetis (dengung, akor, derak obor; drum saat bertarung; detak jantung saat
   Serangan Penentu) dan efek suara. Tombol suara selalu tersedia.
 
@@ -152,10 +160,8 @@ berguling, **sapuan** (satu lengan ditarik ke samping) dihindari dengan jongkok,
   "Game membutuhkan koneksi internet. Periksa koneksi lalu muat ulang halaman."
 - Data tidak disimpan. Semua hasil hilang saat halaman ditutup atau dimuat ulang, jadi
   unduh PDF rekap sebelum menutup halaman.
-- Durasi fase hack and slash diatur lewat `bossHitsToThreshold` dan `potions` di
-  `js/config.js` (sekarang 90 tebasan kena, Ramuan Serangan x2). Pada uji otomatis, bot yang
-  tidak pernah meleset butuh sekitar 50 sampai 57 detik per tahap; durasi untuk siswa
-  sungguhan masih perkiraan dan perlu dicek saat uji coba.
+- Durasi fase hack and slash diatur lewat `power` tiap tahap dan `potions` di `js/config.js`.
+  Durasi untuk siswa sungguhan masih perkiraan dan perlu dicek saat uji coba.
 - Siswa juga bisa membuka Setting Guru dan mengubah p sebelum bermain. Periksa baris "Sumber
   nilai p" di PDF rekap siswa.
 - Badge hosting (misalnya "Powered by Netlify") muncul di pojok kanan bawah dan tidak bisa
@@ -181,5 +187,5 @@ css/style.css
 tests/bernoulli.test.js
 js/  bernoulli.js  config.js  main.js  player.js  boss.js  mystic.js  arena.js
      controls.js  combat.js  stages.js  ui.js  shaders.js  pdf.js  audio.js  browser-tests.js
-     cutscene.js  qte.js  potions.js  settings.js  teacher.js
+     cutscene.js  qte.js  potions.js  spells.js  settings.js  teacher.js
 ```

@@ -90,6 +90,20 @@ export const sfx = {
   }),
   win: () => play((t) => [523, 659, 784, 1046].forEach((f, i) => tone("triangle", f, f, t + i * 0.12, 0.3, 0.3))),
   lose: () => play((t) => [392, 330, 262, 196].forEach((f, i) => tone("sawtooth", f, f * 0.97, t + i * 0.16, 0.32, 0.16))),
+  roar: () => play((t) => {
+    tone("sawtooth", 110, 55, t, 1.1, 0.22);
+    tone("square", 82, 41, t + 0.05, 1.0, 0.12);
+    whoosh(t, 400, 120, 1.1, 0.25, 0.7);
+  }),
+  fireball: () => play((t) => whoosh(t, 400, 2400, 0.45, 0.35, 0.9)),
+  boom: () => play((t) => {
+    tone("sine", 90, 30, t, 0.6, 0.6);
+    whoosh(t, 1200, 150, 0.6, 0.45, 0.5);
+  }),
+  thunder: () => play((t) => {
+    whoosh(t, 3000, 200, 0.9, 0.55, 0.4);
+    tone("sawtooth", 60, 30, t, 0.8, 0.25);
+  }),
   potion: () => play((t) => [660, 880, 1175].forEach((f, i) => tone("sine", f, f * 1.2, t + i * 0.07, 0.18, 0.25))),
   clang: () => play((t) => {
     tone("square", 1400, 900, t, 0.12, 0.12);

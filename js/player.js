@@ -404,6 +404,8 @@ export class Player {
     }
     const moveLen = Math.hypot(mx, mz);
 
+    // Lompat, jongkok, dan menghindar membatalkan animasi tebasan agar tidak ada jeda.
+    if (canAct && this.attack && (input.jump || input.dodge || input.crouch)) this.attack = null;
     this.crouching = canAct && input.crouch && this.grounded && !this.roll && !this.attack;
 
     if (canAct && input.dodge && this.grounded && !this.roll && this.rollCd <= 0) {
@@ -551,6 +553,10 @@ export class Player {
     if (this.pose === "ready") {
       T.rx = -2.3; T.ry = -0.3; T.re = 0.35; T.twist = -0.2;
       T.hipR = 0.35; T.hipL = -0.45; T.kneeL = 0.4; T.kneeR = 0.2; T.lean = 0.1; T.lx = -0.6; T.lz = 0.4;
+    } else if (this.pose === "kneel") {
+      // sekarat: berlutut satu kaki, pedang menyentuh lantai
+      T.hipR = -1.5; T.kneeR = 2.3; T.hipL = -0.5; T.kneeL = 1.0; T.drop = -0.42;
+      T.lean = 0.45; T.rx = -0.25; T.re = 0.2; T.lx = 0.2; T.lz = 0.3;
     } else if (this.pose === "block") {
       // bertahan: pedang melintang di atas kepala, perisai/lengan kiri ke depan
       T.rx = -2.4; T.ry = 1.0; T.re = 0.9; T.twist = 0.25; T.lean = -0.08;

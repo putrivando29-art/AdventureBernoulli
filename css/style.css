@@ -291,6 +291,7 @@ kbd {
 .hud-buff { margin: 6px 0 0; font-size: .78rem; color: #ffb347; }
 .dmg-heal { color: #5bff9a; }
 .dmg-buff { color: #ffb347; }
+.dmg-spell { color: #9fd8ff; font-size: 1.5rem; }
 .prompt-good { background: rgba(20, 110, 60, .75); border-color: rgba(120,255,170,.6); animation: none; }
 
 /* percakapan gaya visual novel */
@@ -336,7 +337,7 @@ kbd {
 :root { --safe-bottom: 72px; }
 .touch-buttons {
   bottom: var(--safe-bottom); right: 14px;
-  grid-template-columns: 76px 62px 62px; grid-template-areas: "atk jump crouch" "atk dodge .";
+  grid-template-columns: 76px 62px 62px; grid-template-areas: "atk jump crouch" "atk dodge spell";
   align-items: center;
 }
 .tbtn { width: 62px; height: 62px; }
@@ -344,6 +345,17 @@ kbd {
 .tbtn[data-touch="jump"] { grid-area: jump; }
 .tbtn[data-touch="crouch"] { grid-area: crouch; }
 .tbtn[data-touch="dodge"] { grid-area: dodge; }
+.tbtn[data-touch="spell"] { grid-area: spell; font-size: .7rem; }
+.tbtn-spell.is-ready { background: rgba(60, 90, 200, .85); border-color: #9fd8ff; box-shadow: 0 0 14px rgba(120,200,255,.7); }
+.tbtn-spell:not(.is-ready) { opacity: .45; }
+.hud-spell { margin: 4px 0 0; font-size: .78rem; color: #9fd8ff; }
+.letterbox i { position: absolute; left: 0; right: 0; height: 0; background: #000; z-index: 3; transition: height .5s ease; pointer-events: none; }
+.letterbox i:first-child { top: 0; }
+.letterbox i:last-child { bottom: 0; }
+.letterbox.is-on i { height: 9vh; }
+.decisive-sub { margin: 0; font-weight: 700; color: #fff; text-shadow: 0 2px 0 #000; max-width: 560px; }
+.decisive-title.slam { animation: title-slam .5s cubic-bezier(.2,1.6,.4,1); }
+@keyframes title-slam { from { transform: scale(2.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .resi-box { bottom: var(--safe-bottom); }
 .vn { padding-bottom: var(--safe-bottom); }
 .overlay { padding-bottom: calc(var(--safe-bottom) + 8px); }

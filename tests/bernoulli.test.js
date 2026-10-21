@@ -15,7 +15,9 @@ test("config: 5 tahap dengan p bawaan yang semuanya berbeda", async () => {
   assert.equal(new Set(CONFIG.stages.map((s) => s.p)).size, 5);
   assert.deepEqual(CONFIG.stages.map((s) => s.id), [1, 2, 3, 4, 5]);
   CONFIG.stages.forEach((s) => assert.ok(B.isValidP(s.p), `p tahap ${s.id} valid`));
-  assert.ok(Number.isInteger(CONFIG.bossHitsToThreshold) && CONFIG.bossHitsToThreshold > 0);
+  // kekuatan tebasan naik seiring perlengkapan; tidak ada hubungannya dengan p
+  const dmg = CONFIG.stages.map((s) => s.power.damage);
+  assert.ok(dmg.every((d, i) => i === 0 || d > dmg[i - 1]), "kerusakan tebasan naik tiap tahap: " + dmg);
 });
 
 test("config: data tahap tidak bisa diubah saat game berjalan", async () => {

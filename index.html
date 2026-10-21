@@ -79,7 +79,10 @@
 
         <ul class="controls-list tips">
           <li><strong>Ramuan Darah</strong> (merah) menambah HP. <strong>Ramuan Serangan</strong> (oranye) membuat tebasanmu bernilai 2 kali selama 15 detik. Sentuh ramuan untuk mengambilnya.</li>
-          <li>Saat HP-mu sekarat, Resi Bayang akan memulihkanmu.</li>
+          <li><strong>Gulungan sihir</strong>: Bola Api atau Petir (Petir membuat arca terpaku sebentar). Ambil gulungan, lalu tekan <kbd>Q</kbd> atau tombol Sihir.</li>
+          <li>Serangan Penentu terjadi saat <strong>arca sekarat</strong> (HP 20%) atau saat <strong>kamu sekarat</strong> (HP 1). Keduanya satu undian dengan peluang yang sama, yaitu p tahap itu.</li>
+          <li>Lompat, jongkok, dan menghindar langsung membatalkan tebasan.</li>
+          <li>Jika pusing, pilih <strong>Efek gerak: Nyaman</strong> di menu jeda (bawaan).</li>
           <li>Di Serangan Penentu, tekan tombol yang muncul untuk memilih gaya serangan. Tombol itu <strong>tidak</strong> mengubah peluang menang; hasilnya tetap dari satu undian dengan peluang p.</li>
           <li>Di HP, tekan <strong>Layar Penuh</strong> di menu agar game memenuhi layar.</li>
         </ul>
@@ -93,6 +96,7 @@
               <li><kbd>Space</kbd> lompat</li>
               <li><kbd>C</kbd> atau <kbd>Ctrl</kbd> jongkok</li>
               <li><kbd>Shift</kbd> menghindar (berguling)</li>
+              <li><kbd>Q</kbd> pakai sihir</li>
               <li><kbd>Esc</kbd> jeda</li>
             </ul>
           </div>
@@ -101,7 +105,7 @@
             <ul class="controls-list">
               <li>Joystick kiri: bergerak</li>
               <li>Geser di sisi kanan layar: putar kamera</li>
-              <li>Tombol Tebas, Lompat, Jongkok, Hindar di kanan bawah</li>
+              <li>Tombol Tebas, Lompat, Jongkok, Hindar, Sihir di kanan bawah</li>
               <li>Tombol jeda di kanan atas</li>
               <li>Putar HP ke mode landscape agar lebih nyaman</li>
             </ul>
@@ -146,6 +150,7 @@
             <b id="hp-player-num" class="bar-num">100</b>
           </div>
           <p id="hud-buff" class="hud-buff" hidden></p>
+          <p id="hud-spell" class="hud-spell" hidden></p>
         </div>
         <div class="hud-center g-panel">
           <p class="boss-name">Arca Durgaraksa</p>
@@ -171,6 +176,7 @@
           <button type="button" class="tbtn" data-touch="jump">Lompat</button>
           <button type="button" class="tbtn" data-touch="crouch">Jongkok</button>
           <button type="button" class="tbtn" data-touch="dodge">Hindar</button>
+          <button type="button" class="tbtn tbtn-spell" data-touch="spell" id="tbtn-spell">Sihir</button>
         </div>
       </div>
       <p class="rotate-hint">Putar HP ke mode landscape agar lebih nyaman</p>
@@ -243,15 +249,20 @@
             <button type="button" class="btn btn-primary btn-lg" id="btn-resume">Lanjut</button>
             <button type="button" class="btn" id="btn-controls" aria-expanded="false" aria-controls="pause-controls">Daftar Kontrol</button>
             <button type="button" class="btn fs-btn" data-fullscreen>Layar Penuh</button>
+            <button type="button" class="btn" id="btn-motion" aria-pressed="true">Efek gerak: Nyaman</button>
             <button type="button" class="btn btn-danger" id="btn-stop-pause">Berhenti</button>
           </div>
           <div id="pause-controls" class="intro-controls" hidden></div>
         </div>
       </section>
 
+      <!-- bilah hitam sinematik -->
+      <div id="letterbox" class="letterbox" aria-hidden="true"><i></i><i></i></div>
+
       <!-- Serangan Penentu -->
       <section id="ov-decisive" class="decisive" hidden aria-live="assertive">
-        <p class="decisive-title">Serangan Penentu</p>
+        <p class="decisive-title" id="decisive-title">Serangan Penentu</p>
+        <p class="decisive-sub" id="decisive-sub"></p>
         <div id="decisive-prob" class="prob-box"></div>
         <p id="decisive-note" class="decisive-note">Tombol yang muncul hanya mengubah gaya serangan, bukan peluang menang. Hasil ditentukan oleh satu undian dengan peluang p.</p>
         <p id="decisive-result" class="decisive-result" hidden></p>

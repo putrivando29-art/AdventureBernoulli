@@ -210,6 +210,7 @@ export class Boss {
     this.walk = 0;
     this.time = 0;
     this.pose = "normal"; // normal | kneel | triumph
+    this.stunT = 0;
     this.poseT = 0;
     this.farTime = 0;
   }
@@ -251,7 +252,10 @@ export class Boss {
         }
       }
     }
-    if (ctx.ai && this.pose === "normal") {
+    if (this.stunT > 0) {
+      this.stunT -= dt;
+      this.flash.value = Math.max(this.flash.value, 0.25 + 0.25 * Math.sin(this.time * 30)); // berkedip saat terpaku
+    } else if (ctx.ai && this.pose === "normal") {
       this.stateT -= dt;
       const turnTo = (rate) => {
         let d = Math.atan2(dx, dz) - this.facing;
@@ -320,7 +324,13 @@ export class Boss {
     this.attack = { type, id: Math.random() };
     this.state = "telegraph";
     this.stateT = windup;
-    this.cine = { onStrike };
+    this.cine = { onStrike, windup };
+  }
+
+  /** Terpaku sebentar (kena Petir): tidak menyerang selama `sec` detik. */
+  stun(sec) {
+    this.calm();
+    this.stunT = sec;
   }
 
   // ---------- animasi prosedural ----------
@@ -334,7 +344,7 @@ export class Boss {
     let lean = 0.08 + Math.sin(t * 1.6) * 0.02, twist = 0, headX = 0, drop = 0;
 
     const st = this.state;
-    const teleDur = this.cine ? 0.45 : this.v.tele;
+    const teleDur = this.cine ? this.cine.windup : this.v.tele;
     const tele = st === "telegraph" ? 1 - Math.max(0, this.stateT) / teleDur : 0;
     const strikeK = st === "strike" ? 1 - Math.max(0, this.stateT) / 0.35 : 0;
     const type = this.attack?.type;

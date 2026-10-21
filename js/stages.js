@@ -11,6 +11,7 @@ import { Mystic } from "./mystic.js";
 import { Combat } from "./combat.js";
 import { Controls } from "./controls.js";
 import { Potions, POTION_LABEL } from "./potions.js";
+import { Spells, SPELL_LABEL } from "./spells.js";
 import { playCutscene } from "./cutscene.js";
 import { runQte, qteFeedback } from "./qte.js";
 import * as ui from "./ui.js";
@@ -70,7 +71,8 @@ export class Adventure {
     this.controls.onLockChange = () => this.refreshLockHint();
 
     this.combat = new Combat(scene, engine.camera, ui.$("#dmg-layer"), {
-      onThreshold: () => this.decisive(),
+      onThreshold: () => this.decisive("boss"),
+      onPlayerDying: () => this.decisive("player"),
       onBossHit: (pct) => {
         ui.updateHud({ bossHp: pct });
         sfx.hit();
@@ -90,7 +92,8 @@ export class Adventure {
     this.lastAttackId = null;
     this.lastStep = 0;
     this.buffT = 0;
-    this.rescueCd = 0;
+    this.spells = new Spells(scene);
+    this.spell = null;
 
     this.bindUi();
     engine.onFrame((dt, real) => this.frame(dt, real));
@@ -135,6 +138,26 @@ export class Adventure {
     ui.$("#btn-resume").addEventListener("click", () => this.resume());
     ui.$("#btn-stop-pause").addEventListener("click", () => this.requestStop());
     ui.$("#btn-pause").addEventListener("click", () => this.pause());
+    // Efek gerak: "Nyaman" (bawaan, guncangan dan kilatan diredam) atau "Penuh"
+    const applyMotion = (comfort) => {
+      this.engine.rig.comfort = comfort;
+      const b = ui.$("#btn-motion");
+      b.textContent = "Efek gerak: " + (comfort ? "Nyaman" : "Penuh");
+      b.setAttribute("aria-pressed", String(comfort));
+      try {
+        localStorage.setItem("ab.motion", comfort ? "nyaman" : "penuh");
+      } catch (e) {
+        /* abaikan */
+      }
+    };
+    let saved = null;
+    try {
+      saved = localStorage.getItem("ab.motion");
+    } catch (e) {
+      /* abaikan */
+    }
+    applyMotion(saved !== "penuh");
+    ui.$("#btn-motion").addEventListener("click", () => applyMotion(!this.engine.rig.comfort));
     ui.$("#btn-controls").addEventListener("click", () => {
       const box = ui.$("#pause-controls");
       box.hidden = !box.hidden;
@@ -194,8 +217,11 @@ export class Adventure {
     this.boss.reset(BOSS_START, 0);
     this.boss.pose = "normal";
     this.mystic.root.position.copy(this.mysticHome);
-    this.combat.reset(CONFIG.bossHitsToThreshold);
+    this.combat.reset(s.power);
     this.potions.reset();
+    this.spells.reset();
+    this.spell = null;
+    this.updateSpellUi();
     ui.setHudVisible(false);
     ui.resiSay(null);
     ui.showOverlay(null);
@@ -241,7 +267,7 @@ export class Adventure {
     ui.updateHud({ stageName: this.stage.nama, playerHp: 100, bossHp: 100, p: this.stage.p, records: this.records });
     ui.setBuffText(null);
     this.buffT = 0;
-    this.rescueCd = 0;
+    this.updateSpellUi();
     this.engine.rig.mode = "follow";
     this.controls.setEnabled(true);
     this.setTouchVisible(true);
@@ -298,7 +324,7 @@ export class Adventure {
     this.showRecap(CONFIG.dialog.berhenti);
   }
 
-  // ---------- ramuan dan pertolongan Resi ----------
+  // ---------- ramuan dan sihir ----------
   pickPotion(type, pos) {
     const pl = this.player;
     sfx.potion();
@@ -307,29 +333,64 @@ export class Adventure {
       pl.hp = Math.min(100, pl.hp + PC.heal);
       this.combat.number(pos.setY(1.6), "+" + (pl.hp - before) + " HP", "dmg-heal");
       ui.updateHud({ playerHp: pl.hp });
-    } else {
+    } else if (type === "serangan") {
       this.buffT = PC.attackDuration;
       this.combat.multiplier = PC.attackMultiplier;
       pl.setBuff(true);
       this.combat.number(pos.setY(1.6), "Serangan x" + PC.attackMultiplier, "dmg-buff");
+    } else {
+      this.spell = type; // gulungan sihir disimpan, dipakai dengan Q atau tombol Sihir
+      this.updateSpellUi();
     }
-    ui.setPrompt(POTION_LABEL[type] + "!", "good");
+    ui.setPrompt(POTION_LABEL[type] + "!" + (type === "api" || type === "petir" ? (this.controls.touch ? " Tekan Sihir" : " Tekan Q") : ""), "good");
   }
 
-  rescue() {
-    // Saat sekarat, Resi Bayang memulihkan HP agar tidak tertahan di 1.
+  updateSpellUi() {
+    const label = this.spell ? SPELL_LABEL[this.spell] : null;
+    ui.setSpellText(label ? `Sihir: ${label} (${this.controls.touch ? "tombol Sihir" : "tekan Q"})` : null);
+    const btn = ui.$("#tbtn-spell");
+    btn.classList.toggle("is-ready", !!label);
+    btn.textContent = label || "Sihir";
+  }
+
+  castSpell() {
+    if (!this.spell || this.phase !== "fight") return;
+    const type = this.spell;
+    this.spell = null;
+    this.updateSpellUi();
     const pl = this.player;
-    pl.hp = Math.max(pl.hp, PC.rescueHealTo);
-    this.rescueCd = PC.rescueCooldown;
-    ui.updateHud({ playerHp: pl.hp });
-    ui.resiSay(CONFIG.dialog.tolong, 2500);
-    this.combat.burst(pl.position.clone().setY(1.0), 0x5bff9a, 12);
-    this.engine.flash(0x5bff9a, 0.25);
-    sfx.potion();
+    const boss = this.boss;
+    const dmg = Math.round(this.stage.power.damage * (type === "api" ? PC.fireball : PC.lightning));
+    pl.attack = null;
+    pl.startAttack(2, boss.position); // gerakan merapal
+    const hit = (pt) => {
+      if (this.phase !== "fight") return; // undian sudah dimulai; sihir tidak berpengaruh lagi
+      boss.flash.value = 1;
+      this.combat.burst(pt, type === "api" ? 0xff8a2a : 0x9fd8ff, 22);
+      this.combat.spark(pt);
+      this.engine.rig.shake(0.35);
+      this.combat.damageBoss(dmg, pt, "dmg-boss dmg-spell");
+    };
+    if (type === "api") {
+      sfx.fireball();
+      this.spells.castFire(pl, boss, (pt) => {
+        sfx.boom();
+        hit(pt);
+      });
+    } else {
+      sfx.thunder();
+      this.engine.flash(0x9fd8ff, 0.35);
+      this.spells.castLightning(boss, (pt) => {
+        hit(pt);
+        boss.stun(PC.lightningStun);
+        this.combat.clearDecal();
+        ui.setPrompt(null);
+      });
+    }
   }
 
-  // ---------- Serangan Penentu dengan QTE ----------
-  /** Letakkan player tepat di depan boss, saling berhadapan. */
+  // ---------- Serangan Penentu ----------
+  /** Letakkan player di depan boss dan buat keduanya saling berhadapan. */
   async faceOff(dist = 2.3) {
     const bp = this.boss.position;
     const pp = this.player.position;
@@ -340,9 +401,35 @@ export class Adventure {
     dz /= len;
     const target = new THREE.Vector3(bp.x + dx * (this.boss.radius + dist), 0, bp.z + dz * (this.boss.radius + dist));
     const from = pp.clone();
-    this.boss.facing = Math.atan2(-dx, -dz);
-    this.player.facing = Math.atan2(-dx, -dz) + Math.PI;
+    this.boss.facing = Math.atan2(dx, dz); // boss menghadap player
+    this.player.facing = Math.atan2(-dx, -dz); // player menghadap boss
     await tween(350, (k) => this.player.position.lerpVectors(from, target, k));
+  }
+
+  /** Posisi kamera sinematik relatif terhadap player dan boss. Kamera berpindah dengan potongan, bukan berputar. */
+  shots() {
+    const V = (x, y, z) => new THREE.Vector3(x, y, z);
+    const bp = this.boss.position.clone();
+    const pp = this.player.position.clone();
+    const f = pp.clone().sub(bp).setY(0).normalize(); // arah boss -> player
+    const side = V(f.z, 0, -f.x);
+    const s = this.boss.v.scale;
+    const mid = bp.clone().add(pp).multiplyScalar(0.5);
+    const at = (base, fx, sx, y) => base.clone().addScaledVector(f, fx).addScaledVector(side, sx).setY(y);
+    return {
+      bossClose: [at(bp, 4.2, 3.4, 1.0), at(bp, 3.6, 2.8, 1.25), bp.clone().setY(2.9 * s)],
+      playerFace: [at(pp, -1.9, 1.1, 1.0), at(pp, -1.5, 0.9, 1.15), pp.clone().setY(1.1)],
+      overShoulder: [at(pp, 2.4, 1.1, 2.1), at(pp, 1.8, 0.9, 1.9), bp.clone().setY(2.3 * s)],
+      sideWide: [at(mid, 0, 8.5, 2.6), at(mid, 0, 7.5, 2.3), mid.clone().setY(1.7)],
+      lowHero: [at(pp, 0.6, 4.2, 0.45), at(pp, 0.4, 3.5, 0.6), mid.clone().setY(1.9)],
+      finale: [at(mid, -0.5, 6.2, 1.3), at(mid, -0.3, 4.8, 1.5), mid.clone().setY(1.9)],
+      high: [at(pp, 3.5, 3, 7), at(pp, 3, 2.5, 6.2), pp.clone().setY(0.6)],
+    };
+  }
+
+  shot(name, ms = 1600) {
+    const [from, to, at] = this.shots()[name];
+    this.engine.rig.shot(from, to, at, ms);
   }
 
   hitBoss(times, gap) {
@@ -358,12 +445,17 @@ export class Adventure {
     }
   }
 
-  async decisive() {
+  /**
+   * Satu percobaan Bernoulli tahap ini. Dipicu oleh yang lebih dulu terjadi:
+   * trigger "boss" (HP arca 20%) atau "player" (HP player 1). Peluangnya SAMA: p tahap ini.
+   */
+  async decisive(trigger = "boss") {
     if (this.phase !== "fight") return;
     const s = this.stage;
     const rec = this.records[this.index];
     if (rec.x !== null) return; // hanya satu undian per tahap
     this.phase = "decisive";
+    rec.trigger = trigger;
     this.controls.setEnabled(false);
     this.setTouchVisible(false);
     ui.setHudVisible(false); // kotak peluang tampil di overlay Serangan Penentu
@@ -373,37 +465,54 @@ export class Adventure {
     this.player.setBuff(false);
     this.combat.multiplier = 1;
     this.buffT = 0;
+    this.spells.reset();
+    this.combat.clearHazards();
     this.boss.calm();
     this.player.attack = null;
     this.player.roll = null;
-    this.combat.clearDecal();
     const eng = this.engine;
     const pl = this.player;
     const boss = this.boss;
     const touch = this.controls.touch;
+    const dying = trigger === "player";
+    const pct = (v) => B.fmtPercent(v);
     setMood("decisive");
+    ui.setLetterbox(true);
 
     await this.faceOff();
-    pl.pose = "ready";
-    eng.setTimeScale(0.3); // gerak lambat
-    eng.grading(0.55, 0.75); // desaturasi + vignette lebih gelap
-    eng.rig.startOrbit(pl.position, boss.position);
-    ui.showDecisive(s.p);
-    await wait(1800);
+    // Adegan 1: perkenalan dramatis
+    eng.setTimeScale(0.35);
+    eng.grading(0.5, 0.75);
+    if (dying) {
+      pl.pose = "kneel";
+      this.shot("playerFace", 2200);
+      ui.resiSay(CONFIG.dialog.sekarat.replaceAll("{p}", pct(s.p)));
+    } else {
+      pl.pose = "ready";
+      boss.playCine("slam", null, 0.9); // arca mengangkat lengan dan meraung
+      sfx.roar();
+      this.shot("bossClose", 2200);
+    }
+    ui.showDecisive(s.p, dying ? "Kamu sekarat! Gacha kabur: serang balik atau tumbang?" : "Arca Durgaraksa sekarat! Gacha serangan: menang atau tumbang?");
+    await wait(2300);
+    ui.resiSay(null);
 
-    // QTE 1: tekan = serangan beruntun, tidak = bertahan dari sapuan
-    const q1 = await runQte({ label: "Serangan Beruntun!", keyText: touch ? "KETUK" : "KLIK", mouse: !touch, codes: ["KeyJ"], ms: 1600 });
+    // QTE 1
+    this.shot("overShoulder", 1800);
+    pl.pose = dying ? "kneel" : "ready";
+    const q1 = await runQte({ label: dying ? "Bangkit!" : "Serangan Beruntun!", keyText: touch ? "KETUK" : "KLIK", mouse: !touch, codes: ["KeyJ"], ms: 1600 });
     eng.setTimeScale(1);
     eng.grading(0.2, 0.6);
+    this.shot("sideWide", 1700);
     if (q1) {
-      qteFeedback("Tebasan beruntun!");
+      qteFeedback(dying ? "Bangkit dan menebas!" : "Tebasan beruntun!");
       pl.pose = "normal";
       pl.startAttack(0, boss.position);
       setTimeout(() => pl.startAttack(1, boss.position), 380);
       setTimeout(() => pl.startAttack(2, boss.position), 760);
       this.hitBoss(3, 380);
     } else {
-      qteFeedback("Bertahan!");
+      qteFeedback(dying ? "Bertahan sekuat tenaga!" : "Bertahan!");
       pl.pose = "block";
       boss.playCine("sweep", () => {
         this.combat.spark(pl.position.clone().setY(1.7));
@@ -412,24 +521,27 @@ export class Adventure {
       });
     }
     await wait(1700);
-    pl.pose = "ready";
     await this.faceOff();
-    eng.setTimeScale(0.3);
-    eng.grading(0.55, 0.75);
 
-    // QTE 2: tekan = tebasan dari udara, tidak = berguling menghindari hantaman
-    const q2 = await runQte({ label: "Lompatan!", keyText: touch ? "KETUK" : "SPACE", codes: ["Space"], ms: 1600 });
+    // QTE 2
+    pl.pose = "ready";
+    eng.setTimeScale(0.35);
+    eng.grading(0.5, 0.75);
+    this.shot("lowHero", 1800);
+    const q2 = await runQte({ label: dying ? "Kabur!" : "Lompatan!", keyText: touch ? "KETUK" : "SPACE", codes: ["Space"], ms: 1600 });
     eng.setTimeScale(1);
     eng.grading(0.2, 0.6);
     pl.pose = "normal";
     if (q2) {
-      qteFeedback("Tebasan dari udara!");
+      qteFeedback(dying ? "Melompat menghindar lalu menebas!" : "Tebasan dari udara!");
+      this.shot("lowHero", 1500);
       pl.vy = 8.5;
       pl.grounded = false;
       setTimeout(() => pl.startAttack(2, boss.position), 120);
       this.hitBoss(1, 0);
     } else {
       qteFeedback("Berguling menghindar!");
+      this.shot("sideWide", 1500);
       boss.playCine("slam", () => {
         this.combat.burst(boss.position.clone().addScaledVector(boss.forward(), 2.4 * boss.v.scale).setY(0.2), 0x8a8578, 14);
         eng.rig.shake(0.45);
@@ -438,13 +550,15 @@ export class Adventure {
       setTimeout(() => (pl.roll = { t: 0, dir: pl.facing + Math.PI / 2 }), 200);
     }
     await wait(1700);
-    await this.faceOff();
-    pl.pose = "ready";
-    eng.setTimeScale(0.3);
-    eng.grading(0.6, 0.8);
+    await this.faceOff(3.2);
 
-    // QTE terakhir: tampil sama untuk semua pemain. Menekan atau tidak, hasilnya tetap dari undian.
-    await runQte({ label: "Serangan Terakhir!", keyText: touch ? "KETUK" : "KLIK", mouse: !touch, codes: ["KeyJ", "Space"], ms: 1500 });
+    // Adegan terakhir: keduanya bersiap; QTE terakhir sama untuk semua pemain
+    pl.pose = "ready";
+    eng.setTimeScale(0.25);
+    eng.grading(0.65, 0.85);
+    this.shot("finale", 2600);
+    boss.playCine("slam", null, 1.6);
+    await runQte({ label: dying ? "Serangan Balik!" : "Serangan Terakhir!", keyText: touch ? "KETUK" : "KLIK", mouse: !touch, codes: ["KeyJ", "Space"], ms: 1500 });
     qteFeedback("Hasil ditentukan undian, bukan tombol");
 
     // Satu-satunya undian tahap ini. p diambil dari this.stages (dibekukan saat petualangan dimulai).
@@ -453,33 +567,50 @@ export class Adventure {
     rec.U = roll.U;
     ui.updateHud({ records: this.records });
 
+    // benturan: keduanya menerjang, kilat putih, sejenak berhenti
+    pl.pose = "normal";
+    eng.setTimeScale(1);
+    const bp = boss.position;
+    const dir = pl.position.clone().sub(bp).setY(0).normalize();
+    const from = pl.position.clone();
+    const to = bp.clone().addScaledVector(dir, boss.radius + 1.2);
+    pl.startAttack(2, bp);
+    await tween(260, (k) => pl.position.lerpVectors(from, to, k));
+    sfx.clang();
+    eng.flash(0xffffff, 0.5);
+    this.combat.spark(bp.clone().addScaledVector(dir, boss.radius + 0.4).setY(1.8));
+    eng.setTimeScale(0.05);
+    await wait(320);
     eng.setTimeScale(1);
     eng.grading(0, 0.45);
+
     if (roll.X === 1) {
-      // MENANG: player menebas, arca berlutut
-      pl.pose = "normal";
-      const dir = pl.position.clone().sub(boss.position).setY(0).normalize();
-      const to = boss.position.clone().addScaledVector(dir, boss.radius + 1.3);
-      const from = pl.position.clone();
-      await tween(200, (k) => pl.position.lerpVectors(from, to, k));
-      pl.startAttack(2, boss.position);
+      // MENANG: tebasan penghabisan, arca retak dan berlutut
+      this.shot("lowHero", 2600);
+      pl.startAttack(2, bp);
       setTimeout(() => {
+        boss.calm();
         boss.pose = "kneel";
         boss.poseT = 0;
         boss.flash.value = 1;
-        this.combat.burst(boss.position.clone().setY(1.5), 0xcfd8c8, 24);
-        this.combat.spark(boss.position.clone().setY(2));
+        this.combat.burst(bp.clone().setY(1.5), 0xcfd8c8, 30);
+        this.combat.burst(bp.clone().setY(2.6), 0xffd36b, 16);
+        this.combat.spark(bp.clone().setY(2));
         eng.rig.shake(0.6);
         eng.flash(0xffd36b);
         sfx.win();
         ui.showDecisiveResult(roll.X, roll.U, s.p);
-      }, 330);
+      }, 300);
       setTimeout(() => (pl.pose = "victory"), 1000);
     } else {
-      // KALAH: arca menghantam player
+      // KALAH: arca menghantam player sampai tumbang
+      this.shot("high", 2600);
       boss.playCine("slam", () => {
         pl.pose = "lying";
-        this.combat.burst(pl.position.clone().setY(0.6), 0xff6b6b, 14);
+        const away = pl.position.clone().addScaledVector(dir, 1.6);
+        const start = pl.position.clone();
+        tween(300, (k) => pl.position.lerpVectors(start, away, k));
+        this.combat.burst(pl.position.clone().setY(0.6), 0xff6b6b, 18);
         eng.rig.shake(0.6);
         eng.flash(0xff3b30);
         sfx.lose();
@@ -488,14 +619,25 @@ export class Adventure {
           boss.pose = "triumph";
           boss.poseT = 0;
         }, 500);
-      }, 0.35);
+      }, 0.3);
     }
     await wait(3200);
     ui.hideDecisive();
-    eng.rig.stopOrbit();
+    ui.setLetterbox(false);
     setMood("calm");
 
     if (roll.X === 0) await this.revive();
+    else if (dying) {
+      // percakapan singkat: Resi Bayang tertawa karena keberuntunganmu
+      await playCutscene(
+        CONFIG.dialog.beruntung.map((text) => ({ who: "resi", text })),
+        {
+          playerName: this.student.nama,
+          onLine: () => this.engine.rig.talk(this.mystic.root.position, this.mystic.root.rotation.y, 2.0, 4.2),
+        }
+      );
+    }
+    eng.rig.stopShot();
     this.phase = "result";
     ui.setHudVisible(false);
     ui.showStageResult(s, rec, this.index === this.stages.length - 1);
@@ -601,7 +743,9 @@ export class Adventure {
         });
       }
       this.mystic.update(dt, this.player.position);
-      this.potions.update(dt, this.player, fighting, (type, pos) => this.pickPotion(type, pos));
+      this.potions.update(dt, this.player, fighting, (type, pos) => this.pickPotion(type, pos), !this.spell);
+      this.spells.update(dt);
+      if (input && input.spell) this.castSpell();
       if (fighting) {
         // Ramuan Serangan berakhir setelah durasinya habis
         if (this.buffT > 0) {
@@ -612,8 +756,6 @@ export class Adventure {
             ui.setBuffText(null);
           } else ui.setBuffText(`Ramuan Serangan x${PC.attackMultiplier}: ${Math.ceil(this.buffT)} dtk`);
         }
-        this.rescueCd -= dt;
-        if (this.player.hp <= PC.rescueHpBelow && this.rescueCd <= 0) this.rescue();
       }
       // suara tebasan dan langkah boss
       const atk = this.player.attack;

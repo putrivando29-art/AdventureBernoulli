@@ -3,7 +3,9 @@
 // Ini nilai p BAWAAN. Guru bisa menggantinya lewat Setting Guru di menu utama (js/settings.js)
 // sebelum permainan dimulai; selama sesi berjalan p tidak berubah.
 // Teks {p} dan {q} di dialog diganti peluang menang dan kalah tahap itu (dalam persen).
-// Perlengkapan, ramuan, dan QTE hanya memengaruhi fase hack and slash dan animasi, BUKAN p.
+// Perlengkapan (power), ramuan, sihir, dan QTE hanya memengaruhi fase hack and slash dan animasi, BUKAN p.
+// Serangan Penentu dipicu oleh yang lebih dulu terjadi: HP boss 20% atau HP player 1.
+// Keduanya satu percobaan Bernoulli yang sama dengan peluang p tahap itu.
 
 const deepFreeze = (o) => {
   Object.values(o).forEach((v) => v && typeof v === "object" && deepFreeze(v));
@@ -11,25 +13,22 @@ const deepFreeze = (o) => {
 };
 
 export const CONFIG = deepFreeze({
-  // Jumlah tebasan biasa yang kena sampai HP boss tersisa 20%. Sama untuk semua tahap.
-  // Ramuan Serangan membuat tiap tebasan bernilai lebih, jadi ambang tercapai lebih cepat.
-  bossHitsToThreshold: 90,
-
-  // Ramuan dan pertolongan Resi Bayang selama fase hack and slash.
+  // Ramuan dan gulungan sihir yang muncul di arena selama fase hack and slash.
   potions: {
-    spawnEvery: 9, // detik antar kemunculan ramuan
+    spawnEvery: 8, // detik antar kemunculan benda
     maxOnField: 2,
     heal: 35, // Ramuan Darah menambah HP
-    attackMultiplier: 2, // Ramuan Serangan: tiap tebasan bernilai 2 kali
+    attackMultiplier: 2, // Ramuan Serangan: kerusakan tebasan 2 kali
     attackDuration: 15, // detik
-    rescueHpBelow: 20, // saat sekarat, Resi Bayang menyembuhkan
-    rescueHealTo: 60,
-    rescueCooldown: 25, // detik
+    fireball: 6, // Bola Api: kerusakan = 6 kali kerusakan tebasan tahap itu
+    lightning: 8, // Petir: 8 kali kerusakan tebasan, boss terpaku sebentar
+    lightningStun: 1.5, // detik
   },
 
   stages: [
     {
       id: 1,
+      power: { damage: 10, bossHp: 1000, bossHit: 1.0 }, // kerusakan tebasan, HP boss, kekuatan pukulan boss
       nama: "Tahap 1: Pertemuan Pertama",
       kondisi: "Tanpa perlengkapan",
       kondisiPlayer: "Tanpa perlengkapan, hanya pedang kayu",
@@ -46,6 +45,7 @@ export const CONFIG = deepFreeze({
     },
     {
       id: 2,
+      power: { damage: 14, bossHp: 1000, bossHit: 1.0 }, // kerusakan tebasan, HP boss, kekuatan pukulan boss
       nama: "Tahap 2: Pedang Besi",
       kondisi: "Mendapat pedang besi",
       kondisiPlayer: "Pedang besi bercahaya biru",
@@ -61,6 +61,7 @@ export const CONFIG = deepFreeze({
     },
     {
       id: 3,
+      power: { damage: 17, bossHp: 1000, bossHit: 1.0 }, // kerusakan tebasan, HP boss, kekuatan pukulan boss
       nama: "Tahap 3: Pedang dan Armor",
       kondisi: "Pedang besi dan armor",
       kondisiPlayer: "Pedang besi dan armor perak (helm, pelindung dada, pelindung bahu)",
@@ -76,6 +77,7 @@ export const CONFIG = deepFreeze({
     },
     {
       id: 4,
+      power: { damage: 22, bossHp: 1400, bossHit: 1.25 }, // kerusakan tebasan, HP boss, kekuatan pukulan boss
       nama: "Tahap 4: Arca Bangkit Lebih Kuat",
       kondisi: "Arca Durgaraksa lebih kuat",
       kondisiPlayer: "Pedang ksatria, armor perak, dan perisai ksatria",
@@ -91,6 +93,7 @@ export const CONFIG = deepFreeze({
     },
     {
       id: 5,
+      power: { damage: 28, bossHp: 1800, bossHit: 1.5 }, // kerusakan tebasan, HP boss, kekuatan pukulan boss
       nama: "Tahap 5: Arca Murka",
       kondisi: "Arca Durgaraksa murka",
       kondisiPlayer: "Pedang api, armor emas, perisai emas, dan jubah",
@@ -115,6 +118,11 @@ export const CONFIG = deepFreeze({
     berhenti:
       "Tidak apa-apa beristirahat. Percobaan yang tidak dilakukan tidak punya hasil, jadi tidak dihitung menang ataupun kalah.",
     penutup: "Lihatlah catatanmu. Setiap tahap adalah satu percobaan Bernoulli dengan peluangnya sendiri.",
-    tolong: "Bertahanlah! Kekuatan ini akan memulihkanmu.",
+    // Serangan Penentu yang dipicu saat PLAYER sekarat (peluangnya tetap p tahap itu)
+    sekarat: "Kau sekarat! Satu serangan balik terakhir akan diundi. Peluangnya tetap sama: {p}.",
+    beruntung: [
+      "Hahaha! Kau sangat beruntung, Pengembara!",
+      "Serangan balikmu tepat mengenai retakan di dadanya. Ayo, kita lanjutkan!",
+    ],
   },
 });
