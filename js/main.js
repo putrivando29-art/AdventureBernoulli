@@ -3,6 +3,7 @@
 import { initMenu, showOffline, $, initFullscreen, enterFullscreen } from "./ui.js";
 import { isTouchDevice } from "./controls.js";
 import { initAudio } from "./audio.js";
+import { initTeacher } from "./teacher.js";
 
 let libs = null;
 let adventure = null;
@@ -243,6 +244,7 @@ async function startAdventure(student) {
 async function boot() {
   initMenu((student) => startAdventure(student));
   initFullscreen(isTouchDevice());
+  initTeacher();
   try {
     if (!window.jspdf || !window.jspdf.jsPDF) throw new Error("jsPDF tidak termuat");
     libs = await loadLibs();

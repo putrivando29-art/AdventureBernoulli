@@ -111,16 +111,23 @@ berguling, **sapuan** (satu lengan ditarik ke samping) dihindari dengan jongkok,
 
 - Satu tahap = satu percobaan Bernoulli dengan dua hasil saja: MENANG (X = 1) atau
   KALAH (X = 0). Tidak ada hasil seri.
-- Nilai p tiap tahap ditetapkan di `js/config.js` dan tidak berubah karena cara bermain,
-  sisa HP, pilihan karakter, atau hasil tahap sebelumnya:
+- Nilai p bawaan ada di `js/config.js` dan semuanya berbeda:
 
   | Tahap | Kondisi | p | 1 - p |
   |---|---|---|---|
-  | 1 | Setara, tanpa perlengkapan | 0,5 = 1/2 | 0,5 = 1/2 |
+  | 1 | Tanpa perlengkapan | 0,5 = 1/2 | 0,5 = 1/2 |
   | 2 | Mendapat pedang besi | 0,6 = 3/5 | 0,4 = 2/5 |
   | 3 | Pedang besi dan armor | 0,7 = 7/10 | 0,3 = 3/10 |
-  | 4 | Arca Durgaraksa lebih kuat | 0,5 = 1/2 | 0,5 = 1/2 |
-  | 5 | Arca Durgaraksa murka | 0,4 = 2/5 | 0,6 = 3/5 |
+  | 4 | Arca Durgaraksa lebih kuat | 0,4 = 2/5 | 0,6 = 3/5 |
+  | 5 | Arca Durgaraksa murka | 0,3 = 3/10 | 0,7 = 7/10 |
+
+- **Setting Guru** (menu utama) dapat mengganti p tiap tahap: angka di antara 0 dan 1 dengan
+  paling banyak dua desimal, dan setiap tahap harus berbeda. Nilai tersimpan di browser itu, dan
+  tombol "Salin Tautan untuk Siswa" membuat tautan seperti `.../?p=35-45-80-25-65` agar semua
+  siswa memakai peluang yang sama. Prioritas: tautan, lalu nilai tersimpan, lalu bawaan.
+- p dibaca sekali saat petualangan dimulai lalu dibekukan; selama sesi p tidak berubah karena
+  cara bermain, sisa HP, pilihan karakter, hasil tahap sebelumnya, atau Setting Guru. Rekap dan
+  PDF mencatat sumber nilai p (bawaan, Setting Guru, atau tautan).
 
 - QTE, ramuan, perlengkapan, dan kostum hanya mengubah fase hack and slash dan animasi. Tidak
   satu pun mengubah p; di layar Serangan Penentu tertulis "Tombol yang muncul hanya mengubah
@@ -149,6 +156,10 @@ berguling, **sapuan** (satu lengan ditarik ke samping) dihindari dengan jongkok,
   `js/config.js` (sekarang 90 tebasan kena, Ramuan Serangan x2). Pada uji otomatis, bot yang
   tidak pernah meleset butuh sekitar 50 sampai 57 detik per tahap; durasi untuk siswa
   sungguhan masih perkiraan dan perlu dicek saat uji coba.
+- Siswa juga bisa membuka Setting Guru dan mengubah p sebelum bermain. Periksa baris "Sumber
+  nilai p" di PDF rekap siswa.
+- Badge hosting (misalnya "Powered by Netlify") muncul di pojok kanan bawah dan tidak bisa
+  dihapus dari kode game. Area itu sengaja dikosongkan dari tombol dan teks penting.
 - QTE bisa disalahpahami sebagai penentu hasil. Guru sebaiknya menegaskan bahwa hasil hanya
   dari undian; pertanyaan refleksi nomor 2 dan 3 di PDF membantu membahasnya.
 - Membuka `index.html` dengan klik dua kali menampilkan pesan cara membuka yang benar, karena
@@ -170,5 +181,5 @@ css/style.css
 tests/bernoulli.test.js
 js/  bernoulli.js  config.js  main.js  player.js  boss.js  mystic.js  arena.js
      controls.js  combat.js  stages.js  ui.js  shaders.js  pdf.js  audio.js  browser-tests.js
-     cutscene.js  qte.js  potions.js
+     cutscene.js  qte.js  potions.js  settings.js  teacher.js
 ```

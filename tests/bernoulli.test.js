@@ -9,9 +9,10 @@ const B = require("../js/bernoulli.js");
 const configSrc = fs.readFileSync(path.join(__dirname, "..", "js", "config.js"), "utf8");
 const loadConfig = () => import("data:text/javascript," + encodeURIComponent(configSrc)).then((m) => m.CONFIG);
 
-test("config: 5 tahap dengan p sesuai spesifikasi", async () => {
+test("config: 5 tahap dengan p bawaan yang semuanya berbeda", async () => {
   const CONFIG = await loadConfig();
-  assert.deepEqual(CONFIG.stages.map((s) => s.p), [50, 60, 70, 50, 40]);
+  assert.deepEqual(CONFIG.stages.map((s) => s.p), [50, 60, 70, 40, 30]);
+  assert.equal(new Set(CONFIG.stages.map((s) => s.p)).size, 5);
   assert.deepEqual(CONFIG.stages.map((s) => s.id), [1, 2, 3, 4, 5]);
   CONFIG.stages.forEach((s) => assert.ok(B.isValidP(s.p), `p tahap ${s.id} valid`));
   assert.ok(Number.isInteger(CONFIG.bossHitsToThreshold) && CONFIG.bossHitsToThreshold > 0);
@@ -57,6 +58,16 @@ test("pecahan peluang", () => {
   assert.equal(B.fraction(70), "7/10");
 });
 
+test("format p dua desimal dari Setting Guru", () => {
+  assert.equal(B.fmtP(45), "0,45");
+  assert.equal(B.fmtP(5), "0,05");
+  assert.equal(B.fmtVar(45), "0,2475");
+  assert.equal(B.fmtPmf(0, 45), "0,55");
+  assert.equal(B.fraction(45), "9/20");
+  assert.equal(B.fmtTrim(300, 2, 1), "3,0");
+  assert.equal(B.fmtTrim(275, 2, 1), "2,75");
+});
+
 test("format angka berkoma", () => {
   assert.equal(B.fmtP(60), "0,6");
   assert.equal(B.fmtP(B.complement(60)), "0,4");
@@ -91,14 +102,15 @@ test("decisiveRoll: 10.000 undian p = 60 memberi frekuensi 0,58 sampai 0,62", ()
 });
 
 test("rekap: 5 tahap dimainkan (M M M K M)", () => {
-  const ps = [50, 60, 70, 50, 40];
+  const ps = [50, 60, 70, 40, 30];
   const xs = [1, 1, 1, 0, 1];
   const s = B.summarize(ps.map((p, i) => ({ p, x: xs[i] })));
   assert.equal(s.played, 5);
   assert.equal(s.wins, 4);
   assert.equal(s.losses, 1);
-  assert.deepEqual(B.fmtSequence(s), { decimal: "0,0420", percent: "4,20%" });
-  assert.equal(s.expectedWins, 2.7);
+  // 0,5 x 0,6 x 0,7 x 0,6 x 0,3 = 0,0378
+  assert.deepEqual(B.fmtSequence(s), { decimal: "0,0378", percent: "3,78%" });
+  assert.equal(s.expectedWins, 2.5);
 });
 
 test("rekap: tahap tidak dimainkan tidak dihitung", () => {
@@ -118,7 +130,7 @@ test("rekap: tahap tidak dimainkan tidak dihitung", () => {
 });
 
 test("rekap: belum ada percobaan", () => {
-  const s = B.summarize([50, 60, 70, 50, 40].map((p) => ({ p, x: null })));
+  const s = B.summarize([50, 60, 70, 40, 30].map((p) => ({ p, x: null })));
   assert.equal(s.played, 0);
   assert.equal(s.sequenceProbability, null);
   assert.equal(s.expectedWins, null);

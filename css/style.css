@@ -331,6 +331,35 @@ kbd {
 @keyframes qte-pulse { to { transform: scale(1.07); } }
 .decisive-note { margin: 0; max-width: 560px; font-size: .85rem; font-weight: 600; background: rgba(10,8,20,.85); padding: .35em .8em; border-radius: 8px; border: 1px solid rgba(246,196,83,.35); }
 
+/* zona aman kanan bawah: badge hosting (misalnya "Powered by Netlify") bisa muncul di sana,
+   jadi tombol dan teks penting dijaga di atas zona ini */
+:root { --safe-bottom: 72px; }
+.touch-buttons {
+  bottom: var(--safe-bottom); right: 14px;
+  grid-template-columns: 76px 62px 62px; grid-template-areas: "atk jump crouch" "atk dodge .";
+  align-items: center;
+}
+.tbtn { width: 62px; height: 62px; }
+.tbtn-big { grid-area: atk; width: 76px; height: 76px; justify-self: center; }
+.tbtn[data-touch="jump"] { grid-area: jump; }
+.tbtn[data-touch="crouch"] { grid-area: crouch; }
+.tbtn[data-touch="dodge"] { grid-area: dodge; }
+.resi-box { bottom: var(--safe-bottom); }
+.vn { padding-bottom: var(--safe-bottom); }
+.overlay { padding-bottom: calc(var(--safe-bottom) + 8px); }
+.screen-page.is-active { padding-bottom: calc(var(--safe-bottom) + 16px); }
+.menu-card .p-source { margin: .6rem 0 0; }
+.teacher-rows { display: grid; gap: .8rem; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); margin-bottom: .6rem; }
+.teacher-row { background: rgba(0,0,0,.25); border-radius: 10px; padding: 10px 12px; }
+.teacher-preview { margin: .4rem 0 0; font-size: .8rem; font-weight: 600; }
+.teacher-link { word-break: break-all; background: var(--bg); border: 1px dashed var(--line); padding: .5rem .7rem; border-radius: 8px; user-select: all; }
+
+/* tabel mini dan kotak peluang HUD yang ringkas */
+.prob-mini { font-size: .72rem; }
+.mini-table { display: flex; gap: 4px; padding: 4px 6px; font-size: .68rem; }
+.mini-table li { display: grid; gap: 1px; justify-items: center; }
+.mini-table .tag { padding: 0 .4em; font-size: .62rem; }
+
 /* layar pendek (HP landscape): HUD ringkas agar tidak menutupi tombol sentuh dan area kamera */
 @media (max-height: 500px) {
   .hud { padding: 6px; gap: 6px; }
@@ -340,9 +369,10 @@ kbd {
   .hud-center { padding: 4px 8px; width: min(240px, 28vw); }
   .boss-name { font-size: .75rem; margin-bottom: 2px; }
   .hud-right { gap: 4px; margin-right: 50px; }
-  .prob-mini { font-size: .66rem; padding: 3px 6px; }
+  .prob-mini { font-size: .58rem; padding: 3px 6px; gap: 0; }
   .btn-icon { min-width: 44px; min-height: 44px; }
-  .mini-table { display: flex; gap: 3px; padding: 3px; font-size: .62rem; }
+  .mini-table { display: flex; gap: 2px; padding: 2px 4px; font-size: .55rem; }
+  .mini-table .tag { font-size: .52rem; }
   .mini-table li { display: grid; gap: 1px; justify-items: center; }
   .mini-table .tag { padding: 0 .35em; }
   .sound-btn { top: 6px; right: 6px; }
@@ -360,11 +390,12 @@ kbd {
   .qte-btn { width: 92px; height: 92px; }
   .decisive-note { font-size: .7rem; }
   .decisive-title { font-size: 1.3rem; }
-  .tbtn { width: 56px; height: 56px; }
-  .tbtn-big { width: 70px; height: 70px; }
-  .touch-buttons { grid-template-columns: repeat(2, 56px); gap: 8px; right: 12px; bottom: 10px; }
+  :root { --safe-bottom: 64px; }
+  .tbtn { width: 54px; height: 54px; font-size: .7rem; }
+  .tbtn-big { width: 66px; height: 66px; }
+  .touch-buttons { grid-template-columns: 66px 54px 54px; gap: 6px; right: 12px; }
   .joy-base { left: 24px; bottom: 20px; }
-  .resi-box { bottom: 8px; padding: 8px 10px; font-size: .85rem; }
+  .resi-box { padding: 8px 10px; font-size: .85rem; }
   .decisive { top: 4%; gap: 6px; }
   .decisive .prob-box { font-size: .8rem; padding: 6px 8px; }
   .intro-panel, .pause-panel, .result-panel, .char-panel { padding: 12px 14px; }

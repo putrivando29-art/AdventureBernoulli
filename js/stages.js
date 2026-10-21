@@ -1,6 +1,7 @@
 // Alur 5 tahap: pilih karakter, percakapan singkat, pembuka tahap, hack and slash (dengan ramuan),
 // Serangan Penentu (dengan QTE), kebangkitan, hasil tahap, fitur berhenti, dan rekap.
-// Nilai p SELALU dibaca dari CONFIG dan hanya dipakai di satu undian decisiveRoll per tahap.
+// Nilai p dibaca SEKALI saat petualangan dimulai (bawaan CONFIG atau Setting Guru), dibekukan,
+// dan hanya dipakai di satu undian decisiveRoll per tahap.
 import * as THREE from "three";
 import { CONFIG } from "./config.js";
 import { createArena } from "./arena.js";
@@ -13,7 +14,8 @@ import { Potions, POTION_LABEL } from "./potions.js";
 import { playCutscene } from "./cutscene.js";
 import { runQte, qteFeedback } from "./qte.js";
 import * as ui from "./ui.js";
-import { buildRecapPdf, pdfFileName, REFLECTION } from "./pdf.js";
+import { buildRecapPdf, pdfFileName, reflectionQuestions } from "./pdf.js";
+import { loadPs, SOURCE_LABEL } from "./settings.js";
 import { sfx, setMuted, isMuted, setMood } from "./audio.js";
 
 const B = window.Bernoulli;
@@ -43,6 +45,15 @@ export class Adventure {
     this.index = 0;
     // Satu catatan per tahap. x = null berarti belum/tidak dimainkan (bukan kalah).
     this.records = CONFIG.stages.map((s) => ({ stageId: s.id, x: null, U: null, skipped: false }));
+    // p sesi ini: diambil sekali, lalu dibekukan sampai halaman ditutup.
+    const { ps, source } = loadPs();
+    this.pSource = source;
+    const pct = (v) => B.fmtPercent(v);
+    this.stages = Object.freeze(
+      CONFIG.stages.map((s, i) =>
+        Object.freeze({ ...s, p: ps[i], resi: s.resi.replaceAll("{p}", pct(ps[i])).replaceAll("{q}", pct(B.complement(ps[i]))) })
+      )
+    );
 
     const scene = engine.scene;
     this.arena = createArena(scene, engine.quality);
@@ -87,7 +98,7 @@ export class Adventure {
   }
 
   get stage() {
-    return CONFIG.stages[this.index];
+    return this.stages[this.index];
   }
 
   // ---------- tombol ----------
@@ -209,7 +220,7 @@ export class Adventure {
     this.phase = "intro";
     this.engine.rig.mode = "intro";
     this.engine.rig.yaw = Math.PI;
-    ui.$("#intro-eyebrow").textContent = `Tahap ${s.id} dari ${CONFIG.stages.length}`;
+    ui.$("#intro-eyebrow").textContent = `Tahap ${s.id} dari ${this.stages.length}`;
     ui.$("#intro-title").textContent = s.nama;
     ui.$("#intro-player").textContent = s.kondisiPlayer;
     ui.$("#intro-boss").textContent = s.kondisiBoss;
@@ -436,7 +447,7 @@ export class Adventure {
     await runQte({ label: "Serangan Terakhir!", keyText: touch ? "KETUK" : "KLIK", mouse: !touch, codes: ["KeyJ", "Space"], ms: 1500 });
     qteFeedback("Hasil ditentukan undian, bukan tombol");
 
-    // Satu-satunya undian tahap ini. p diambil langsung dari CONFIG.
+    // Satu-satunya undian tahap ini. p diambil dari this.stages (dibekukan saat petualangan dimulai).
     const roll = B.decisiveRoll(s.p);
     rec.x = roll.X;
     rec.U = roll.U;
@@ -487,7 +498,7 @@ export class Adventure {
     if (roll.X === 0) await this.revive();
     this.phase = "result";
     ui.setHudVisible(false);
-    ui.showStageResult(s, rec, this.index === CONFIG.stages.length - 1);
+    ui.showStageResult(s, rec, this.index === this.stages.length - 1);
   }
 
   /** Cutscene: Resi Bayang membangkitkan player (hanya cerita, tidak mengubah apa pun). */
@@ -516,7 +527,7 @@ export class Adventure {
   // ---------- tahap berikutnya dan rekap ----------
   next() {
     if (this.phase !== "result") return;
-    if (this.index >= CONFIG.stages.length - 1) {
+    if (this.index >= this.stages.length - 1) {
       this.showRecap(CONFIG.dialog.penutup);
       return;
     }
@@ -535,11 +546,12 @@ export class Adventure {
     this.recapData = {
       student: this.student,
       character: this.characterLabel(),
-      stages: CONFIG.stages,
+      stages: this.stages,
+      pSource: SOURCE_LABEL[this.pSource],
       records: this.records,
       closing,
       date: new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }),
-      reflection: REFLECTION,
+      reflection: reflectionQuestions(this.stages),
     };
     ui.renderRecap(this.recapData);
   }

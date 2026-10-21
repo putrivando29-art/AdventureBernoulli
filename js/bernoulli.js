@@ -105,12 +105,25 @@
     return (n < 0 ? "-" : "") + s;
   }
 
-  /** Format p perseratus dengan 1 desimal: 60 -> "0,6". */
-  const fmtP = (p) => fmtFixed(p, 2, 1);
+  /**
+   * Bilangan bulat num / 10^digits ditulis eksak, minimal `minPlaces` desimal,
+   * tanpa nol berlebih di belakang: (60, 2, 1) -> "0,6"; (45, 2, 1) -> "0,45".
+   */
+  function fmtTrim(num, digits, minPlaces) {
+    let s = fmtFixed(num, digits, digits);
+    if (digits === 0) return s;
+    const [i, f] = s.split(",");
+    let frac = f.replace(/0+$/, "");
+    if (frac.length < minPlaces) frac = frac.padEnd(minPlaces, "0");
+    return frac ? i + "," + frac : i;
+  }
+
+  /** Format p perseratus: 1 desimal jika cukup, 2 desimal jika perlu (60 -> "0,6", 45 -> "0,45"). */
+  const fmtP = (p) => fmtTrim(p, 2, 1);
   /** Format p perseratus sebagai persen: 60 -> "60%". */
   const fmtPercent = (p) => p + "%";
-  /** Var(X) dengan 2 desimal, dihitung eksak: 60 -> "0,24". */
-  const fmtVar = (p) => fmtFixed(p * (SCALE - p), 4, 2);
+  /** Var(X) eksak, minimal 2 desimal: 60 -> "0,24", 45 -> "0,2475". */
+  const fmtVar = (p) => fmtTrim(p * (SCALE - p), 4, 2);
   /** P(X = x) dengan 2 desimal: (1, 60) -> "0,60". */
   const fmtPmf = (x, p) => fmtFixed(x === 1 ? p : SCALE - p, 2, 2);
 
@@ -168,6 +181,7 @@
     variance,
     fraction,
     fmtFixed,
+    fmtTrim,
     fmtP,
     fmtPercent,
     fmtVar,

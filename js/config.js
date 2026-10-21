@@ -1,6 +1,8 @@
 // Data 5 tahap Adventure Bernoulli. Satu-satunya sumber nilai p di seluruh game.
 // p disimpan dalam perseratus (60 berarti 0,6) agar cocok dengan js/bernoulli.js.
-// Nilai p ditetapkan di sini dan tidak diubah oleh kode lain mana pun.
+// Ini nilai p BAWAAN. Guru bisa menggantinya lewat Setting Guru di menu utama (js/settings.js)
+// sebelum permainan dimulai; selama sesi berjalan p tidak berubah.
+// Teks {p} dan {q} di dialog diganti peluang menang dan kalah tahap itu (dalam persen).
 // Perlengkapan, ramuan, dan QTE hanya memengaruhi fase hack and slash dan animasi, BUKAN p.
 
 const deepFreeze = (o) => {
@@ -29,13 +31,13 @@ export const CONFIG = deepFreeze({
     {
       id: 1,
       nama: "Tahap 1: Pertemuan Pertama",
-      kondisi: "Setara, tanpa perlengkapan",
+      kondisi: "Tanpa perlengkapan",
       kondisiPlayer: "Tanpa perlengkapan, hanya pedang kayu",
-      kondisiBoss: "Arca Durgaraksa baru bangkit, kekuatannya setara denganmu",
+      kondisiBoss: "Arca Durgaraksa baru bangkit dari tidurnya",
       p: 50,
       gear: { sword: "wood", armor: null, shield: null, cape: false },
       boss: "normal",
-      resi: "Kekuatan kalian setara. Peluangmu menang 50%, peluangmu kalah juga 50%. Jumlahnya selalu 100%.",
+      resi: "Peluangmu menang {p}, peluangmu kalah {q}. Jumlahnya selalu 100%.",
       cutscene: [
         { who: "resi", text: "Kau sudah bangun, Pengembara. Inilah ruang singgasana Swarnadwipa." },
         { who: "arca", text: "SIAPA BERANI MENGUSIK SINGGASANA INI?" },
@@ -51,7 +53,7 @@ export const CONFIG = deepFreeze({
       p: 60,
       gear: { sword: "iron", armor: null, shield: null, cape: false },
       boss: "normal",
-      resi: "Pedang ini membuat peluang menangmu 60%. Tapi 60% bukan berarti pasti menang.",
+      resi: "Dengan pedang ini peluang menangmu {p}. Tapi {p} bukan berarti pasti menang.",
       cutscene: [
         { who: "resi", text: "Ambillah pedang besi ini. Bilahnya jauh lebih tajam." },
         { who: "arca", text: "Pedang baru tidak membuatmu kebal, manusia kecil." },
@@ -66,7 +68,7 @@ export const CONFIG = deepFreeze({
       p: 70,
       gear: { sword: "iron", armor: "silver", shield: null, cape: false },
       boss: "normal",
-      resi: "Dengan pedang dan armor, peluangmu 70%. Kekalahan masih mungkin terjadi.",
+      resi: "Dengan pedang dan armor, peluang menangmu {p}. Kekalahan masih mungkin terjadi.",
       cutscene: [
         { who: "resi", text: "Armor perak ini warisan para penjaga kerajaan. Pakailah." },
         { who: "player", text: "Berat juga... tapi aku siap!" },
@@ -78,10 +80,10 @@ export const CONFIG = deepFreeze({
       kondisi: "Arca Durgaraksa lebih kuat",
       kondisiPlayer: "Pedang ksatria, armor perak, dan perisai ksatria",
       kondisiBoss: "Arca Durgaraksa bangkit lebih kuat, kristal ungu tumbuh di punggungnya",
-      p: 50,
+      p: 40,
       gear: { sword: "knight", armor: "silver", shield: "knight", cape: false },
       boss: "strong",
-      resi: "Sang arca bangkit lebih kuat. Peluangmu kembali 50%.",
+      resi: "Sang arca bangkit lebih kuat. Peluang menangmu kini {p}, peluang kalahmu {q}.",
       cutscene: [
         { who: "arca", text: "Batu-batuku menyatu kembali... LEBIH KERAS DARI SEBELUMNYA!" },
         { who: "resi", text: "Ia menyerap kristal ungu. Bawalah pedang dan perisai ksatria ini." },
@@ -93,10 +95,10 @@ export const CONFIG = deepFreeze({
       kondisi: "Arca Durgaraksa murka",
       kondisiPlayer: "Pedang api, armor emas, perisai emas, dan jubah",
       kondisiBoss: "Arca Durgaraksa murka, tubuhnya diselimuti aura merah",
-      p: 40,
+      p: 30,
       gear: { sword: "flame", armor: "gold", shield: "gold", cape: true },
       boss: "enraged",
-      resi: "Sang arca murka. Peluangmu hanya 40%, tapi peluang kecil bukan berarti pasti kalah.",
+      resi: "Sang arca murka. Peluang menangmu {p}. Apa pun peluangnya, hasilnya baru diketahui setelah undian.",
       cutscene: [
         { who: "arca", text: "CUKUP! RASAKAN MURKA SANG PENJAGA!" },
         { who: "player", text: "Pedang api ini akan menjawabmu." },

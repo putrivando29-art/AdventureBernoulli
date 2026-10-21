@@ -117,13 +117,14 @@ export function updateHud({ stageName, playerHp, bossHp, p, records }) {
   if (bossHp !== undefined) $("#hp-boss").style.width = bossHp + "%";
   if (p !== undefined) {
     const t = probParts(p);
-    $("#hud-prob").innerHTML = `<span class="pb-win">${t.win}</span><span class="pb-lose">${t.lose}</span>`;
+    const b = B();
+    $("#hud-prob").innerHTML = `<span class="pb-win">Menang ${b.fmtPercent(p)} (${b.fraction(p)})</span><span class="pb-lose">Kalah ${b.fmtPercent(b.complement(p))} (${b.fraction(b.complement(p))})</span>`;
   }
   if (records) {
     $("#mini-table").innerHTML = records
       .map((r, i) => {
         const [cls, txt] = r.x === 1 ? ["tag-win", "Menang"] : r.x === 0 ? ["tag-lose", "Kalah"] : r.skipped ? ["tag-none", "Tidak dimainkan"] : ["tag-none", "Belum"];
-        return `<li><span>Tahap ${i + 1}</span><span class="tag ${cls}">${txt}</span></li>`;
+        return `<li><span>T${i + 1}</span><span class="tag ${cls}">${txt}</span></li>`;
       })
       .join("");
   }
@@ -210,7 +211,7 @@ export function showStageResult(stage, record, isLast) {
 }
 
 // ---------- rekap ----------
-export function renderRecap({ student, character, stages, records, closing, date, reflection }) {
+export function renderRecap({ student, character, stages, records, closing, date, reflection, pSource }) {
   const b = B();
   const summary = b.summarize(records.map((r, i) => ({ p: stages[i].p, x: r.x })));
   const rows = stages
@@ -230,7 +231,7 @@ export function renderRecap({ student, character, stages, records, closing, date
     const seq = b.fmtSequence(summary);
     calc = `
       <p>Peluang urutan hasil = ${played.map(({ r, s }) => b.fmtPmf(r.x, s.p)).join(" × ")} = <strong>${seq.decimal}</strong> (${seq.percent}).</p>
-      <p>Jumlah menang yang diharapkan = ${played.map(({ s }) => b.fmtP(s.p)).join(" + ")} = <strong>${b.fmtFixed(summary.expectedNum, 2, 1)}</strong>. Nilai harapan jumlah sama dengan jumlah nilai harapannya.</p>`;
+      <p>Jumlah menang yang diharapkan = ${played.map(({ s }) => b.fmtP(s.p)).join(" + ")} = <strong>${b.fmtTrim(summary.expectedNum, 2, 1)}</strong>. Nilai harapan jumlah sama dengan jumlah nilai harapannya.</p>`;
   }
   $("#recap").innerHTML = `
     <header class="recap-head">
@@ -238,6 +239,7 @@ export function renderRecap({ student, character, stages, records, closing, date
       <p class="muted">Universitas Sriwijaya · by Kelompok 17</p>
       <p>Nama Siswa: <strong>${escapeHtml(student.nama)}</strong> · Kelas: <strong>${escapeHtml(student.kelas)}</strong></p>
       <p class="muted small">Karakter: ${escapeHtml(character)} · ${escapeHtml(date)}</p>
+      <p class="muted small">Sumber nilai p: ${escapeHtml(pSource)}</p>
     </header>
     ${closing ? `<div class="resi-line"><div class="portrait" aria-hidden="true"><i></i><i></i></div><p>${escapeHtml(closing)}</p></div>` : ""}
     <div class="table-scroll"><table class="data-table">

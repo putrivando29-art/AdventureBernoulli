@@ -1,18 +1,22 @@
 // Rekap PDF dengan jsPDF (window.jspdf.jsPDF dari CDN). Rumus ditulis dengan karakter biasa
 // (p^x, tanda minus "-") agar terbaca dengan font standar PDF.
 
-export const REFLECTION = [
-  "Mengapa satu pertarungan melawan Arca Durgaraksa disebut satu percobaan Bernoulli?",
-  "Pada tahap dengan p = 0,7, apakah kamu pasti menang? Jelaskan.",
-  "Apakah kalah di tahap 1 memengaruhi peluang menangmu di tahap 2? Mengapa?",
-];
+/** Pertanyaan refleksi; nomor 2 memakai tahap dengan p terbesar pada sesi ini. */
+export function reflectionQuestions(stages) {
+  const top = stages.reduce((a, s) => (s.p > a.p ? s : a), stages[0]);
+  return [
+    "Mengapa satu pertarungan melawan Arca Durgaraksa disebut satu percobaan Bernoulli?",
+    `Pada tahap ${top.id} dengan p = ${window.Bernoulli.fmtP(top.p)}, apakah kamu pasti menang? Jelaskan.`,
+    "Apakah kalah di tahap 1 memengaruhi peluang menangmu di tahap 2? Mengapa?",
+  ];
+}
 
 export function pdfFileName(nama) {
   const safe = String(nama).normalize("NFKD").replace(/[^A-Za-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
   return `Rekap_Bernoulli_${safe || "Siswa"}.pdf`;
 }
 
-export function buildRecapPdf({ student, character, stages, records, date }) {
+export function buildRecapPdf({ student, character, stages, records, date, pSource, reflection }) {
   const B = window.Bernoulli;
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: "mm", format: "a4" });
@@ -53,7 +57,8 @@ export function buildRecapPdf({ student, character, stages, records, date }) {
   para(`Nama Siswa: ${student.nama}`, 10.5);
   para(`Kelas: ${student.kelas}`, 10.5);
   para(`Karakter: ${character}`, 10.5);
-  para(`Tanggal: ${date}`, 10.5, "normal", 4);
+  para(`Tanggal: ${date}`, 10.5);
+  para(`Sumber nilai p: ${pSource}`, 10.5, "normal", 4);
 
   // tabel
   const cols = [
@@ -111,7 +116,7 @@ export function buildRecapPdf({ student, character, stages, records, date }) {
       10.5, "normal", 2.5
     );
     para(
-      `Jumlah menang yang diharapkan (jumlah p tahap yang dimainkan) = ${played.map(({ s }) => B.fmtP(s.p)).join(" + ")} = ${B.fmtFixed(summary.expectedNum, 2, 1)}. ` +
+      `Jumlah menang yang diharapkan (jumlah p tahap yang dimainkan) = ${played.map(({ s }) => B.fmtP(s.p)).join(" + ")} = ${B.fmtTrim(summary.expectedNum, 2, 1)}. ` +
         "Nilai harapan jumlah sama dengan jumlah nilai harapannya.",
       10.5, "normal", 2.5
     );
@@ -120,7 +125,7 @@ export function buildRecapPdf({ student, character, stages, records, date }) {
 
   // pertanyaan refleksi dengan ruang tulis tangan
   para("Pertanyaan Refleksi", 12, "bold", 3);
-  REFLECTION.forEach((q, i) => {
+  reflection.forEach((q, i) => {
     para(`${i + 1}) ${q}`, 10.5, "normal", 2);
     ensure(26);
     doc.setDrawColor(200);
