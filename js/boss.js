@@ -233,6 +233,24 @@ export class Boss {
     const s = this.v.scale;
     let moving = 0;
 
+    if (!ctx.ai && this.cine) {
+      // animasi serangan untuk adegan (tanpa memberi kerusakan)
+      this.stateT -= dt;
+      if (this.stateT <= 0) {
+        if (this.state === "telegraph") {
+          this.state = "strike";
+          this.stateT = 0.35;
+          this.cine.onStrike?.();
+        } else if (this.state === "strike") {
+          this.state = "recover";
+          this.stateT = 0.6;
+        } else {
+          this.state = "idle";
+          this.attack = null;
+          this.cine = null;
+        }
+      }
+    }
     if (ctx.ai && this.pose === "normal") {
       this.stateT -= dt;
       const turnTo = (rate) => {
@@ -294,6 +312,15 @@ export class Boss {
     this.state = "idle";
     this.stateT = 1;
     this.attack = null;
+    this.cine = null;
+  }
+
+  /** Mainkan satu animasi serangan untuk adegan Serangan Penentu. onStrike dipanggil saat pukulan mendarat. */
+  playCine(type, onStrike, windup = 0.45) {
+    this.attack = { type, id: Math.random() };
+    this.state = "telegraph";
+    this.stateT = windup;
+    this.cine = { onStrike };
   }
 
   // ---------- animasi prosedural ----------
@@ -307,7 +334,8 @@ export class Boss {
     let lean = 0.08 + Math.sin(t * 1.6) * 0.02, twist = 0, headX = 0, drop = 0;
 
     const st = this.state;
-    const tele = st === "telegraph" ? 1 - Math.max(0, this.stateT) / this.v.tele : 0;
+    const teleDur = this.cine ? 0.45 : this.v.tele;
+    const tele = st === "telegraph" ? 1 - Math.max(0, this.stateT) / teleDur : 0;
     const strikeK = st === "strike" ? 1 - Math.max(0, this.stateT) / 0.35 : 0;
     const type = this.attack?.type;
 

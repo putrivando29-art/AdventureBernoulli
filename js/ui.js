@@ -81,9 +81,15 @@ export const CONTROLS_HP = [
   "Tombol jeda di kanan atas",
 ];
 
+const TIPS = [
+  "Ramuan Darah (merah): tambah HP. Ramuan Serangan (oranye): tebasan 2 kali lebih kuat selama 15 detik. Sentuh untuk mengambil.",
+  "Serangan Penentu: tombol yang muncul hanya memilih gaya serangan, tidak mengubah peluang menang.",
+];
+
 export function controlsHtml(touch) {
   const list = touch ? CONTROLS_HP : CONTROLS_LAPTOP;
   return `<h3>Kontrol ${touch ? "HP" : "Laptop"}</h3><ul>${list.map((l) => `<li>${l}</li>`).join("")}</ul>` +
+    `<h3>Tips</h3><ul>${TIPS.map((l) => `<li>${l}</li>`).join("")}</ul>` +
     (touch ? `<p class="muted small">Putar HP ke mode landscape agar lebih nyaman.</p>` : "");
 }
 
@@ -124,7 +130,7 @@ export function updateHud({ stageName, playerHp, bossHp, p, records }) {
 }
 
 let promptTimer = 0;
-export function setPrompt(text) {
+export function setPrompt(text, kind = "warn") {
   const el = $("#prompt");
   clearTimeout(promptTimer);
   if (!text) {
@@ -132,6 +138,7 @@ export function setPrompt(text) {
     return;
   }
   el.textContent = text;
+  el.className = "prompt prompt-" + kind;
   el.hidden = false;
   promptTimer = setTimeout(() => (el.hidden = true), 2500);
 }
@@ -252,4 +259,90 @@ export function renderRecap({ student, character, stages, records, closing, date
     </div>`;
   showOverlay("#ov-recap");
   return summary;
+}
+
+// ---------- layar penuh ----------
+export function fullscreenSupported() {
+  return !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
+}
+
+const isFullscreen = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+
+export function enterFullscreen() {
+  if (!fullscreenSupported() || isFullscreen()) return;
+  const el = document.documentElement;
+  try {
+    const r = (el.requestFullscreen || el.webkitRequestFullscreen).call(el, { navigationUI: "hide" });
+    if (r && r.catch) r.catch(() => {});
+  } catch (e) {
+    /* ditolak browser: game tetap jalan */
+  }
+}
+
+export function toggleFullscreen() {
+  if (isFullscreen()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+  else enterFullscreen();
+}
+
+/** Tombol [data-fullscreen] di menu, menu jeda, dan pojok layar game. */
+export function initFullscreen(isTouch) {
+  const btns = document.querySelectorAll("[data-fullscreen]");
+  if (!fullscreenSupported()) {
+    btns.forEach((b) => (b.hidden = true));
+    if (isTouch) $("#fs-note").hidden = false;
+    return;
+  }
+  btns.forEach((b) => b.addEventListener("click", toggleFullscreen));
+  const sync = () =>
+    btns.forEach((b) => {
+      if (b.classList.contains("fs-corner")) b.setAttribute("aria-label", isFullscreen() ? "Keluar layar penuh" : "Layar penuh");
+      else b.textContent = isFullscreen() ? "Keluar Layar Penuh" : "Layar Penuh";
+    });
+  document.addEventListener("fullscreenchange", sync);
+  document.addEventListener("webkitfullscreenchange", sync);
+}
+
+// ---------- pilih karakter ----------
+const hex = (n) => "#" + n.toString(16).padStart(6, "0");
+
+export function renderCharOptions(options, look) {
+  $("#char-options").innerHTML = Object.entries(options)
+    .map(([key, opt]) => {
+      const items = Object.entries(opt.items)
+        .map(([val, [label, color]]) => {
+          const sw = color !== undefined ? `<i class="sw" style="background:${hex(color)}"></i>` : "";
+          return `<button type="button" class="btn chip-btn" data-value="${val}" aria-pressed="${look[key] === val}">${sw}${label}</button>`;
+        })
+        .join("");
+      return `<fieldset class="choice"><legend>${opt.label}</legend><div class="choice-row" data-choice="${key}">${items}</div></fieldset>`;
+    })
+    .join("");
+}
+
+/** Deskripsi kostum untuk rekap, misalnya "Perempuan, kulit sawo matang, rambut panjang hitam, baju ungu". */
+export function lookLabel(options, look) {
+  const l = (k) => options[k].items[look[k]][0].toLowerCase();
+  const parts = [
+    options.gender.items[look.gender][0],
+    "kulit " + l("skin"),
+    `rambut ${l("hairStyle")} ${l("hair")}`,
+    "baju " + l("shirt"),
+    "celana " + l("pants"),
+  ];
+  if (look.accessory !== "none") parts.push(l("accessory"));
+  return parts.join(", ");
+}
+
+export function lookColors(options, look) {
+  return {
+    skin: hex(options.skin.items[look.skin][1]),
+    hair: hex(options.hair.items[look.hair][1]),
+    shirt: hex(options.shirt.items[look.shirt][1]),
+  };
+}
+
+export function setBuffText(text) {
+  const el = $("#hud-buff");
+  el.hidden = !text;
+  if (text) el.textContent = text;
 }

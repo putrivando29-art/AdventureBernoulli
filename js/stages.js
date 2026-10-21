@@ -1,33 +1,45 @@
-// Alur 5 tahap: pilih karakter, pembuka tahap, hack and slash, Serangan Penentu, kebangkitan,
-// hasil tahap, fitur berhenti, dan rekap. Nilai p SELALU dibaca dari CONFIG; tidak ada jalur lain.
+// Alur 5 tahap: pilih karakter, percakapan singkat, pembuka tahap, hack and slash (dengan ramuan),
+// Serangan Penentu (dengan QTE), kebangkitan, hasil tahap, fitur berhenti, dan rekap.
+// Nilai p SELALU dibaca dari CONFIG dan hanya dipakai di satu undian decisiveRoll per tahap.
 import * as THREE from "three";
 import { CONFIG } from "./config.js";
 import { createArena } from "./arena.js";
-import { Player } from "./player.js";
+import { Player, LOOK_OPTIONS, DEFAULT_LOOK } from "./player.js";
 import { Boss } from "./boss.js";
 import { Mystic } from "./mystic.js";
 import { Combat } from "./combat.js";
 import { Controls } from "./controls.js";
+import { Potions, POTION_LABEL } from "./potions.js";
+import { playCutscene } from "./cutscene.js";
+import { runQte, qteFeedback } from "./qte.js";
 import * as ui from "./ui.js";
 import { buildRecapPdf, pdfFileName, REFLECTION } from "./pdf.js";
-import { sfx, setMuted, isMuted } from "./audio.js";
+import { sfx, setMuted, isMuted, setMood } from "./audio.js";
 
 const B = window.Bernoulli;
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+/** Jalankan fn(k) dengan k 0..1 selama ms milidetik (waktu nyata). */
+const tween = (ms, fn) =>
+  new Promise((resolve) => {
+    const t0 = performance.now();
+    const step = () => {
+      const k = Math.min(1, (performance.now() - t0) / ms);
+      fn(k * k * (3 - 2 * k));
+      if (k < 1) requestAnimationFrame(step);
+      else resolve();
+    };
+    step();
+  });
 const PLAYER_START = new THREE.Vector3(0, 0, 7);
 const BOSS_START = new THREE.Vector3(0, 0, -3);
-const LOOK_LABEL = {
-  gender: { laki: "Laki-laki", perempuan: "Perempuan" },
-  shirt: { biru: "baju biru", merah: "baju merah", hijau: "baju hijau", ungu: "baju ungu" },
-  hair: { hitam: "rambut hitam", cokelat: "rambut cokelat", pirang: "rambut pirang" },
-};
+const PC = CONFIG.potions;
 
 export class Adventure {
   constructor(engine, student) {
     this.engine = engine;
     this.student = student;
-    this.look = { gender: "laki", shirt: "biru", hair: "hitam" };
-    this.phase = "char"; // char | intro | fight | paused | decisive | revive | result | recap
+    this.look = { ...DEFAULT_LOOK };
+    this.phase = "char"; // char | cutscene | intro | fight | paused | decisive | revive | result | recap
     this.index = 0;
     // Satu catatan per tahap. x = null berarti belum/tidak dimainkan (bukan kalah).
     this.records = CONFIG.stages.map((s) => ({ stageId: s.id, x: null, U: null, skipped: false }));
@@ -40,6 +52,7 @@ export class Adventure {
     scene.add(this.player.root, this.boss.root, this.mystic.root);
     this.mysticHome = new THREE.Vector3(-4.5, 0, -10.5);
     this.mystic.root.position.copy(this.mysticHome);
+    this.potions = new Potions(scene, PC, this.arena.colliders);
 
     this.controls = new Controls(engine.renderer.domElement);
     this.controls.onPause = () => this.pause();
@@ -65,6 +78,8 @@ export class Adventure {
     });
     this.lastAttackId = null;
     this.lastStep = 0;
+    this.buffT = 0;
+    this.rescueCd = 0;
 
     this.bindUi();
     engine.onFrame((dt, real) => this.frame(dt, real));
@@ -81,12 +96,22 @@ export class Adventure {
       const btn = e.target.closest("[data-value]");
       if (!btn) return;
       const key = btn.parentElement.dataset.choice;
-      this.look[key] = btn.dataset.value;
+      const val = btn.dataset.value;
+      // ganti tubuh: gaya rambut bawaan ikut menyesuaikan (masih bisa diubah)
+      if (key === "gender" && ["pendek", "panjang"].includes(this.look.hairStyle)) this.look.hairStyle = val === "perempuan" ? "panjang" : "pendek";
+      this.look[key] = val;
       this.player.setLook(this.look);
-      this.player.setGear(CONFIG.stages[0].gear);
       this.syncChoiceButtons();
     });
-    ui.$("#btn-pick").addEventListener("click", () => this.showIntro(0));
+    ui.$("#btn-random").addEventListener("click", () => {
+      for (const [key, opt] of Object.entries(LOOK_OPTIONS)) {
+        const vals = Object.keys(opt.items);
+        this.look[key] = vals[Math.floor(Math.random() * vals.length)];
+      }
+      this.player.setLook(this.look);
+      this.syncChoiceButtons();
+    });
+    ui.$("#btn-pick").addEventListener("click", () => this.startStage(0));
     ui.$("#btn-fight").addEventListener("click", () => this.beginFight());
     ui.$("#btn-sound").addEventListener("click", () => {
       setMuted(!isMuted());
@@ -127,7 +152,7 @@ export class Adventure {
   }
 
   characterLabel() {
-    return `${LOOK_LABEL.gender[this.look.gender]}, ${LOOK_LABEL.shirt[this.look.shirt]}, ${LOOK_LABEL.hair[this.look.hair]}`;
+    return ui.lookLabel(LOOK_OPTIONS, this.look);
   }
 
   // ---------- pilih karakter ----------
@@ -137,30 +162,53 @@ export class Adventure {
     this.player.setGear(CONFIG.stages[0].gear);
     this.boss.root.visible = false;
     this.engine.rig.mode = "preview";
-    this.syncChoiceButtons();
+    ui.renderCharOptions(LOOK_OPTIONS, this.look);
     ui.setHudVisible(false);
     ui.showOverlay("#ov-char");
+    setMood("calm");
   }
 
-  // ---------- pembuka tahap ----------
-  showIntro(i) {
+  // ---------- awal tahap: percakapan singkat lalu layar pembuka ----------
+  async startStage(i) {
     this.index = i;
     const s = this.stage;
-    this.phase = "intro";
+    this.phase = "cutscene";
     this.controls.setEnabled(false);
+    this.setTouchVisible(false);
     this.player.reset(PLAYER_START, Math.PI);
     this.player.setGear(s.gear);
+    this.player.setBuff(false);
     this.boss.root.visible = true;
     this.boss.setVariant(s.boss);
     this.boss.reset(BOSS_START, 0);
     this.boss.pose = "normal";
     this.mystic.root.position.copy(this.mysticHome);
     this.combat.reset(CONFIG.bossHitsToThreshold);
-    this.engine.rig.mode = "intro";
-    this.engine.rig.yaw = Math.PI;
+    this.potions.reset();
     ui.setHudVisible(false);
     ui.resiSay(null);
+    ui.showOverlay(null);
+    setMood("calm");
 
+    const rig = this.engine.rig;
+    await playCutscene(s.cutscene, {
+      playerName: this.student.nama,
+      playerColors: ui.lookColors(LOOK_OPTIONS, this.look),
+      onLine: (line) => {
+        if (line.who === "arca") rig.talk(this.boss.position, this.boss.facing, 3.0, 7.5);
+        else if (line.who === "resi") rig.talk(this.mystic.root.position, this.mystic.root.rotation.y, 2.0, 4.2);
+        else rig.talk(this.player.position, this.player.facing, 1.4, 3.2);
+      },
+    });
+    this.showIntro();
+  }
+
+  showIntro() {
+    const s = this.stage;
+    const i = this.index;
+    this.phase = "intro";
+    this.engine.rig.mode = "intro";
+    this.engine.rig.yaw = Math.PI;
     ui.$("#intro-eyebrow").textContent = `Tahap ${s.id} dari ${CONFIG.stages.length}`;
     ui.$("#intro-title").textContent = s.nama;
     ui.$("#intro-player").textContent = s.kondisiPlayer;
@@ -180,10 +228,14 @@ export class Adventure {
     ui.showOverlay(null);
     ui.setHudVisible(true);
     ui.updateHud({ stageName: this.stage.nama, playerHp: 100, bossHp: 100, p: this.stage.p, records: this.records });
+    ui.setBuffText(null);
+    this.buffT = 0;
+    this.rescueCd = 0;
     this.engine.rig.mode = "follow";
     this.controls.setEnabled(true);
     this.setTouchVisible(true);
     this.refreshLockHint();
+    setMood("battle");
     this.engine.renderer.domElement.focus?.();
   }
 
@@ -209,6 +261,7 @@ export class Adventure {
     ui.$("#pause-controls").hidden = true;
     ui.$("#btn-controls").setAttribute("aria-expanded", "false");
     ui.showOverlay("#ov-pause");
+    setMood("calm");
   }
 
   resume() {
@@ -218,11 +271,12 @@ export class Adventure {
     this.controls.setEnabled(true);
     this.setTouchVisible(true);
     this.refreshLockHint();
+    setMood("battle");
   }
 
   // ---------- berhenti ----------
   async requestStop() {
-    // Tidak bisa berhenti saat Serangan Penentu atau kebangkitan berlangsung.
+    // Tidak bisa berhenti saat percakapan, Serangan Penentu, atau kebangkitan berlangsung.
     if (!["intro", "paused", "result"].includes(this.phase)) return;
     const ok = await ui.confirmStop();
     if (!ok || !["intro", "paused", "result"].includes(this.phase)) return;
@@ -233,7 +287,66 @@ export class Adventure {
     this.showRecap(CONFIG.dialog.berhenti);
   }
 
-  // ---------- Serangan Penentu ----------
+  // ---------- ramuan dan pertolongan Resi ----------
+  pickPotion(type, pos) {
+    const pl = this.player;
+    sfx.potion();
+    if (type === "darah") {
+      const before = pl.hp;
+      pl.hp = Math.min(100, pl.hp + PC.heal);
+      this.combat.number(pos.setY(1.6), "+" + (pl.hp - before) + " HP", "dmg-heal");
+      ui.updateHud({ playerHp: pl.hp });
+    } else {
+      this.buffT = PC.attackDuration;
+      this.combat.multiplier = PC.attackMultiplier;
+      pl.setBuff(true);
+      this.combat.number(pos.setY(1.6), "Serangan x" + PC.attackMultiplier, "dmg-buff");
+    }
+    ui.setPrompt(POTION_LABEL[type] + "!", "good");
+  }
+
+  rescue() {
+    // Saat sekarat, Resi Bayang memulihkan HP agar tidak tertahan di 1.
+    const pl = this.player;
+    pl.hp = Math.max(pl.hp, PC.rescueHealTo);
+    this.rescueCd = PC.rescueCooldown;
+    ui.updateHud({ playerHp: pl.hp });
+    ui.resiSay(CONFIG.dialog.tolong, 2500);
+    this.combat.burst(pl.position.clone().setY(1.0), 0x5bff9a, 12);
+    this.engine.flash(0x5bff9a, 0.25);
+    sfx.potion();
+  }
+
+  // ---------- Serangan Penentu dengan QTE ----------
+  /** Letakkan player tepat di depan boss, saling berhadapan. */
+  async faceOff(dist = 2.3) {
+    const bp = this.boss.position;
+    const pp = this.player.position;
+    let dx = pp.x - bp.x;
+    let dz = pp.z - bp.z;
+    const len = Math.hypot(dx, dz) || 1;
+    dx /= len;
+    dz /= len;
+    const target = new THREE.Vector3(bp.x + dx * (this.boss.radius + dist), 0, bp.z + dz * (this.boss.radius + dist));
+    const from = pp.clone();
+    this.boss.facing = Math.atan2(-dx, -dz);
+    this.player.facing = Math.atan2(-dx, -dz) + Math.PI;
+    await tween(350, (k) => this.player.position.lerpVectors(from, target, k));
+  }
+
+  hitBoss(times, gap) {
+    for (let n = 0; n < times; n++) {
+      setTimeout(() => {
+        this.boss.flash.value = 1;
+        const p = this.boss.position.clone().setY(1.6 + Math.random() * 1.2);
+        this.combat.spark(p);
+        this.combat.burst(p, 0xcfd8c8, 8);
+        this.engine.rig.shake(0.25);
+        sfx.hit();
+      }, 150 + n * gap);
+    }
+  }
+
   async decisive() {
     if (this.phase !== "fight") return;
     const s = this.stage;
@@ -242,19 +355,86 @@ export class Adventure {
     this.phase = "decisive";
     this.controls.setEnabled(false);
     this.setTouchVisible(false);
+    ui.setHudVisible(false); // kotak peluang tampil di overlay Serangan Penentu
     ui.setLockHint(false);
     ui.setPrompt(null);
+    ui.setBuffText(null);
+    this.player.setBuff(false);
+    this.combat.multiplier = 1;
+    this.buffT = 0;
     this.boss.calm();
     this.player.attack = null;
     this.player.roll = null;
-    this.player.pose = "ready";
     this.combat.clearDecal();
     const eng = this.engine;
-    eng.setTimeScale(0.25); // gerak lambat
+    const pl = this.player;
+    const boss = this.boss;
+    const touch = this.controls.touch;
+    setMood("decisive");
+
+    await this.faceOff();
+    pl.pose = "ready";
+    eng.setTimeScale(0.3); // gerak lambat
     eng.grading(0.55, 0.75); // desaturasi + vignette lebih gelap
-    eng.rig.startOrbit(this.player.position, this.boss.position);
+    eng.rig.startOrbit(pl.position, boss.position);
     ui.showDecisive(s.p);
-    await wait(3200);
+    await wait(1800);
+
+    // QTE 1: tekan = serangan beruntun, tidak = bertahan dari sapuan
+    const q1 = await runQte({ label: "Serangan Beruntun!", keyText: touch ? "KETUK" : "KLIK", mouse: !touch, codes: ["KeyJ"], ms: 1600 });
+    eng.setTimeScale(1);
+    eng.grading(0.2, 0.6);
+    if (q1) {
+      qteFeedback("Tebasan beruntun!");
+      pl.pose = "normal";
+      pl.startAttack(0, boss.position);
+      setTimeout(() => pl.startAttack(1, boss.position), 380);
+      setTimeout(() => pl.startAttack(2, boss.position), 760);
+      this.hitBoss(3, 380);
+    } else {
+      qteFeedback("Bertahan!");
+      pl.pose = "block";
+      boss.playCine("sweep", () => {
+        this.combat.spark(pl.position.clone().setY(1.7));
+        sfx.clang();
+        eng.rig.shake(0.35);
+      });
+    }
+    await wait(1700);
+    pl.pose = "ready";
+    await this.faceOff();
+    eng.setTimeScale(0.3);
+    eng.grading(0.55, 0.75);
+
+    // QTE 2: tekan = tebasan dari udara, tidak = berguling menghindari hantaman
+    const q2 = await runQte({ label: "Lompatan!", keyText: touch ? "KETUK" : "SPACE", codes: ["Space"], ms: 1600 });
+    eng.setTimeScale(1);
+    eng.grading(0.2, 0.6);
+    pl.pose = "normal";
+    if (q2) {
+      qteFeedback("Tebasan dari udara!");
+      pl.vy = 8.5;
+      pl.grounded = false;
+      setTimeout(() => pl.startAttack(2, boss.position), 120);
+      this.hitBoss(1, 0);
+    } else {
+      qteFeedback("Berguling menghindar!");
+      boss.playCine("slam", () => {
+        this.combat.burst(boss.position.clone().addScaledVector(boss.forward(), 2.4 * boss.v.scale).setY(0.2), 0x8a8578, 14);
+        eng.rig.shake(0.45);
+        sfx.step();
+      });
+      setTimeout(() => (pl.roll = { t: 0, dir: pl.facing + Math.PI / 2 }), 200);
+    }
+    await wait(1700);
+    await this.faceOff();
+    pl.pose = "ready";
+    eng.setTimeScale(0.3);
+    eng.grading(0.6, 0.8);
+
+    // QTE terakhir: tampil sama untuk semua pemain. Menekan atau tidak, hasilnya tetap dari undian.
+    await runQte({ label: "Serangan Terakhir!", keyText: touch ? "KETUK" : "KLIK", mouse: !touch, codes: ["KeyJ", "Space"], ms: 1500 });
+    qteFeedback("Hasil ditentukan undian, bukan tombol");
 
     // Satu-satunya undian tahap ini. p diambil langsung dari CONFIG.
     const roll = B.decisiveRoll(s.p);
@@ -264,33 +444,45 @@ export class Adventure {
 
     eng.setTimeScale(1);
     eng.grading(0, 0.45);
-    ui.showDecisiveResult(roll.X, roll.U, s.p);
     if (roll.X === 1) {
-      eng.flash(0xffd36b);
-      sfx.win();
-      this.player.pose = "normal";
-      this.player.startAttack(2, this.boss.position);
+      // MENANG: player menebas, arca berlutut
+      pl.pose = "normal";
+      const dir = pl.position.clone().sub(boss.position).setY(0).normalize();
+      const to = boss.position.clone().addScaledVector(dir, boss.radius + 1.3);
+      const from = pl.position.clone();
+      await tween(200, (k) => pl.position.lerpVectors(from, to, k));
+      pl.startAttack(2, boss.position);
       setTimeout(() => {
-        this.boss.pose = "kneel";
-        this.boss.poseT = 0;
-        this.boss.flash.value = 1;
-        this.combat.burst(this.boss.position.clone().setY(1.5), 0xcfd8c8, 20);
-        eng.rig.shake(0.5);
-      }, 350);
-      setTimeout(() => (this.player.pose = "victory"), 900);
+        boss.pose = "kneel";
+        boss.poseT = 0;
+        boss.flash.value = 1;
+        this.combat.burst(boss.position.clone().setY(1.5), 0xcfd8c8, 24);
+        this.combat.spark(boss.position.clone().setY(2));
+        eng.rig.shake(0.6);
+        eng.flash(0xffd36b);
+        sfx.win();
+        ui.showDecisiveResult(roll.X, roll.U, s.p);
+      }, 330);
+      setTimeout(() => (pl.pose = "victory"), 1000);
     } else {
-      eng.flash(0xff3b30);
-      sfx.lose();
-      this.boss.pose = "triumph";
-      this.boss.poseT = 0;
-      setTimeout(() => {
-        this.player.pose = "lying";
-        eng.rig.shake(0.5);
-      }, 300);
+      // KALAH: arca menghantam player
+      boss.playCine("slam", () => {
+        pl.pose = "lying";
+        this.combat.burst(pl.position.clone().setY(0.6), 0xff6b6b, 14);
+        eng.rig.shake(0.6);
+        eng.flash(0xff3b30);
+        sfx.lose();
+        ui.showDecisiveResult(roll.X, roll.U, s.p);
+        setTimeout(() => {
+          boss.pose = "triumph";
+          boss.poseT = 0;
+        }, 500);
+      }, 0.35);
     }
-    await wait(2600);
+    await wait(3200);
     ui.hideDecisive();
     eng.rig.stopOrbit();
+    setMood("calm");
 
     if (roll.X === 0) await this.revive();
     this.phase = "result";
@@ -307,16 +499,7 @@ export class Adventure {
     const from = m.root.position.clone();
     this.engine.rig.focusOn(p, 6.5);
     ui.resiSay(CONFIG.dialog.kalah);
-    const t0 = performance.now();
-    await new Promise((resolve) => {
-      const step = () => {
-        const k = Math.min(1, (performance.now() - t0) / 1400);
-        m.root.position.lerpVectors(from, target, k * k * (3 - 2 * k));
-        if (k < 1) requestAnimationFrame(step);
-        else resolve();
-      };
-      step();
-    });
+    await tween(1400, (k) => m.root.position.lerpVectors(from, target, k));
     // 5. shader kebangkitan: player muncul kembali dari tak terlihat (dissolve 1 -> 0, sekitar 1,5 detik)
     const pl = this.player;
     pl.setDissolve(1);
@@ -324,16 +507,8 @@ export class Adventure {
     pl.hp = 100;
     sfx.revive();
     this.engine.flash(0x4da6ff, 0.3);
-    const t1 = performance.now();
-    await new Promise((resolve) => {
-      const step = () => {
-        const k = Math.min(1, (performance.now() - t1) / 1500);
-        pl.setDissolve(1 - k);
-        if (k < 1) requestAnimationFrame(step);
-        else resolve();
-      };
-      step();
-    });
+    await tween(1500, (k) => pl.setDissolve(1 - k));
+    pl.setDissolve(0);
     await wait(2000);
     ui.resiSay(null);
   }
@@ -345,7 +520,7 @@ export class Adventure {
       this.showRecap(CONFIG.dialog.penutup);
       return;
     }
-    this.showIntro(this.index + 1);
+    this.startStage(this.index + 1);
   }
 
   showRecap(closing) {
@@ -355,6 +530,7 @@ export class Adventure {
     ui.setHudVisible(false);
     ui.setLockHint(false);
     ui.resiSay(null);
+    setMood("calm");
     this.engine.rig.mode = "intro";
     this.recapData = {
       student: this.student,
@@ -413,6 +589,20 @@ export class Adventure {
         });
       }
       this.mystic.update(dt, this.player.position);
+      this.potions.update(dt, this.player, fighting, (type, pos) => this.pickPotion(type, pos));
+      if (fighting) {
+        // Ramuan Serangan berakhir setelah durasinya habis
+        if (this.buffT > 0) {
+          this.buffT -= dt;
+          if (this.buffT <= 0) {
+            this.combat.multiplier = 1;
+            this.player.setBuff(false);
+            ui.setBuffText(null);
+          } else ui.setBuffText(`Ramuan Serangan x${PC.attackMultiplier}: ${Math.ceil(this.buffT)} dtk`);
+        }
+        this.rescueCd -= dt;
+        if (this.player.hp <= PC.rescueHpBelow && this.rescueCd <= 0) this.rescue();
+      }
       // suara tebasan dan langkah boss
       const atk = this.player.attack;
       if (atk && atk.id !== this.lastAttackId) sfx.slash();

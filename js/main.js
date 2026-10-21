@@ -1,6 +1,6 @@
 // Titik masuk game. Three.js dimuat lewat import map secara dinamis, sehingga jika gagal
 // (tidak ada internet) pesan yang jelas tetap bisa ditampilkan.
-import { initMenu, showOffline, $ } from "./ui.js";
+import { initMenu, showOffline, $, initFullscreen, enterFullscreen } from "./ui.js";
 import { isTouchDevice } from "./controls.js";
 import { initAudio } from "./audio.js";
 
@@ -154,6 +154,14 @@ function createRig(THREE, camera) {
     },
     stopOrbit() { this.mode = "follow"; },
     focusOn(p, d) { this.focus.point.set(p.x, 0.8, p.z); this.focus.dist = d; this.mode = "focus"; },
+    /** Kamera percakapan: di depan pembicara (arah hadap facing), melihat setinggi kepala. */
+    talk(p, facing, headY, dist) {
+      this.talkLook = new THREE.Vector3(p.x, headY, p.z);
+      const side = new THREE.Vector3(Math.cos(facing), 0, -Math.sin(facing));
+      this.talkPos = new THREE.Vector3(p.x + Math.sin(facing) * dist, headY + 0.5, p.z + Math.cos(facing) * dist).addScaledVector(side, dist * 0.35);
+      this.mode = "talk";
+      this.snap = true; // potong langsung seperti film, agar kamera tidak menembus tubuh boss
+    },
     update(real, player, boss) {
       this.t += real;
       const p = player.position;
@@ -181,6 +189,10 @@ function createRig(THREE, camera) {
         wantLook.copy(c);
         wantPos.set(c.x + Math.sin(this.orbit.angle) * this.orbit.radius, 3.2, c.z + Math.cos(this.orbit.angle) * this.orbit.radius);
         k = 1 - Math.exp(-real * 3);
+      } else if (this.mode === "talk") {
+        wantLook.copy(this.talkLook);
+        wantPos.copy(this.talkPos);
+        k = 1 - Math.exp(-real * 4);
       } else if (this.mode === "focus") {
         const f = this.focus.point;
         wantLook.copy(f);
@@ -194,6 +206,11 @@ function createRig(THREE, camera) {
         wantPos.z *= 16.2 / r;
       }
       wantPos.y = Math.max(0.5, wantPos.y);
+      if (this.snap) {
+        pos.copy(wantPos);
+        look.copy(wantLook);
+        this.snap = false;
+      }
       pos.lerp(wantPos, k);
       look.lerp(wantLook, Math.min(1, k * 1.5));
       camera.position.copy(pos);
@@ -211,6 +228,7 @@ function createRig(THREE, camera) {
 async function startAdventure(student) {
   if (!libs) return;
   initAudio(); // dibuat setelah klik pertama pemain (tombol Mulai)
+  if (isTouchDevice()) enterFullscreen(); // HP: masuk layar penuh saat Mulai ditekan
   document.querySelectorAll(".screen").forEach((el) => el.classList.remove("is-active"));
   $("#game-root").hidden = false;
   $("#game-root").classList.toggle("is-touch", isTouchDevice());
@@ -224,14 +242,17 @@ async function startAdventure(student) {
 
 async function boot() {
   initMenu((student) => startAdventure(student));
+  initFullscreen(isTouchDevice());
   try {
     if (!window.jspdf || !window.jspdf.jsPDF) throw new Error("jsPDF tidak termuat");
     libs = await loadLibs();
   } catch (err) {
     console.error("Library dari CDN gagal dimuat:", err);
     showOffline();
+    window.__booted = true;
     return;
   }
+  window.__booted = true;
   if (new URLSearchParams(location.search).get("test") === "1") {
     const { runBrowserTests } = await import("./browser-tests.js");
     runBrowserTests();

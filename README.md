@@ -80,7 +80,28 @@ besar-kecil.
 | Tombol Tebas, Lompat, Jongkok, Hindar (kanan bawah) | aksi |
 | Tombol jeda (kanan atas) | jeda |
 
-Perangkat sentuh dideteksi otomatis. Putar HP ke mode landscape agar lebih nyaman.
+Perangkat sentuh dideteksi otomatis. Putar HP ke mode landscape agar lebih nyaman. Tombol
+**Layar Penuh** ada di pojok kanan atas menu, di menu jeda, dan di pojok layar game; di HP,
+game juga otomatis masuk layar penuh saat tombol Mulai Petualangan ditekan (jika browser
+mendukung).
+
+## Fitur permainan
+
+- **Kustomisasi karakter**: tubuh, warna kulit, 5 gaya rambut, 6 warna rambut, 8 warna baju,
+  4 warna celana, dan aksesori (ikat kepala, syal, kacamata), plus tombol Acak. Hanya tampilan.
+- **Percakapan singkat** gaya visual novel sebelum setiap tahap (Resi Bayang, Arca
+  Durgaraksa, dan pemain). Ketuk atau Enter untuk lanjut, tombol Lewati untuk melewati.
+- **Perlengkapan berbeda tiap tahap**: pedang kayu (1), pedang besi bercahaya biru (2), pedang
+  besi + armor perak (3), pedang ksatria + armor perak + perisai (4), pedang api + armor emas +
+  perisai emas + jubah (5).
+- **Ramuan** di arena: Ramuan Darah (merah) menambah 35 HP; Ramuan Serangan (oranye) membuat
+  tiap tebasan bernilai 2 kali selama 15 detik. Saat HP 20 atau kurang, Resi Bayang memulihkan
+  HP ke 60 (jeda 25 detik).
+- **Serangan Penentu dengan QTE**: dua tombol cepat (Serangan Beruntun, Lompatan) memilih
+  animasi (menekan: menyerang; tidak: bertahan/berguling). QTE terakhir sama untuk semua pemain;
+  setelahnya satu undian menentukan hasil: MENANG = player menebas, KALAH = arca menghantam.
+- **Musik latar** sintetis (dengung, akor, derak obor; drum saat bertarung; detak jantung saat
+  Serangan Penentu) dan efek suara. Tombol suara selalu tersedia.
 
 Serangan boss punya aba-aba: **hantaman** (kedua lengan diangkat) dihindari dengan
 berguling, **sapuan** (satu lengan ditarik ke samping) dihindari dengan jongkok, dan
@@ -101,6 +122,9 @@ berguling, **sapuan** (satu lengan ditarik ke samping) dihindari dengan jongkok,
   | 4 | Arca Durgaraksa lebih kuat | 0,5 = 1/2 | 0,5 = 1/2 |
   | 5 | Arca Durgaraksa murka | 0,4 = 2/5 | 0,6 = 3/5 |
 
+- QTE, ramuan, perlengkapan, dan kostum hanya mengubah fase hack and slash dan animasi. Tidak
+  satu pun mengubah p; di layar Serangan Penentu tertulis "Tombol yang muncul hanya mengubah
+  gaya serangan, bukan peluang menang".
 - Fase hack and slash hanya membawa pertarungan ke Serangan Penentu: HP boss berhenti di
   20% dan HP player berhenti di 1, jadi tidak ada yang mati di fase ini.
 - Serangan Penentu mengambil satu bilangan acak U di [0, 1) dengan
@@ -121,10 +145,14 @@ berguling, **sapuan** (satu lengan ditarik ke samping) dihindari dengan jongkok,
   "Game membutuhkan koneksi internet. Periksa koneksi lalu muat ulang halaman."
 - Data tidak disimpan. Semua hasil hilang saat halaman ditutup atau dimuat ulang, jadi
   unduh PDF rekap sebelum menutup halaman.
-- Durasi fase hack and slash diatur lewat `bossHitsToThreshold` di `js/config.js`
-  (sekarang 120 tebasan kena). Pada uji otomatis, bot yang tidak pernah meleset butuh
-  sekitar 70 detik per tahap; durasi untuk siswa sungguhan (target 2 sampai 3 menit) masih
-  perkiraan dan perlu dicek saat uji coba.
+- Durasi fase hack and slash diatur lewat `bossHitsToThreshold` dan `potions` di
+  `js/config.js` (sekarang 90 tebasan kena, Ramuan Serangan x2). Pada uji otomatis, bot yang
+  tidak pernah meleset butuh sekitar 50 sampai 57 detik per tahap; durasi untuk siswa
+  sungguhan masih perkiraan dan perlu dicek saat uji coba.
+- QTE bisa disalahpahami sebagai penentu hasil. Guru sebaiknya menegaskan bahwa hasil hanya
+  dari undian; pertanyaan refleksi nomor 2 dan 3 di PDF membantu membahasnya.
+- Membuka `index.html` dengan klik dua kali menampilkan pesan cara membuka yang benar, karena
+  game memang tidak bisa berjalan dari `file://`.
 - Di Chrome, kombinasi **Ctrl+W** menutup tab dan tidak bisa dicegah oleh halaman web.
   Saat jongkok sambil bergerak maju, lebih aman memakai **C**.
 - Pengujian otomatis dijalankan di Chromium tanpa GPU dan emulasi HP. Game belum diuji di
@@ -142,4 +170,5 @@ css/style.css
 tests/bernoulli.test.js
 js/  bernoulli.js  config.js  main.js  player.js  boss.js  mystic.js  arena.js
      controls.js  combat.js  stages.js  ui.js  shaders.js  pdf.js  audio.js  browser-tests.js
+     cutscene.js  qte.js  potions.js
 ```

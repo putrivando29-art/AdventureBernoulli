@@ -40,6 +40,7 @@
         </svg>
       </div>
 
+      <button type="button" class="btn fs-btn menu-fs" data-fullscreen>Layar Penuh</button>
       <div class="menu-card">
         <p class="eyebrow">Universitas Sriwijaya</p>
         <h1 id="menu-title" class="game-title">Adventure<br><span>Bernoulli</span></h1>
@@ -59,6 +60,7 @@
             <button type="submit" class="btn btn-primary btn-lg" id="btn-start">Mulai Petualangan</button>
             <button type="button" class="btn" data-go="howto">Cara Bermain</button>
           </div>
+          <p class="muted small fs-note" id="fs-note" hidden>Browser ini tidak mendukung layar penuh. Di iPhone, pakai menu Bagikan lalu "Tambahkan ke Layar Utama".</p>
         </form>
       </div>
     </section>
@@ -73,6 +75,12 @@
         <p>Lawan Arca Durgaraksa dalam 5 tahap. Tebas sang arca sampai HP-nya tinggal 20%, lalu <strong>Serangan Penentu</strong> menentukan hasil akhirnya.</p>
         <p>Setiap tahap adalah <strong>satu percobaan Bernoulli</strong>: hasilnya hanya dua, <strong>MENANG (X = 1)</strong> atau <strong>KALAH (X = 0)</strong>. Peluang menang <em>p</em> tiap tahap sudah ditetapkan dari awal dan tidak berubah karena cara bermainmu. Menang atau kalah, kamu tetap lanjut ke tahap berikutnya.</p>
 
+        <ul class="controls-list tips">
+          <li><strong>Ramuan Darah</strong> (merah) menambah HP. <strong>Ramuan Serangan</strong> (oranye) membuat tebasanmu bernilai 2 kali selama 15 detik. Sentuh ramuan untuk mengambilnya.</li>
+          <li>Saat HP-mu sekarat, Resi Bayang akan memulihkanmu.</li>
+          <li>Di Serangan Penentu, tekan tombol yang muncul untuk memilih gaya serangan. Tombol itu <strong>tidak</strong> mengubah peluang menang; hasilnya tetap dari satu undian dengan peluang p.</li>
+          <li>Di HP, tekan <strong>Layar Penuh</strong> di menu agar game memenuhi layar.</li>
+        </ul>
         <div class="controls-grid">
           <div>
             <h3>Laptop</h3>
@@ -113,6 +121,7 @@
             <div class="bar-track"><div id="hp-player" class="bar-fill bar-player"></div></div>
             <b id="hp-player-num" class="bar-num">100</b>
           </div>
+          <p id="hud-buff" class="hud-buff" hidden></p>
         </div>
         <div class="hud-center g-panel">
           <p class="boss-name">Arca Durgaraksa</p>
@@ -142,6 +151,27 @@
       </div>
       <p class="rotate-hint">Putar HP ke mode landscape agar lebih nyaman</p>
       <button type="button" class="btn btn-icon sound-btn" id="btn-sound" aria-pressed="false" aria-label="Matikan suara">🔊</button>
+      <button type="button" class="btn btn-icon fs-corner" data-fullscreen aria-label="Layar penuh">⛶</button>
+
+      <!-- Percakapan singkat (gaya visual novel) -->
+      <div id="vn" class="vn" hidden>
+        <div class="vn-box g-panel">
+          <div id="vn-portrait" class="vn-portrait" aria-hidden="true"></div>
+          <div class="vn-body">
+            <p id="vn-name" class="vn-name"></p>
+            <p id="vn-text" class="vn-text" aria-live="polite"></p>
+            <p class="vn-hint">Ketuk atau tekan Enter untuk lanjut</p>
+          </div>
+          <button type="button" class="btn vn-skip" id="vn-skip">Lewati</button>
+        </div>
+      </div>
+
+      <!-- Quick Time Event pada Serangan Penentu -->
+      <div id="qte" class="qte" hidden>
+        <p id="qte-label" class="qte-label"></p>
+        <button type="button" id="qte-btn" class="qte-btn"><span id="qte-key"></span><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" class="qte-ring" id="qte-ring"/></svg></button>
+        <p id="qte-feedback" class="qte-feedback"></p>
+      </div>
 
       <!-- Dialog Resi Bayang -->
       <div id="resi-box" class="resi-box g-panel" hidden>
@@ -154,28 +184,11 @@
         <div class="g-panel char-panel">
           <h2 id="char-title">Pilih Karakter</h2>
           <p class="muted small">Pilihan karakter hanya tampilan dan tidak mengubah peluang menang.</p>
-          <fieldset class="choice"><legend>Tubuh</legend>
-            <div class="choice-row" data-choice="gender">
-              <button type="button" class="btn chip-btn" data-value="laki">Laki-laki</button>
-              <button type="button" class="btn chip-btn" data-value="perempuan">Perempuan</button>
-            </div>
-          </fieldset>
-          <fieldset class="choice"><legend>Warna baju</legend>
-            <div class="choice-row" data-choice="shirt">
-              <button type="button" class="btn chip-btn" data-value="biru"><i class="sw" style="background:#3f6fd8"></i>Biru</button>
-              <button type="button" class="btn chip-btn" data-value="merah"><i class="sw" style="background:#c94040"></i>Merah</button>
-              <button type="button" class="btn chip-btn" data-value="hijau"><i class="sw" style="background:#3f9a52"></i>Hijau</button>
-              <button type="button" class="btn chip-btn" data-value="ungu"><i class="sw" style="background:#7b4fc4"></i>Ungu</button>
-            </div>
-          </fieldset>
-          <fieldset class="choice"><legend>Warna rambut</legend>
-            <div class="choice-row" data-choice="hair">
-              <button type="button" class="btn chip-btn" data-value="hitam"><i class="sw" style="background:#1b1820"></i>Hitam</button>
-              <button type="button" class="btn chip-btn" data-value="cokelat"><i class="sw" style="background:#6b4126"></i>Cokelat</button>
-              <button type="button" class="btn chip-btn" data-value="pirang"><i class="sw" style="background:#e3c065"></i>Pirang</button>
-            </div>
-          </fieldset>
-          <button type="button" class="btn btn-primary btn-lg" id="btn-pick">Pilih</button>
+          <div id="char-options" class="char-options"></div>
+          <div class="row-buttons char-actions">
+            <button type="button" class="btn" id="btn-random">Acak</button>
+            <button type="button" class="btn btn-primary btn-lg" id="btn-pick">Pilih</button>
+          </div>
         </div>
       </section>
 
@@ -205,6 +218,7 @@
           <div class="pause-buttons">
             <button type="button" class="btn btn-primary btn-lg" id="btn-resume">Lanjut</button>
             <button type="button" class="btn" id="btn-controls" aria-expanded="false" aria-controls="pause-controls">Daftar Kontrol</button>
+            <button type="button" class="btn fs-btn" data-fullscreen>Layar Penuh</button>
             <button type="button" class="btn btn-danger" id="btn-stop-pause">Berhenti</button>
           </div>
           <div id="pause-controls" class="intro-controls" hidden></div>
@@ -215,6 +229,7 @@
       <section id="ov-decisive" class="decisive" hidden aria-live="assertive">
         <p class="decisive-title">Serangan Penentu</p>
         <div id="decisive-prob" class="prob-box"></div>
+        <p id="decisive-note" class="decisive-note">Tombol yang muncul hanya mengubah gaya serangan, bukan peluang menang. Hasil ditentukan oleh satu undian dengan peluang p.</p>
         <p id="decisive-result" class="decisive-result" hidden></p>
         <p id="decisive-u" class="decisive-u" hidden></p>
       </section>
@@ -249,6 +264,11 @@
       </dialog>
     </div>
 
+    <!-- ============ PESAN GAGAL MEMUAT ============ -->
+    <div id="boot-error" class="offline" role="alert" hidden>
+      <p id="boot-error-text"></p>
+    </div>
+
     <!-- ============ PESAN TANPA INTERNET ============ -->
     <div id="offline-message" class="offline" role="alert" hidden>
       <p>Game membutuhkan koneksi internet. Periksa koneksi lalu muat ulang halaman.</p>
@@ -256,6 +276,23 @@
     </div>
   </div>
 
+  <script>
+    // Penjaga awal: file:// memblokir ES module, dan modul yang gagal dimuat tidak memberi pesan.
+    (function () {
+      function fail(msg) {
+        var box = document.getElementById("boot-error");
+        document.getElementById("boot-error-text").textContent = msg;
+        box.hidden = false;
+      }
+      if (location.protocol === "file:") {
+        fail("Game tidak bisa dibuka dengan klik dua kali file index.html. Jalankan lewat server lokal (python -m http.server 8000 lalu buka http://localhost:8000) atau buka alamat GitHub Pages.");
+        return;
+      }
+      window.__bootTimer = setTimeout(function () {
+        if (!window.__booted) fail("Game gagal dimuat. Periksa koneksi internet, lalu muat ulang halaman. Gunakan Chrome versi terbaru.");
+      }, 30000);
+    })();
+  </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="./js/bernoulli.js"></script>
   <script type="module" src="./js/main.js"></script>

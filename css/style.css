@@ -95,6 +95,8 @@ h2, h3 { font-family: var(--font-title); letter-spacing: .02em; }
 .menu-by { color: var(--text-2); font-size: .9rem; margin: 0 0 1.2rem; }
 .menu-form { display: grid; gap: .8rem; }
 .menu-buttons { display: grid; gap: .55rem; margin-top: .2rem; }
+.fs-note { margin: .4rem 0 0; }
+.menu-fs { position: fixed; top: 12px; right: 12px; z-index: 5; background: rgba(28,24,48,.92); }
 
 .field { display: grid; gap: .3rem; text-align: left; font-size: .9rem; color: var(--text-2); }
 .field input {
@@ -275,6 +277,60 @@ kbd {
   }
 }
 
+/* kustomisasi karakter */
+.char-panel { max-height: calc(100vh - 32px); overflow-y: auto; }
+.char-options .choice { margin-bottom: .6rem; }
+.char-options .chip-btn { min-height: 38px; padding: .35em .65em; font-size: .82rem; }
+.char-actions { margin-top: .4rem; position: sticky; bottom: -18px; background: rgba(16,12,30,.95); padding: 8px 0; }
+
+/* layar penuh */
+.fs-corner { position: absolute; top: 12px; right: 64px; z-index: 7; background: rgba(16,12,30,.8); border-color: rgba(246,196,83,.45); font-size: 1.1rem; }
+.hud-right { margin-right: 108px; }
+
+/* ramuan */
+.hud-buff { margin: 6px 0 0; font-size: .78rem; color: #ffb347; }
+.dmg-heal { color: #5bff9a; }
+.dmg-buff { color: #ffb347; }
+.prompt-good { background: rgba(20, 110, 60, .75); border-color: rgba(120,255,170,.6); animation: none; }
+
+/* percakapan gaya visual novel */
+.vn { position: absolute; inset: 0; z-index: 6; display: flex; align-items: flex-end; justify-content: center; padding: 16px; background: linear-gradient(transparent 55%, rgba(5,3,12,.55)); cursor: pointer; }
+.vn-box { position: relative; width: min(820px, 100%); display: flex; gap: 14px; align-items: flex-start; padding: 16px 18px 14px; font-weight: 500; }
+.vn-portrait { flex: none; width: 84px; height: 92px; border-radius: 10px; position: relative; border: 2px solid #0a0710; overflow: hidden; }
+.vn-portrait i { position: absolute; top: 44px; width: 10px; height: 8px; }
+.vn-portrait i:first-child { left: 24px; }
+.vn-portrait i:last-child { right: 24px; }
+.pt-resi { background: linear-gradient(#28143f, #3a1f5c); }
+.pt-resi::before { content: ""; position: absolute; left: 14px; right: 14px; top: 24px; height: 44px; background: #050408; }
+.pt-resi i { background: #fff; box-shadow: 0 0 8px #fff; }
+.pt-arca { background: linear-gradient(#7d8a78, #5c6658); }
+.pt-arca::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 16px; background: #a88f4a; }
+.pt-arca::after { content: ""; position: absolute; left: 18px; right: 18px; bottom: 10px; height: 18px; background: #3b423a; }
+.pt-arca i { background: #ffb02e; box-shadow: 0 0 10px #ff8a00; }
+.pt-player { background: linear-gradient(var(--shirt) 0 0) bottom / 100% 18px no-repeat, var(--skin); }
+.pt-player::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 26px; background: var(--hair); }
+.pt-player i { background: #0c0b10; }
+.vn-body { flex: 1; min-width: 0; }
+.vn-name { display: inline-block; margin: 0 0 6px; padding: .15em .7em; border-radius: 6px; font-weight: 800; font-size: .9rem; background: #3a2f63; }
+.name-arca { background: #6b3a1e; color: #ffd8a8; }
+.name-resi { background: #3a1f5c; color: #d9c6ff; }
+.name-player { background: #1f4f7a; color: #cfe8ff; }
+.vn-text { margin: 0; font-size: 1.05rem; line-height: 1.5; min-height: 3em; color: var(--text); }
+.vn-hint { margin: 6px 0 0; font-size: .75rem; color: var(--muted); }
+.vn-skip { position: absolute; top: -52px; right: 0; min-height: 40px; padding: .4em .9em; background: rgba(16,12,30,.85); }
+
+/* Quick Time Event */
+.qte { position: absolute; left: 50%; bottom: 14%; transform: translateX(-50%); z-index: 6; display: grid; justify-items: center; gap: 8px; text-align: center; }
+.qte-label { margin: 0; font-family: var(--font-title); font-weight: 800; font-size: clamp(1.4rem, 4vw, 2.2rem); color: #fff; text-shadow: 0 3px 0 #000, 0 0 18px rgba(246,196,83,.8); }
+.qte-btn { position: relative; width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--accent); background: rgba(150, 40, 30, .85); color: #fff; font: 900 1.1rem var(--font-body); cursor: pointer; touch-action: none; animation: qte-pulse .5s ease-in-out infinite alternate; }
+.qte-btn svg { position: absolute; inset: -10px; width: calc(100% + 20px); height: calc(100% + 20px); transform: rotate(-90deg); pointer-events: none; }
+.qte-ring { fill: none; stroke: var(--accent); stroke-width: 5; stroke-linecap: round; }
+.qte.is-pressed .qte-btn { background: var(--accent); color: var(--accent-ink); animation: none; transform: scale(1.12); }
+.qte.is-missed .qte-btn { opacity: .5; animation: none; }
+.qte-feedback { margin: 0; min-height: 1.4em; font-weight: 800; color: #fff; text-shadow: 0 2px 0 #000; }
+@keyframes qte-pulse { to { transform: scale(1.07); } }
+.decisive-note { margin: 0; max-width: 560px; font-size: .85rem; font-weight: 600; background: rgba(10,8,20,.85); padding: .35em .8em; border-radius: 8px; border: 1px solid rgba(246,196,83,.35); }
+
 /* layar pendek (HP landscape): HUD ringkas agar tidak menutupi tombol sentuh dan area kamera */
 @media (max-height: 500px) {
   .hud { padding: 6px; gap: 6px; }
@@ -290,6 +346,20 @@ kbd {
   .mini-table li { display: grid; gap: 1px; justify-items: center; }
   .mini-table .tag { padding: 0 .35em; }
   .sound-btn { top: 6px; right: 6px; }
+  .fs-corner { top: 6px; right: 56px; }
+  .hud-right { margin-right: 100px; }
+  .vn { padding: 8px; }
+  .vn-box { padding: 10px 12px; gap: 10px; }
+  .vn-portrait { width: 60px; height: 66px; }
+  .vn-portrait i { top: 30px; }
+  .vn-portrait i:first-child { left: 16px; }
+  .vn-portrait i:last-child { right: 16px; }
+  .vn-text { font-size: .9rem; min-height: 2.6em; }
+  .vn-skip { top: -46px; }
+  .qte { bottom: 6%; }
+  .qte-btn { width: 92px; height: 92px; }
+  .decisive-note { font-size: .7rem; }
+  .decisive-title { font-size: 1.3rem; }
   .tbtn { width: 56px; height: 56px; }
   .tbtn-big { width: 70px; height: 70px; }
   .touch-buttons { grid-template-columns: repeat(2, 56px); gap: 8px; right: 12px; bottom: 10px; }

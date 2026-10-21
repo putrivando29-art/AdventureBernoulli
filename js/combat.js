@@ -25,6 +25,7 @@ export class Combat {
   reset(hitsToThreshold) {
     this.hitsToThreshold = hitsToThreshold;
     this.bossHits = 0;
+    this.multiplier = 1; // Ramuan Serangan membuat tiap tebasan bernilai lebih
     this.thresholdReached = false;
     this.rings.forEach((r) => (r.mesh.visible = false));
     this.rings = [];
@@ -63,12 +64,12 @@ export class Combat {
     ang = Math.atan2(Math.sin(ang), Math.cos(ang));
     if (dist - boss.radius > REACH || Math.abs(ang) > 1.25) return;
     atk.hitDone = true;
-    this.bossHits = Math.min(this.hitsToThreshold, this.bossHits + 1);
+    this.bossHits = Math.min(this.hitsToThreshold, this.bossHits + this.multiplier);
     boss.flash.value = 1;
     const hitPoint = new THREE.Vector3(pp.x + (dx / dist) * (dist - boss.radius * 0.8), 1.3 + Math.random() * 0.8, pp.z + (dz / dist) * (dist - boss.radius * 0.8));
     this.burst(hitPoint, 0xcfd8c8, 9);
     this.spark(hitPoint);
-    this.number(hitPoint, String(this.damagePerHit), "dmg-boss");
+    this.number(hitPoint, String(this.damagePerHit * this.multiplier), this.multiplier > 1 ? "dmg-boss dmg-buff" : "dmg-boss");
     this.hooks.shake?.(0.12);
     this.hooks.onBossHit?.(this.bossHpPct);
     if (this.bossHits >= this.hitsToThreshold) {
