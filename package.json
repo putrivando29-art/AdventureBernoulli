@@ -1,0 +1,11 @@
+{
+  "name": "adventure-bernoulli",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Game petualangan 5 tahap untuk belajar distribusi Bernoulli.",
+  "scripts": {
+    "start": "npx http-server -p 8080 -c-1 .",
+    "test": "node --test tests/bernoulli.test.js",
+    "test:e2e": "node tests/e2e.cjs"
+  }
+}
