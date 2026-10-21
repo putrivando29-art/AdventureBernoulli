@@ -520,10 +520,23 @@ kbd {
   .hud-right { margin-right: 0; margin-top: 56px; }
 }
 
+/* ---------- harden: kasus pinggir ---------- */
+.start-hint { margin: -.2rem 0 0; text-align: center; }
+/* nama siswa yang panjang turun baris di label percakapan */
+.vn-name { max-width: 100%; overflow-wrap: anywhere; }
+/* HP dan tablet portrait: area gulir overlay dimulai di bawah tombol Suara dan Layar Penuh,
+   pita atas diberi warna latar yang sama agar teks tidak lewat di bawah tombol */
+@media (orientation: portrait) and (max-width: 900px) {
+  .overlay { top: 68px; padding-top: 8px; box-shadow: 0 -68px 0 rgba(8, 6, 16, .35); }
+  .overlay-scroll { box-shadow: 0 -68px 0 rgba(8, 6, 16, .7); }
+  .overlay-side { padding-top: 8px; box-shadow: none; }
+  .char-panel { max-height: calc(100vh - 92px - var(--safe-bottom)); }
+}
+
 /* ---------- pesan tanpa internet ---------- */
 .offline {
   position: fixed; inset: 0; z-index: 100; display: grid; place-content: center; gap: 1rem; padding: 24px;
-  background: rgba(10, 8, 20, .95); text-align: center; font-size: 1.1rem; font-weight: 600;
+  background: var(--bg); text-align: center; font-size: 1.1rem; font-weight: 600;
 }
 .offline .btn { justify-self: center; }
 

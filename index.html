@@ -52,11 +52,12 @@
           </label>
           <label class="field" for="student-class">
             <span>Kelas</span>
-            <input id="student-class" name="kelas" type="text" maxlength="20" autocomplete="off" required>
+            <input id="student-class" name="kelas" type="text" maxlength="15" autocomplete="off" required>
           </label>
           <p id="menu-msg" class="form-msg" role="alert"></p>
           <div class="menu-buttons">
-            <button type="submit" class="btn btn-primary btn-lg" id="btn-start">Mulai Petualangan</button>
+            <button type="submit" class="btn btn-primary btn-lg" id="btn-start" aria-describedby="start-hint" disabled>Mulai Petualangan</button>
+            <p id="start-hint" class="muted small start-hint">Isi Nama Siswa dan Kelas untuk memulai.</p>
             <button type="button" class="btn" data-go="howto">Cara Bermain</button>
             <button type="button" class="btn" data-go="teacher">Setting Guru</button>
           </div>
@@ -325,7 +326,11 @@
         return;
       }
       window.__bootTimer = setTimeout(function () {
-        if (!window.__booted) fail("Game gagal dimuat. Periksa koneksi internet, lalu muat ulang halaman. Gunakan Chrome versi terbaru.");
+        // CDN menggantung: tampilkan pesan internet yang sama, lengkap dengan tombol Muat Ulang
+        if (!window.__booted) {
+          document.getElementById("offline-message").hidden = false;
+          document.getElementById("btn-start").disabled = true;
+        }
       }, 30000);
     })();
   </script>

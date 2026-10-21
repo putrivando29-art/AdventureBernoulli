@@ -167,8 +167,12 @@ export class Adventure {
     ui.$("#btn-stop-result").addEventListener("click", () => this.requestStop());
     ui.$("#ov-recap").addEventListener("click", (e) => {
       if (e.target.closest("#btn-menu")) location.reload();
-      if (e.target.closest("#btn-pdf")) this.downloadPdf(false);
-      if (e.target.closest("#btn-pdf-open")) this.downloadPdf(true);
+      const pdfBtn = e.target.closest("#btn-pdf, #btn-pdf-open");
+      // klik ganda dalam 1,5 detik diabaikan agar PDF tidak terunduh atau terbuka dua kali
+      if (pdfBtn && performance.now() - (this.pdfAt || -Infinity) > 1500) {
+        this.pdfAt = performance.now();
+        this.downloadPdf(pdfBtn.id === "btn-pdf-open");
+      }
     });
     // Satu handler Esc: buka jeda saat bertarung, tutup jeda saat dijeda.
     // (Saat kursor terkunci, Esc melepas kunci dan jeda dibuka lewat pointerlockchange.)

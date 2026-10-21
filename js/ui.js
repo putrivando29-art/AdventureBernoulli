@@ -23,6 +23,22 @@ export function showOffline() {
   $("#btn-start").disabled = true;
 }
 
+// Font bawaan jsPDF hanya bisa mencetak huruf Latin dasar dan Latin-1 (plus tanda kutip miring).
+const PRINTABLE = /[ -~ -ÿ‘’“”]/;
+
+/** Huruf beraksen di luar Latin-1 diganti huruf dasarnya (Ğ jadi G); emoji dan simbol lain dihapus. */
+export function printableText(s) {
+  let out = "";
+  for (const ch of s) {
+    if (PRINTABLE.test(ch)) out += ch;
+    else {
+      const base = ch.normalize("NFKD").replace(/[̀-ͯ]/g, "");
+      if (base && [...base].every((c) => PRINTABLE.test(c))) out += base;
+    }
+  }
+  return out;
+}
+
 /** Menu utama: Nama Siswa dan Kelas wajib diisi sebelum mulai. */
 export function initMenu(onStart) {
   document.addEventListener("click", (ev) => {
@@ -30,12 +46,30 @@ export function initMenu(onStart) {
     if (el && !el.disabled) show(el.dataset.go);
   });
 
+  const nameInput = $("#student-name");
+  const classInput = $("#student-class");
+  // Tombol Mulai aktif hanya jika Nama dan Kelas terisi (bukan hanya spasi) dan library sudah termuat.
+  const syncStart = () => {
+    const filled = !!(nameInput.value.trim() && classInput.value.trim());
+    $("#btn-start").disabled = !filled || !$("#offline-message").hidden;
+    $("#start-hint").hidden = filled;
+  };
+  [nameInput, classInput].forEach((input) =>
+    input.addEventListener("input", () => {
+      const clean = printableText(input.value);
+      if (clean !== input.value) {
+        input.value = clean;
+        $("#menu-msg").textContent = "Emoji dan simbol khusus dihapus karena tidak bisa dicetak di PDF.";
+      } else $("#menu-msg").textContent = "";
+      syncStart();
+    })
+  );
+  syncStart();
+
   $("#menu-form").addEventListener("submit", (ev) => {
     ev.preventDefault();
-    const nameInput = $("#student-name");
-    const classInput = $("#student-class");
-    const nama = nameInput.value.trim();
-    const kelas = classInput.value.trim();
+    const nama = nameInput.value.trim().replace(/\s+/g, " ");
+    const kelas = classInput.value.trim().replace(/\s+/g, " ");
     nameInput.setAttribute("aria-invalid", String(!nama));
     classInput.setAttribute("aria-invalid", String(!kelas));
     const msg = $("#menu-msg");
