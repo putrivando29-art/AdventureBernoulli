@@ -120,13 +120,16 @@ export function updateHud({ stageName, playerHp, bossHp, p, records }) {
   if (p !== undefined) {
     const t = probParts(p);
     const b = B();
-    $("#hud-prob").innerHTML = `<span class="pb-win">Menang ${b.fmtPercent(p)} (${b.fraction(p)})</span><span class="pb-lose">Kalah ${b.fmtPercent(b.complement(p))} (${b.fraction(b.complement(p))})</span>`;
+    const q = b.complement(p);
+    $("#hud-prob").innerHTML =
+      `<span class="pb-win">Menang ${b.fmtPercent(p)} (${b.fraction(p)} = ${b.fmtP(p)})</span>` +
+      `<span class="pb-lose">Kalah ${b.fmtPercent(q)} (${b.fraction(q)} = ${b.fmtP(q)})</span>`;
   }
   if (records) {
     $("#mini-table").innerHTML = records
       .map((r, i) => {
         const [cls, txt] = r.x === 1 ? ["tag-win", "Menang"] : r.x === 0 ? ["tag-lose", "Kalah"] : r.skipped ? ["tag-none", "Tidak dimainkan"] : ["tag-none", "Belum"];
-        return `<li><span>T${i + 1}</span><span class="tag ${cls}">${txt}</span></li>`;
+        return `<li><span><span aria-hidden="true">T${i + 1}</span><span class="sr-only">Tahap ${i + 1}</span></span><span class="tag ${cls}">${txt}</span></li>`;
       })
       .join("");
   }

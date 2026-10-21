@@ -55,6 +55,8 @@ function dropUrlParam() {
 
 export function initTeacher() {
   renderPSource();
+  // Tautan siswa (?p=...): Setting Guru disembunyikan agar siswa langsung bermain dengan peluang dari guru.
+  if (loadPs().source === "tautan") document.querySelectorAll('[data-go="teacher"]').forEach((b) => (b.hidden = true));
   document.addEventListener("click", (e) => {
     if (e.target.closest('[data-go="teacher"]')) {
       renderRows(loadPs().ps);
