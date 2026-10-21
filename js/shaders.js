@@ -174,7 +174,71 @@ export const GradingShader = {
     }`,
 };
 
+// ---------- 5. Kebangkitan: dissolve terbalik dengan tepi bercahaya biru ----------
+/**
+ * Material toon yang bisa "larut". uniform `dissolve.value` 1 = hilang semua, 0 = utuh.
+ * Kode shader disuntikkan sekali lewat onBeforeCompile dan memakai program yang sama untuk semua warna.
+ */
+export function toonDissolve(color, dissolve) {
+  const m = new THREE.MeshToonMaterial({ color, gradientMap: getGradientMap() });
+  m.onBeforeCompile = (shader) => {
+    shader.uniforms.uDissolve = dissolve;
+    shader.vertexShader = "varying vec3 vDWorld;\n" + shader.vertexShader.replace(
+      "#include <begin_vertex>",
+      "#include <begin_vertex>\n  vDWorld = (modelMatrix * vec4(transformed, 1.0)).xyz;"
+    );
+    shader.fragmentShader =
+      "uniform float uDissolve;\nvarying vec3 vDWorld;\n" + NOISE_GLSL +
+      shader.fragmentShader
+        .replace(
+          "#include <clipping_planes_fragment>",
+          "#include <clipping_planes_fragment>\n  float dn = fbm(vec2(vDWorld.x * 4.0 + vDWorld.z * 3.0, vDWorld.y * 4.0)) / 0.94;\n  if (dn < uDissolve) discard;"
+        )
+        .replace(
+          "#include <dithering_fragment>",
+          "#include <dithering_fragment>\n  float dEdge = (1.0 - smoothstep(0.0, 0.08, dn - uDissolve)) * step(0.001, uDissolve);\n  gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.6, 1.5, 4.0), dEdge);"
+        );
+  };
+  m.customProgramCacheKey = () => "toon-dissolve";
+  return m;
+}
+
+// ---------- 6. Aura boss tahap 5: fresnel merah berdenyut ----------
+let auraMat = null;
+export function auraMaterial() {
+  if (!auraMat) {
+    auraMat = new THREE.ShaderMaterial({
+      uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color(1.0, 0.12, 0.05) } },
+      vertexShader: /* glsl */ `
+        varying vec3 vN;
+        varying vec3 vV;
+        void main() {
+          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          vN = normalize(normalMatrix * normal);
+          vV = normalize(-mv.xyz);
+          gl_Position = projectionMatrix * mv;
+        }`,
+      fragmentShader: /* glsl */ `
+        uniform float uTime;
+        uniform vec3 uColor;
+        varying vec3 vN;
+        varying vec3 vV;
+        void main() {
+          float f = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 2.0);
+          float pulse = 0.55 + 0.45 * sin(uTime * 4.0);
+          float a = clamp(f * pulse + 0.06, 0.0, 1.0);
+          gl_FragColor = vec4(uColor * 3.0 * a, a);
+        }`,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+  }
+  return auraMat;
+}
+
 /** Dipanggil sekali per frame untuk memperbarui uniform waktu shader bersama. */
 export function tickShaders(time) {
   if (fireMat) fireMat.uniforms.uTime.value = time;
+  if (auraMat) auraMat.uniforms.uTime.value = time;
 }

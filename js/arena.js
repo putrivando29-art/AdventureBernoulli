@@ -265,7 +265,13 @@ export function createArena(scene, quality) {
     emberGeo.attributes.position.needsUpdate = true;
   }
 
-  return { group, colliders, update, fires };
+  /** Kurangi partikel saat kualitas diturunkan. */
+  function reduceParticles() {
+    dustGeo.setDrawRange(0, Math.floor(dustCount / 3));
+    emberGeo.setDrawRange(0, Math.floor(emberCount / 2));
+  }
+
+  return { group, colliders, update, fires, reduceParticles };
 }
 
 /** Dorong titik (x, z) keluar dari lingkaran penghalang dan tetap di dalam arena. */

@@ -9,6 +9,8 @@ import { Mystic } from "./mystic.js";
 import { Combat } from "./combat.js";
 import { Controls } from "./controls.js";
 import * as ui from "./ui.js";
+import { buildRecapPdf, pdfFileName, REFLECTION } from "./pdf.js";
+import { sfx, setMuted, isMuted } from "./audio.js";
 
 const B = window.Bernoulli;
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -45,12 +47,24 @@ export class Adventure {
 
     this.combat = new Combat(scene, engine.camera, ui.$("#dmg-layer"), {
       onThreshold: () => this.decisive(),
-      onBossHit: (pct) => ui.updateHud({ bossHp: pct }),
-      onPlayerHit: (hp) => ui.updateHud({ playerHp: hp }),
+      onBossHit: (pct) => {
+        ui.updateHud({ bossHp: pct });
+        sfx.hit();
+      },
+      onPlayerHit: (hp) => {
+        ui.updateHud({ playerHp: hp });
+        sfx.hit();
+      },
       onPrompt: (text) => ui.setPrompt(text),
       shake: (a) => engine.rig.shake(a),
     });
     this.combat.particleScale = engine.quality.particles >= 300 ? 1 : 0.5;
+    engine.onLowQuality(() => {
+      this.combat.particleScale = 0.5;
+      this.arena.reduceParticles();
+    });
+    this.lastAttackId = null;
+    this.lastStep = 0;
 
     this.bindUi();
     engine.onFrame((dt, real) => this.frame(dt, real));
@@ -74,6 +88,13 @@ export class Adventure {
     });
     ui.$("#btn-pick").addEventListener("click", () => this.showIntro(0));
     ui.$("#btn-fight").addEventListener("click", () => this.beginFight());
+    ui.$("#btn-sound").addEventListener("click", () => {
+      setMuted(!isMuted());
+      const b = ui.$("#btn-sound");
+      b.textContent = isMuted() ? "🔇" : "🔊";
+      b.setAttribute("aria-pressed", String(isMuted()));
+      b.setAttribute("aria-label", isMuted() ? "Nyalakan suara" : "Matikan suara");
+    });
     ui.$("#btn-stop-intro").addEventListener("click", () => this.requestStop());
     ui.$("#btn-resume").addEventListener("click", () => this.resume());
     ui.$("#btn-stop-pause").addEventListener("click", () => this.requestStop());
@@ -87,6 +108,8 @@ export class Adventure {
     ui.$("#btn-stop-result").addEventListener("click", () => this.requestStop());
     ui.$("#ov-recap").addEventListener("click", (e) => {
       if (e.target.closest("#btn-menu")) location.reload();
+      if (e.target.closest("#btn-pdf")) this.downloadPdf(false);
+      if (e.target.closest("#btn-pdf-open")) this.downloadPdf(true);
     });
     // Satu handler Esc: buka jeda saat bertarung, tutup jeda saat dijeda.
     // (Saat kursor terkunci, Esc melepas kunci dan jeda dibuka lewat pointerlockchange.)
@@ -159,8 +182,13 @@ export class Adventure {
     ui.updateHud({ stageName: this.stage.nama, playerHp: 100, bossHp: 100, p: this.stage.p, records: this.records });
     this.engine.rig.mode = "follow";
     this.controls.setEnabled(true);
+    this.setTouchVisible(true);
     this.refreshLockHint();
     this.engine.renderer.domElement.focus?.();
+  }
+
+  setTouchVisible(on) {
+    ui.$("#touch").hidden = !(on && this.controls.touch);
   }
 
   refreshLockHint() {
@@ -174,6 +202,7 @@ export class Adventure {
     this.phase = "paused";
     this.pausedAt = performance.now();
     this.controls.setEnabled(false);
+    this.setTouchVisible(false);
     ui.setLockHint(false);
     ui.setPrompt(null);
     ui.$("#pause-controls").innerHTML = ui.controlsHtml(this.controls.touch);
@@ -187,6 +216,7 @@ export class Adventure {
     this.phase = "fight";
     ui.showOverlay(null);
     this.controls.setEnabled(true);
+    this.setTouchVisible(true);
     this.refreshLockHint();
   }
 
@@ -211,6 +241,7 @@ export class Adventure {
     if (rec.x !== null) return; // hanya satu undian per tahap
     this.phase = "decisive";
     this.controls.setEnabled(false);
+    this.setTouchVisible(false);
     ui.setLockHint(false);
     ui.setPrompt(null);
     this.boss.calm();
@@ -236,6 +267,7 @@ export class Adventure {
     ui.showDecisiveResult(roll.X, roll.U, s.p);
     if (roll.X === 1) {
       eng.flash(0xffd36b);
+      sfx.win();
       this.player.pose = "normal";
       this.player.startAttack(2, this.boss.position);
       setTimeout(() => {
@@ -248,6 +280,7 @@ export class Adventure {
       setTimeout(() => (this.player.pose = "victory"), 900);
     } else {
       eng.flash(0xff3b30);
+      sfx.lose();
       this.boss.pose = "triumph";
       this.boss.poseT = 0;
       setTimeout(() => {
@@ -284,11 +317,24 @@ export class Adventure {
       };
       step();
     });
-    this.engine.reviveEffect(this.player);
-    await wait(900);
-    this.player.pose = "normal";
-    this.player.hp = 100;
-    await wait(2600);
+    // 5. shader kebangkitan: player muncul kembali dari tak terlihat (dissolve 1 -> 0, sekitar 1,5 detik)
+    const pl = this.player;
+    pl.setDissolve(1);
+    pl.pose = "normal";
+    pl.hp = 100;
+    sfx.revive();
+    this.engine.flash(0x4da6ff, 0.3);
+    const t1 = performance.now();
+    await new Promise((resolve) => {
+      const step = () => {
+        const k = Math.min(1, (performance.now() - t1) / 1500);
+        pl.setDissolve(1 - k);
+        if (k < 1) requestAnimationFrame(step);
+        else resolve();
+      };
+      step();
+    });
+    await wait(2000);
     ui.resiSay(null);
   }
 
@@ -305,12 +351,41 @@ export class Adventure {
   showRecap(closing) {
     this.phase = "recap";
     this.controls.setEnabled(false);
+    this.setTouchVisible(false);
     ui.setHudVisible(false);
     ui.setLockHint(false);
     ui.resiSay(null);
     this.engine.rig.mode = "intro";
-    this.recapData = { student: this.student, character: this.characterLabel(), stages: CONFIG.stages, records: this.records, closing };
+    this.recapData = {
+      student: this.student,
+      character: this.characterLabel(),
+      stages: CONFIG.stages,
+      records: this.records,
+      closing,
+      date: new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }),
+      reflection: REFLECTION,
+    };
     ui.renderRecap(this.recapData);
+  }
+
+  /** Unduh PDF dengan doc.save; cadangan untuk HP: buka PDF di tab baru. */
+  downloadPdf(openInTab) {
+    const msg = ui.$("#pdf-msg");
+    try {
+      const doc = buildRecapPdf(this.recapData);
+      if (openInTab) {
+        const win = window.open(doc.output("bloburl"), "_blank");
+        if (!win) throw new Error("tab baru diblokir");
+      } else {
+        doc.save(pdfFileName(this.student.nama));
+      }
+      msg.className = "form-msg txt-win";
+      msg.textContent = openInTab ? "PDF dibuka di tab baru." : "PDF sedang diunduh. Jika tidak muncul, tekan Buka PDF.";
+    } catch (err) {
+      console.error(err);
+      msg.className = "form-msg";
+      msg.textContent = "PDF gagal dibuat atau diunduh. Coba tombol Buka PDF, atau izinkan pop-up untuk situs ini.";
+    }
   }
 
   // ---------- per frame ----------
@@ -338,6 +413,13 @@ export class Adventure {
         });
       }
       this.mystic.update(dt, this.player.position);
+      // suara tebasan dan langkah boss
+      const atk = this.player.attack;
+      if (atk && atk.id !== this.lastAttackId) sfx.slash();
+      this.lastAttackId = atk ? atk.id : null;
+      const step = Math.floor(this.boss.walk / Math.PI);
+      if (step !== this.lastStep) sfx.step();
+      this.lastStep = step;
       this.arena.update(this.engine.time, dt);
       this.combat.update(dt, this.player, this.boss, fighting);
     }

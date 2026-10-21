@@ -203,7 +203,7 @@ export function showStageResult(stage, record, isLast) {
 }
 
 // ---------- rekap ----------
-export function renderRecap({ student, character, stages, records, closing }) {
+export function renderRecap({ student, character, stages, records, closing, date, reflection }) {
   const b = B();
   const summary = b.summarize(records.map((r, i) => ({ p: stages[i].p, x: r.x })));
   const rows = stages
@@ -230,7 +230,7 @@ export function renderRecap({ student, character, stages, records, closing }) {
       <h2 id="recap-title">Rekap Adventure Bernoulli</h2>
       <p class="muted">Universitas Sriwijaya · by Kelompok 17</p>
       <p>Nama Siswa: <strong>${escapeHtml(student.nama)}</strong> · Kelas: <strong>${escapeHtml(student.kelas)}</strong></p>
-      <p class="muted small">Karakter: ${escapeHtml(character)} · ${new Date().toLocaleDateString("id-ID", { dateStyle: "long" })}</p>
+      <p class="muted small">Karakter: ${escapeHtml(character)} · ${escapeHtml(date)}</p>
     </header>
     ${closing ? `<div class="resi-line"><div class="portrait" aria-hidden="true"><i></i><i></i></div><p>${escapeHtml(closing)}</p></div>` : ""}
     <div class="table-scroll"><table class="data-table">
@@ -241,7 +241,13 @@ export function renderRecap({ student, character, stages, records, closing }) {
     <p>Tahap dimainkan: <strong>${summary.played}</strong> · Menang: <strong>${summary.wins}</strong> · Kalah: <strong>${summary.losses}</strong></p>
     ${calc}
     <p class="note">Jumlah kemenangan ini bukan distribusi binomial karena peluang tiap tahap berbeda.</p>
+    <h3>Pertanyaan Refleksi</h3>
+    <ol class="reflection">${reflection.map((q) => `<li>${escapeHtml(q)}</li>`).join("")}</ol>
+    <p class="muted small">Jawab pertanyaan refleksi dengan tulisan tangan di PDF. Data tidak disimpan; semua hilang saat halaman ditutup.</p>
+    <p id="pdf-msg" class="form-msg" role="status"></p>
     <div class="row-buttons" id="recap-buttons">
+      <button type="button" class="btn btn-primary btn-lg" id="btn-pdf">Unduh PDF</button>
+      <button type="button" class="btn" id="btn-pdf-open">Buka PDF</button>
       <button type="button" class="btn" id="btn-menu">Kembali ke Menu Utama</button>
     </div>`;
   showOverlay("#ov-recap");

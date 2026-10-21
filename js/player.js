@@ -1,6 +1,6 @@
 // Player: model balok, animasi prosedural, dan gerakan (jalan, lompat, jongkok, berguling, tebasan combo).
 import * as THREE from "three";
-import { toon, makeBox } from "./shaders.js";
+import { toonDissolve, makeBox } from "./shaders.js";
 import { collide } from "./arena.js";
 
 export const SHIRT_COLORS = { biru: 0x3f6fd8, merah: 0xc94040, hijau: 0x3f9a52, ungu: 0x7b4fc4 };
@@ -79,6 +79,8 @@ export class Player {
     this.rollPivot.add(this.body);
 
     this.look = { gender: "laki", shirt: "biru", hair: "hitam", ...look };
+    this.dissolve = { value: 0 }; // uniform efek kebangkitan
+    this.matCache = new Map();
     this.gear = { sword: "wood", armor: false };
     this.j = Object.fromEntries(JOINTS.map((k) => [k, 0]));
     this.j.pivotY = 0.55;
@@ -105,8 +107,15 @@ export class Player {
     this.pose = "normal"; // normal | ready | lying | victory | defeated-stand
   }
 
+  /** Material toon milik player (bisa dissolve), dibuat sekali per warna. */
+  mat(color) {
+    if (!this.matCache.has(color)) this.matCache.set(color, toonDissolve(color, this.dissolve));
+    return this.matCache.get(color);
+  }
+
   // ---------- model ----------
   build() {
+    const toon = (c) => this.mat(c);
     this.body.clear();
     const f = this.look.gender === "perempuan";
     const tw = f ? 0.42 : 0.5;
@@ -245,6 +254,7 @@ export class Player {
   }
 
   buildSword() {
+    const toon = (c) => this.mat(c);
     const m = this.parts.swordMount;
     m.clear();
     const iron = this.gear.sword === "iron";
@@ -258,12 +268,13 @@ export class Player {
     blade.position.y = 0.12 + len / 2;
     m.add(blade);
     if (iron) {
-      // cahaya biru tipis di sekitar bilah
+      // cahaya biru tipis di sekitar bilah (disembunyikan selama efek kebangkitan)
       const aura = new THREE.Mesh(
         blade.geometry,
         new THREE.MeshBasicMaterial({ color: new THREE.Color(0.35, 0.75, 2.4), transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false })
       );
       aura.scale.set(1.7, 1.03, 2.2);
+      aura.userData.outline = true;
       aura.position.copy(blade.position);
       m.add(aura);
     }
@@ -282,6 +293,16 @@ export class Player {
     p.armR.pad.visible = a;
     p.armL.pad.visible = a;
     p.hair.visible = !a;
+  }
+
+  /** Atur efek kebangkitan: 1 = tak terlihat, 0 = utuh. Garis tepi disembunyikan selama efek. */
+  setDissolve(v) {
+    this.dissolve.value = v;
+    const active = v > 0.001;
+    this.root.traverse((o) => {
+      if (o.userData.outline) o.visible = !active;
+      if (o.isMesh && !o.userData.outline) o.castShadow = !active;
+    });
   }
 
   setLook(look) {

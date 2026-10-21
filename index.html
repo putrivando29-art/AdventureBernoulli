@@ -129,6 +129,20 @@
       <p id="prompt" class="prompt" hidden></p>
       <p id="lock-hint" class="lock-hint" hidden>Klik area game untuk mengunci kursor</p>
 
+      <!-- Kontrol sentuh HP -->
+      <div id="touch" class="touch" hidden>
+        <div id="look-zone" class="look-zone" aria-hidden="true"></div>
+        <div id="joy" class="joy" aria-label="Joystick gerak"><div id="joy-base" class="joy-base"><div id="joy-knob" class="joy-knob"></div></div></div>
+        <div class="touch-buttons">
+          <button type="button" class="tbtn tbtn-big" data-touch="attack">Tebas</button>
+          <button type="button" class="tbtn" data-touch="jump">Lompat</button>
+          <button type="button" class="tbtn" data-touch="crouch">Jongkok</button>
+          <button type="button" class="tbtn" data-touch="dodge">Hindar</button>
+        </div>
+      </div>
+      <p class="rotate-hint">Putar HP ke mode landscape agar lebih nyaman</p>
+      <button type="button" class="btn btn-icon sound-btn" id="btn-sound" aria-pressed="false" aria-label="Matikan suara">🔊</button>
+
       <!-- Dialog Resi Bayang -->
       <div id="resi-box" class="resi-box g-panel" hidden>
         <div class="portrait" aria-hidden="true"><i></i><i></i></div>
@@ -242,6 +256,7 @@
     </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="./js/bernoulli.js"></script>
   <script type="module" src="./js/main.js"></script>
 </body>

@@ -146,7 +146,7 @@ kbd {
 .txt-lose { color: var(--lose); }
 
 /* HUD */
-.hud { position: absolute; inset: 0; pointer-events: none; padding: 12px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: start; gap: 12px; z-index: 2; }
+.hud { position: absolute; inset: 0; pointer-events: none; padding: 12px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: start; gap: 12px; z-index: 4; }
 .hud > * { pointer-events: auto; }
 .hud-left { padding: 8px 12px; justify-self: start; min-width: 220px; }
 .hud-stage { margin: 0 0 4px; font-size: .9rem; color: var(--accent); }
@@ -241,10 +241,67 @@ kbd {
 .recap-panel { width: min(900px, 100%); padding: 20px 22px; font-weight: 500; margin: 16px 0; }
 .recap-head { border-bottom: 1px solid var(--line); padding-bottom: .6rem; margin-bottom: .6rem; }
 .recap-head p { margin: .2rem 0; }
+.reflection { padding-left: 1.2rem; color: var(--text-2); }
+.reflection li { margin-bottom: .3rem; }
 .note { background: rgba(0,0,0,.35); border-left: 4px solid var(--accent); padding: .6rem .9rem; border-radius: 6px; }
 .dialog { background: var(--panel); color: var(--text); border: 1px solid rgba(246,196,83,.45); border-radius: 14px; padding: 20px; width: min(440px, calc(100vw - 32px)); }
 .dialog::backdrop { background: rgba(5, 3, 12, .7); }
 .dialog p { margin-top: 0; font-weight: 600; }
+
+/* tombol suara selalu tersedia */
+.sound-btn { position: absolute; top: 12px; right: 12px; z-index: 7; font-size: 1.1rem; background: rgba(16,12,30,.8); border-color: rgba(246,196,83,.45); }
+.hud-right { margin-right: 56px; }
+
+/* kontrol sentuh */
+.touch { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.touch > * { pointer-events: auto; touch-action: none; }
+.look-zone { position: absolute; right: 0; top: 0; bottom: 0; width: 55%; }
+.joy { position: absolute; left: 0; bottom: 0; width: 45%; height: 60%; }
+.joy-base { position: absolute; left: 32px; bottom: 32px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,.08); border: 2px solid rgba(246,196,83,.5); }
+.joy-knob { position: absolute; left: 35px; top: 35px; width: 50px; height: 50px; border-radius: 50%; background: rgba(246,196,83,.7); }
+.touch-buttons { position: absolute; right: 16px; bottom: 16px; display: grid; grid-template-columns: repeat(2, 64px); gap: 10px; }
+.tbtn {
+  width: 64px; height: 64px; border-radius: 50%; border: 2px solid rgba(246,196,83,.6); background: rgba(16,12,30,.75);
+  color: var(--text); font: 700 .75rem var(--font-body); touch-action: none; user-select: none; -webkit-user-select: none;
+}
+.tbtn-big { grid-column: 1 / -1; justify-self: end; width: 84px; height: 84px; font-size: .9rem; background: rgba(150, 40, 30, .8); }
+.tbtn.is-down { background: var(--accent); color: var(--accent-ink); }
+.rotate-hint { display: none; }
+@media (orientation: portrait) {
+  .game-root.is-touch .rotate-hint {
+    display: block; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 8; margin: 0;
+    width: min(320px, 86vw); text-align: center; padding: 14px; border-radius: 12px; font-weight: 700;
+    background: rgba(16,12,30,.92); border: 1px solid rgba(246,196,83,.6); pointer-events: none;
+  }
+}
+
+/* layar pendek (HP landscape): HUD ringkas agar tidak menutupi tombol sentuh dan area kamera */
+@media (max-height: 500px) {
+  .hud { padding: 6px; gap: 6px; }
+  .hud-left { padding: 4px 8px; min-width: 0; }
+  .hud-stage { font-size: .72rem; }
+  .bar-track { height: 9px; }
+  .hud-center { padding: 4px 8px; width: min(240px, 28vw); }
+  .boss-name { font-size: .75rem; margin-bottom: 2px; }
+  .hud-right { gap: 4px; margin-right: 50px; }
+  .prob-mini { font-size: .66rem; padding: 3px 6px; }
+  .btn-icon { min-width: 44px; min-height: 44px; }
+  .mini-table { display: flex; gap: 3px; padding: 3px; font-size: .62rem; }
+  .mini-table li { display: grid; gap: 1px; justify-items: center; }
+  .mini-table .tag { padding: 0 .35em; }
+  .sound-btn { top: 6px; right: 6px; }
+  .tbtn { width: 56px; height: 56px; }
+  .tbtn-big { width: 70px; height: 70px; }
+  .touch-buttons { grid-template-columns: repeat(2, 56px); gap: 8px; right: 12px; bottom: 10px; }
+  .joy-base { left: 24px; bottom: 20px; }
+  .resi-box { bottom: 8px; padding: 8px 10px; font-size: .85rem; }
+  .decisive { top: 4%; gap: 6px; }
+  .decisive .prob-box { font-size: .8rem; padding: 6px 8px; }
+  .intro-panel, .pause-panel, .result-panel, .char-panel { padding: 12px 14px; }
+  .overlay h2 { font-size: 1.15rem; }
+  .cond { grid-template-columns: 1fr 1fr; }
+  .overlay { place-items: start center; }
+}
 
 @media (max-width: 760px) {
   .hud { grid-template-columns: 1fr 1fr; }

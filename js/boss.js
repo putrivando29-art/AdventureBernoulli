@@ -1,6 +1,6 @@
 // Arca Durgaraksa: model balok, varian per tahap, animasi, dan AI serangan dengan aba-aba jelas.
 import * as THREE from "three";
-import { toon, glow, toonFlash, makeBox } from "./shaders.js";
+import { glow, toonFlash, makeBox, auraMaterial } from "./shaders.js";
 import { collide } from "./arena.js";
 
 const STONE = 0x7d8a78;
@@ -164,7 +164,21 @@ export class Boss {
     rage.frustumCulled = false;
     this.root.add(rage);
 
-    this.parts = { pelvis, spine, head, eyes, crystals, armR, armL, legR, legL, rage };
+    // aura fresnel merah (tahap 5): cangkang sedikit lebih besar di sekitar bagian batu utama
+    const auraTargets = [];
+    model.traverse((o) => {
+      if (o.isMesh && [m.stone, m.dark, m.fist].includes(o.material)) auraTargets.push(o);
+    });
+    const aura = auraTargets.map((o) => {
+      const shell = new THREE.Mesh(o.geometry, auraMaterial());
+      shell.scale.setScalar(1.12);
+      shell.castShadow = false;
+      shell.renderOrder = 3;
+      o.add(shell);
+      return shell;
+    });
+
+    this.parts = { pelvis, spine, head, eyes, crystals, armR, armL, legR, legL, rage, aura };
   }
 
   setVariant(name) {
@@ -175,6 +189,7 @@ export class Boss {
     this.parts.eyes.forEach((e) => (e.material = glow(v.eye[0], v.eye[1])));
     this.parts.crystals.visible = v.crystal;
     this.parts.rage.visible = v.rage;
+    this.parts.aura.forEach((a) => (a.visible = v.rage));
     this.mats.fist.emissiveIntensity = v.rage ? 1.6 : 0;
   }
 

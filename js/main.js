@@ -2,6 +2,7 @@
 // (tidak ada internet) pesan yang jelas tetap bisa ditampilkan.
 import { initMenu, showOffline, $ } from "./ui.js";
 import { isTouchDevice } from "./controls.js";
+import { initAudio } from "./audio.js";
 
 let libs = null;
 let adventure = null;
@@ -59,16 +60,30 @@ function createEngine(L) {
   // grading: desaturasi dan vignette bergerak halus ke target
   const grade = { desat: 0, vig: 0.45, tDesat: 0, tVig: 0.45, flash: 0 };
   engine.grading = (desat, vig) => Object.assign(grade, { tDesat: desat, tVig: vig });
-  engine.flash = (hex) => {
+  engine.flash = (hex, amount = 0.65) => {
     gradingPass.uniforms.uFlashColor.value.set(hex);
-    grade.flash = 0.65;
+    grade.flash = amount;
   };
-  engine.reviveEffect = (player) => {
-    // efek sederhana; shader dissolve kebangkitan ditambahkan pada Fase 5
-    gradingPass.uniforms.uFlashColor.value.set(0x4da6ff);
-    grade.flash = 0.45;
-    player.root.visible = true;
+
+  // 10. Kualitas otomatis: di HP sudah rendah sejak awal; di laptop turun jika fps rata-rata < 40 selama 3 detik.
+  const lowListeners = [];
+  engine.onLowQuality = (fn) => lowListeners.push(fn);
+  engine.setLowQuality = () => {
+    if (quality.low) return;
+    quality.low = true;
+    bloom.enabled = false;
+    renderer.shadowMap.enabled = false;
+    scene.traverse((o) => {
+      if (o.isLight) o.castShadow = false;
+      if (o.material) [].concat(o.material).forEach((m) => (m.needsUpdate = true));
+    });
+    renderer.setPixelRatio(1);
+    composer.setPixelRatio(1);
+    lowListeners.forEach((fn) => fn());
+    console.info("Kualitas grafis diturunkan otomatis (bloom, bayangan, dan partikel dikurangi).");
   };
+  quality.low = touch;
+  const perf = { frames: 0, time: 0, warmup: 3 };
 
   engine.rig = createRig(THREE, camera);
 
@@ -83,8 +98,21 @@ function createEngine(L) {
 
   let last = performance.now();
   const frame = (now) => {
-    const real = Math.min(0.05, (now - last) / 1000);
+    const raw = (now - last) / 1000;
+    const real = Math.min(0.05, raw);
     last = now;
+    if (!quality.low) {
+      if (perf.warmup > 0) perf.warmup -= raw;
+      else {
+        perf.frames++;
+        perf.time += raw;
+        if (perf.time >= 3) {
+          if (perf.frames / perf.time < 40) engine.setLowQuality();
+          perf.frames = 0;
+          perf.time = 0;
+        }
+      }
+    }
     const dt = real * engine.timeScale;
     engine.time += dt;
     const k = 1 - Math.exp(-real * 4);
@@ -182,8 +210,10 @@ function createRig(THREE, camera) {
 
 async function startAdventure(student) {
   if (!libs) return;
+  initAudio(); // dibuat setelah klik pertama pemain (tombol Mulai)
   document.querySelectorAll(".screen").forEach((el) => el.classList.remove("is-active"));
   $("#game-root").hidden = false;
+  $("#game-root").classList.toggle("is-touch", isTouchDevice());
   if (!adventure) {
     const engine = createEngine(libs);
     const { Adventure } = await import("./stages.js");
@@ -195,6 +225,7 @@ async function startAdventure(student) {
 async function boot() {
   initMenu((student) => startAdventure(student));
   try {
+    if (!window.jspdf || !window.jspdf.jsPDF) throw new Error("jsPDF tidak termuat");
     libs = await loadLibs();
   } catch (err) {
     console.error("Library dari CDN gagal dimuat:", err);
