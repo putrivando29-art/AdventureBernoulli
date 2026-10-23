@@ -17,9 +17,9 @@ untuk interpretasi sumber, **[Dugaan]** untuk perkiraan yang harus dicek kelompo
 
 | Topik | Keputusan |
 |---|---|
-| Fokus materi | **Hanya distribusi Bernoulli** (permintaan dosen). Tidak ada kegiatan distribusi binomial |
+| Fokus materi | **Hanya distribusi Bernoulli** (permintaan dosen). Materi, Tujuan Pembelajaran, kegiatan, dan soal tidak membahas distribusi lain |
 | Sasaran | Kelas XII, Matematika Tingkat Lanjut, Fase F (kelas pasti mengikuti ATP sekolah mitra) |
-| Kurikulum | LKPD untuk siswa hanya memuat Tujuan Pembelajaran; kaitannya dengan CP dicatat di 0.2 |
+| Kurikulum | LKPD untuk siswa hanya memuat Tujuan Pembelajaran, dan semuanya tentang Bernoulli. CP tidak menyebut Bernoulli, jadi TP dirumuskan khusus untuk Bernoulli (keputusan pemilik) |
 | Materi awal | Ada bagian materi distribusi Bernoulli sebelum kegiatan, untuk siswa yang belum mengenalnya |
 | Waktu | Asinkron, kapan saja; 1 siswa 1 perangkat; login Google |
 | Permainan | p bawaan (0,5; 0,6; 0,7; 0,4; 0,3). Boleh berhenti sebelum tahap 5; soal memakai tahap yang dimainkan |
@@ -49,10 +49,10 @@ dikutip di laporan.
 | Menginterpretasi parameter distribusi; menghitung nilai harapan | TP 3: p, E(X), Var(X) dan artinya |
 | Menggunakannya dalam penyelesaian masalah | TP 4: peluang rangkaian percobaan dan soal cerita |
 
-Catatan jujur [Kemungkinan Besar]:
-- CP tidak menyebut Bernoulli. Posisinya: distribusi Bernoulli adalah variabel acak diskrit paling
-  sederhana dan sama dengan distribusi binomial untuk satu percobaan (n = 1). Satu kalimat tentang ini ada
-  di materi (bagian 4F) sebagai jembatan ke CP. Kalimat itu boleh dihapus jika dosen tidak menghendakinya.
+Catatan:
+- CP tidak menyebut Bernoulli. Sesuai keputusan pemilik, keempat TP dirumuskan khusus untuk distribusi
+  Bernoulli dan tidak menyinggung distribusi lain; tabel di atas hanya menunjukkan frasa CP yang menjadi
+  pijakan tiap TP.
 - CP menyebut nilai harapan, tetapi tidak menyebut variansi secara langsung. Variansi dimasukkan sebagai
   bagian dari "menginterpretasi parameter distribusi secara statistik".
 
@@ -138,8 +138,8 @@ Setelah bermain dan mengerjakan LKPD ini, kamu dapat:
 1. mengidentifikasi ciri percobaan Bernoulli dan variabel acaknya dari hasil permainanmu;
 2. menentukan fungsi peluang distribusi Bernoulli, P(X = x) = p^x (1 - p)^(1 - x);
 3. menghitung serta menjelaskan arti nilai harapan E(X) = p dan variansi Var(X) = p(1 - p);
-4. menggunakan distribusi Bernoulli untuk menyelesaikan masalah, termasuk peluang rangkaian percobaan yang
-   saling bebas dan soal cerita di luar game.
+4. menggunakan distribusi Bernoulli untuk menyelesaikan masalah, termasuk peluang beberapa percobaan
+   Bernoulli yang saling bebas dan soal cerita di luar game.
 
 ### 3. Tebakan Awal
 
@@ -196,12 +196,7 @@ masukkan x = 0, hasilnya 1 - p. Jumlah kedua peluang selalu 1. [Pasti]
   Var(X) = E(X²) - [E(X)]² = p - p² = **p(1 - p)**. [Pasti]
   Artinya: ukuran seberapa jauh nilai X biasanya menyimpang dari E(X), atau seberapa sulit hasilnya ditebak.
 
-**F. Hubungan dengan materi berikutnya** (boleh dihapus jika dosen tidak menghendaki)
-
-Distribusi Bernoulli adalah distribusi binomial untuk satu percobaan saja (n = 1). Binomial akan kamu
-pelajari setelah ini.
-
-**G. Contoh soal**
+**F. Contoh soal**
 
 Sebuah percobaan Bernoulli memiliki p = 0,45 (angka ini tidak dipakai di game).
 P(X = 1) = 0,45; P(X = 0) = 1 - 0,45 = 0,55; E(X) = 0,45; Var(X) = 0,45 × 0,55 = 0,2475. [Pasti]
@@ -411,6 +406,4 @@ Tebakan Awal, Refleksi C, dan penilaian diri tidak diberi skor; dipakai untuk me
 
 ## Bagian E. Yang masih perlu dikonfirmasi
 
-1. Kalimat jembatan ke binomial di materi bagian 4F: dipertahankan atau dihapus.
-2. Kegiatan 3 (peluang rangkaian) masih dalam lingkup "hanya Bernoulli" menurut dosen, atau dihapus juga.
-3. Judul dan nomor keputusan dokumen CP, jika CP dikutip di laporan.
+1. Judul dan nomor keputusan dokumen CP, jika CP dikutip di laporan.
