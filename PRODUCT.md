@@ -9,15 +9,19 @@ keputusan pemilik proyek. Semua angka di dokumen ini diambil dari kode (`js/conf
 - **Nama:** Adventure Bernoulli.
 - **Jenis:** game edukasi 3D hack and slash berbasis browser untuk mengajarkan distribusi Bernoulli.
 - **Pembuat:** Kelompok 17, Universitas Sriwijaya.
-- **Hosting:** website statis gratis (GitHub Pages atau Netlify). Tanpa build tool, tanpa backend,
-  tanpa database. npm hanya untuk tes di komputer pengembang.
+- **Hosting:** website statis di Vercel (sebelumnya Netlify). Tanpa build tool. npm hanya untuk tes di
+  komputer pengembang.
+- **Backend (direncanakan, belum dikodekan):** Firebase Authentication (login Google) dan Cloud Firestore
+  untuk menyimpan hasil permainan, umpan balik, dan LKPD per siswa, serta akun guru. Rancangan:
+  `docs/rancangan-firebase.md`.
 - **Teknologi:** HTML, CSS, JavaScript murni (ES module), Three.js 0.160.0 lewat import map dari
   jsDelivr, jsPDF 2.5.1 dari cdnjs, font Cinzel dari Google Fonts.
 
 ## 2. Pengguna
 
-- Siswa, bermain mandiri tanpa pendamping.
-- Guru, mengatur nilai p lewat Setting Guru dan membagikan tautan siswa.
+- Siswa kelas XII, Matematika Tingkat Lanjut, Fase F (kelas pasti mengikuti ATP sekolah mitra), bermain
+  dan mengerjakan LKPD secara asinkron, 1 siswa 1 perangkat.
+- Guru (4 email yang ditentukan pemilik), memantau hasil siswa lewat akun guru.
 - Perangkat: laptop (utama) dan HP Android (lebar 360 sampai 412 piksel; bermain dalam landscape,
   menu dan rekap dalam portrait).
 - Lama satu sesi: 15 sampai 20 menit.
@@ -175,8 +179,12 @@ Lihat Rekap", "Buka PDF di Tab Baru").
 
 ## 12. Data dan privasi
 
-Tidak ada data yang dikirim ke server. Hasil hanya ada selama halaman terbuka; siswa harus mengunduh PDF
-rekap sebelum menutup halaman. Setting Guru dan pilihan Efek gerak disimpan di localStorage browser itu.
+- Saat ini: belum ada data yang dikirim ke server. Hasil hanya ada selama halaman terbuka. Setting Guru dan
+  pilihan Efek gerak disimpan di localStorage browser itu.
+- Setelah rencana Firebase dikerjakan: nama, kelas, email, hasil permainan, umpan balik, dan jawaban LKPD
+  disimpan di Firestore milik akun Firebase pemilik. Siswa hanya bisa membaca datanya sendiri; guru bisa
+  membaca semua. Data siswa di bawah 18 tahun memerlukan persetujuan orang tua atau wali (Pasal 25 UU
+  27/2022); izin diurus kelompok.
 
 ## 13. Tes
 
@@ -189,7 +197,7 @@ rekap sebelum menutup halaman. Setting Guru dan pilihan Efek gerak disimpan di l
 index.html, .nojekyll, README.md, PRODUCT.md, package.json
 css/style.css
 tests/bernoulli.test.js
-docs/LKPD-struktur-dan-isi.md
+docs/LKPD-struktur-dan-isi.md, docs/rancangan-firebase.md
 js/  bernoulli.js  config.js  main.js  player.js  boss.js  mystic.js  arena.js
      controls.js  combat.js  stages.js  ui.js  shaders.js  pdf.js  audio.js  browser-tests.js
      cutscene.js  qte.js  potions.js  spells.js  settings.js  teacher.js
@@ -224,21 +232,29 @@ js/  bernoulli.js  config.js  main.js  player.js  boss.js  mystic.js  arena.js
   karakter, percakapan singkat gaya visual novel, QTE di Serangan Penentu (hanya animasi), ramuan,
   gulungan sihir, musik latar, dan Serangan Penentu yang juga dipicu saat player sekarat (peluang tetap
   p tahap itu). Aturan 3 berlaku untuk penambahan baru.
-- Hosting tetap di Netlify; zona aman badge hosting di kanan bawah dipertahankan.
+- Hosting pindah ke Vercel. Zona aman kanan bawah tetap dipertahankan.
 - **Rekap dan PDF akhir dibuat ringkas (diputuskan 23 Oktober 2026, belum dikerjakan):** hanya berisi
-  identitas, tahap, kondisi, p, hasil (Menang/Kalah/Tidak dimainkan), dan jumlah menang serta kalah.
-  Kolom 1 - p, X, P(hasil), E(X), Var(X), rumus, peluang urutan, jumlah menang yang diharapkan, catatan
-  "bukan binomial", dan tiga pertanyaan refleksi dipindah ke LKPD agar jawabannya tidak tersedia di
-  rekap. Keputusan ini mengesampingkan aturan 2 (isi perhitungan PDF) dan aturan 4 khusus untuk rekap
+  identitas, tahap, kondisi, p, hasil (Menang/Kalah/Tidak dimainkan), jumlah menang serta kalah, dan
+  umpan balik singkat siswa tentang aplikasi. Kolom 1 - p, X, P(hasil), E(X), Var(X), rumus, peluang
+  urutan, jumlah menang yang diharapkan, catatan "bukan binomial", dan pertanyaan refleksi dipindah ke
+  LKPD agar jawabannya tidak tersedia di rekap. Keputusan ini mengesampingkan aturan 2 (isi perhitungan PDF) dan aturan 4 khusus untuk rekap
   dan PDF. Layar hasil tahap, HUD, dan Serangan Penentu tetap menampilkan p, 1 - p, dan X. Daftar
   perubahan kodenya menunggu persetujuan pemilik sebelum dikerjakan (aturan 7).
 
-## 18. Rencana yang diminta pemilik: LKPD digital
+## 18. Rencana yang diminta pemilik: login, LKPD digital, dan akun guru
 
-- Pemilik meminta LKPD (Lembar Kerja Peserta Didik) sebagai kelanjutan setelah bermain 1 kali atau
-  lebih. Struktur dan isinya ada di `docs/LKPD-struktur-dan-isi.md`.
-- Desain LKPD akan diberikan kelompok, lalu dikodekan 1:1 dengan kolom isian, dan jawaban bisa diunduh
-  siswa atau dikirim ke guru.
-- LKPD adalah penambahan atas permintaan langsung pemilik, jadi menjadi pengecualian tertulis untuk
-  aturan 3. Cara pengiriman ke guru belum diputuskan karena game tidak punya backend (lihat bagian
-  keputusan teknis di dokumen LKPD).
+Penambahan ini atas permintaan langsung pemilik, jadi menjadi pengecualian tertulis untuk aturan 3, dan
+mengganti prinsip "tanpa backend". Aturan 6 tetap berlaku: semua pustaka dimuat dari CDN, tanpa npm.
+
+- **Login Google** (Firebase). Setelah login, siswa mengisi nama dan kelas sendiri. Data tersimpan di
+  akun sehingga bisa pindah perangkat.
+- **Dua putaran permainan.** Putaran 1 memakai p bawaan. Putaran 2 memakai p lain; rekomendasi p unik per
+  siswa (satu desimal, 0,1 sampai 0,9, kelima tahap berbeda) yang diacak sekali dan disimpan di akun,
+  menunggu konfirmasi pemilik.
+- **LKPD digital** terbuka setelah 2 permainan tercatat. Struktur dan isi: `docs/LKPD-struktur-dan-isi.md`.
+  Desain dari kelompok, dikodekan 1:1. Semua isian memakai editor persamaan. Tidak ada tanda benar/salah
+  otomatis. Setelah dikirim, perubahan hanya dengan persetujuan guru.
+- **Akun guru** (4 email dari pemilik): memantau hasil permainan, PDF, progres dan jawaban LKPD,
+  menyetujui pengajuan perubahan, menerbitkan data kelas. Penilaian dilakukan kelompok di luar website.
+- Rancangan teknis: `docs/rancangan-firebase.md`. Tahapan: A (login dan data permainan), B (LKPD), C (akun
+  guru), D (uji dan panduan).

@@ -1,463 +1,370 @@
-# LKPD Adventure Bernoulli: Struktur dan Isi
+# LKPD Adventure Bernoulli: Struktur dan Isi (revisi 2)
 
-Dokumen kerja untuk Kelompok 17, Universitas Sriwijaya. Isinya struktur lengkap LKPD (Lembar Kerja
-Peserta Didik) dari sampul sampai penutup, teks untuk siswa, kolom isian, kunci jawaban, rubrik,
-petunjuk guru, dan catatan teknis untuk pengodean nanti. Desain visual menyusul dari kelompok.
+Dokumen kerja untuk Kelompok 17, Universitas Sriwijaya. Isinya struktur LKPD digital dari sampul sampai
+penutup, teks untuk siswa, kolom isian, kunci jawaban, rubrik, dan hal yang masih perlu dikonfirmasi.
+Desain visual menyusul dari kelompok; teks di sini menjadi isi yang dimasukkan 1:1 ke desain itu.
+Rancangan pendataan (login, database, akun guru) ada di `docs/rancangan-firebase.md`.
 
 Tanda keyakinan: **[Pasti]** untuk rumus baku dan hitungan yang bisa dicek, **[Kemungkinan Besar]**
-untuk interpretasi sumber sekunder, **[Dugaan]** untuk perkiraan yang harus dicek kelompok.
+untuk interpretasi sumber, **[Dugaan]** untuk perkiraan yang harus dicek kelompok.
 
 ---
 
-## Bagian 0. Analisis sebelum menyusun
+## Bagian 0. Keputusan dan analisis
 
-### 0.1 Apa yang sudah dikerjakan game, dan apa yang belum
+### 0.1 Keputusan pemilik yang membentuk LKPD ini
 
-Keputusan pemilik (23 Oktober 2026): rekap dan PDF di akhir game **hanya berisi hasil** (tahap,
-kondisi, p, Menang/Kalah/Tidak dimainkan, jumlah menang dan kalah). Semua perhitungan dan pertanyaan
-pindah ke LKPD, supaya LKPD tetap terkait dengan game dan jawabannya tidak sudah tersedia di rekap.
-
-| Ada di game (setelah keputusan itu) | Dikerjakan siswa di LKPD |
+| Topik | Keputusan |
 |---|---|
-| Satu tahap = satu percobaan Bernoulli, hasil MENANG (X = 1) atau KALAH (X = 0), p tiap tahap | Menyebutkan ciri percobaan Bernoulli dengan bukti dari pengalaman bermain |
-| Rekap ringkas: tahap, kondisi, p, hasil, jumlah menang dan kalah | Menghitung 1 - p, X, P(hasil), E(X), Var(X), peluang urutan, dan jumlah menang yang diharapkan |
-| Satu sesi hanya memberi satu hasil per tahap | Membandingkan frekuensi relatif dari beberapa kali main dan data gabungan kelas dengan p |
-| (Catatan "bukan binomial" dan tiga pertanyaan refleksi dipindah dari rekap) | Menjelaskan mengapa bukan binomial, menjembatani ke binomial, dan refleksi sebelum-sesudah |
-| Konteks hanya Kerajaan Swarnadwipa | Memindahkan konsep ke situasi di luar game |
+| Sasaran | Kelas XII, Matematika Tingkat Lanjut, Fase F (kelas pasti mengikuti ATP sekolah mitra) |
+| Kurikulum | LKPD hanya memuat Tujuan Pembelajaran. Kelompok mengirim tangkapan layar CP Fase F untuk dicocokkan |
+| Prasyarat | Siswa sudah belajar kombinasi C(n, r) |
+| Waktu | Asinkron, dikerjakan kapan saja; 1 siswa 1 perangkat |
+| Login | Google. Setelah login, siswa mengisi nama dan kelas sendiri. Data tersimpan di akun, jadi bisa pindah perangkat |
+| Permainan | Putaran 1 memakai p bawaan (sama untuk semua). Putaran 2 memakai p lain (lihat 0.3) |
+| Kunci LKPD | LKPD terbuka setelah tercatat 2 permainan |
+| Rekap dan PDF | Hanya hasil menang dan kalah, ditambah umpan balik singkat tentang aplikasi. Refleksi hanya di LKPD |
+| Isian | Semua isian (angka, rumus, uraian) bisa memakai editor persamaan (pangkat, indeks bawah, pecahan) |
+| Umpan balik otomatis | Tidak ada. Jawaban murni dari siswa |
+| Setelah dikirim | Jawaban terkunci. Siswa bisa mengajukan perubahan; guru menyetujui di akun guru |
+| Penilaian | Oleh kelompok, di luar website. Dokumen ini menyediakan kunci dan rubrik |
+| Kegiatan di luar game | Tidak dimasukkan. LKPD berfokus pada data menang dan kalah siswa |
 
-Jadi rekap adalah **data mentah** dan LKPD adalah **tempat mengolahnya**.
+### 0.2 Apa yang dikerjakan game, apa yang dikerjakan LKPD
 
-### 0.2 Kesesuaian dengan kurikulum
+| Di game | Di LKPD |
+|---|---|
+| Satu tahap = satu percobaan Bernoulli; p tiap tahap terlihat di pembuka tahap dan HUD | Menyebutkan ciri percobaan Bernoulli dengan bukti dari permainan sendiri |
+| Rekap: tahap, kondisi, p, hasil, jumlah menang dan kalah, umpan balik aplikasi | Menghitung 1 - p, X, P(hasil), E(X), Var(X), peluang urutan, jumlah menang yang diharapkan |
+| Dua permainan tercatat di akun | Membandingkan harapan dengan kenyataan, sendiri dan sekelas |
+| - | Menjembatani ke distribusi binomial, refleksi akhir |
 
-- [Kemungkinan Besar] Materi ini masuk Capaian Pembelajaran **Matematika Tingkat Lanjut Fase F**,
-  elemen **Analisis Data dan Peluang**. Menurut ringkasan hasil pencarian laman resmi Kemendikdasmen,
-  di akhir fase siswa memahami variabel acak diskrit dan fungsi peluang, menginterpretasikan parameter
-  distribusi seragam, binomial, dan normal, serta menghitung nilai harapan distribusi binomial dan
-  normal. Laman resminya tidak bisa saya buka langsung dari lingkungan kerja ini, jadi **kelompok wajib
-  menyalin kalimat CP dari laman resmi** sebelum dicetak:
-  https://guru.kemdikbud.go.id/kurikulum/referensi-penerapan/capaian-pembelajaran/sd-sma/matematika-tingkat-lanjut/fase-f/
-- [Kemungkinan Besar] Distribusi Bernoulli tidak selalu disebut namanya di CP. Posisinya sebagai dasar
-  distribusi binomial (binomial dengan n = 1). Karena itu LKPD diakhiri jembatan ke binomial (Kegiatan 5).
-- Beberapa sumber sekunder menyebut fase ini "F+" atau merujuk keputusan BSKAP yang berbeda (032/2024
-  atau 046/2025). Pakai nomor keputusan yang berlaku di sekolah tujuan.
+Rekap adalah **data mentah**; LKPD adalah **tempat mengolahnya**.
 
-### 0.3 Komponen LKPD yang dipakai
+### 0.3 Putaran 2: rekomendasi
 
-[Kemungkinan Besar] Sumber sekunder yang merujuk Depdiknas (2008) menyebut enam komponen pokok LKPD:
-judul, petunjuk belajar, kompetensi dasar atau materi pokok, informasi pendukung, tugas atau langkah
-kerja, dan penilaian. Versi lain menambah waktu penyelesaian, alat dan bahan, serta laporan. Struktur di
-bawah memuat semuanya. Dokumen asli Depdiknas belum saya baca langsung, jadi jika LKPD ini masuk
-laporan, kutip dari dokumen aslinya.
+Pertanyaan pemilik: putaran 2 memakai p dari Setting Guru, atau main mode normal 2 kali ("tapi nanti
+tidak Bernoulli dong")?
+
+Koreksi: **bermain dengan p yang sama dua kali tetap percobaan Bernoulli.** [Pasti] Setiap tahap di setiap
+permainan adalah satu percobaan Bernoulli, berapa pun p-nya dan berapa kali pun diulang. Yang berubah
+hanya apa yang bisa dibandingkan.
+
+| Pilihan | Kelebihan | Kekurangan |
+|---|---|---|
+| A. Putaran 2 = p bawaan lagi | Per tahap ada 2 percobaan dengan p sama; data kelas mudah digabung | Hitungan E(X) dan Var(X) sama untuk semua siswa, mudah disalin; tidak ada pengalaman "p berbeda" |
+| B. Putaran 2 = satu set p dari guru untuk seluruh kelas | Siswa melihat bahwa hasil mengikuti p, bukan kemampuan bermain; data kelas tetap bisa digabung | Hitungan tetap sama untuk semua siswa |
+| C. Putaran 2 = p unik per siswa, diacak otomatis sekali dan disimpan di akun | Hitungan tiap siswa berbeda (sulit menyalin, penting karena asinkron); tetap bisa dibandingkan dengan putaran 1 | Data kelas putaran 2 hanya bisa digabung lewat jumlah (Σp dibanding jumlah menang), bukan per tahap |
+
+**Rekomendasi: C.** Alasan utamanya mode asinkron: siswa mengerjakan di rumah dan bisa saling bertukar
+jawaban; dengan p unik, jawaban hitungan tidak bisa dipakai bersama. Kebutuhan data kelas tetap terpenuhi
+lewat putaran 1 (p sama) dan lewat jumlah di putaran 2.
+
+Aturan p acak: satu desimal, 0,1 sampai 0,9, kelima tahap berbeda. Diacak di perangkat siswa saat
+putaran 1 selesai, disimpan sekali di akun, tidak bisa diubah siswa; guru bisa melihat dan menggantinya di
+akun guru. Setting Guru di menu tetap ada untuk guru mencoba-coba p di perangkatnya sendiri.
+
+Isi LKPD di bawah ditulis untuk pilihan C. Jika kelompok memilih A atau B, soal bertanda **(C)** perlu
+disesuaikan.
 
 ### 0.4 Prinsip agar LKPD tidak terasa dipaksakan
 
 1. **Data dulu, istilah kemudian.** Setiap kegiatan dimulai dari hasil permainan siswa sendiri.
-2. **Cerita hanya sebagai bingkai.** Nama dan suasana Swarnadwipa dipakai di judul kegiatan dan pesan
-   pembuka, bukan disisipkan ke setiap soal.
-3. **Setiap soal punya alasan.** Soal yang tidak menambah pemahaman baru dibuang. Total sekitar 25 isian.
-4. **Lentur terhadap jumlah permainan.** Bisa dikerjakan setelah main 1 kali. Bagian pribadi Kegiatan 3
-   hanya untuk yang main 2 kali atau lebih; bagian data kelas tetap bisa dikerjakan semua siswa.
-5. **Rekap sebagai data, bukan kunci.** Rekap tidak lagi memuat perhitungan, jadi pengecekan lewat
-   umpan balik LKPD digital (tanda cocok/belum, tanpa skor) atau kunci guru.
-6. **Menyasar salah paham yang dipancing game.** "p = 0,7 berarti pasti menang", "setelah kalah,
-   peluang menang naik", "QTE mengubah peluang", "tahap Tidak dimainkan = kalah". Empat hal ini sudah
-   disinggung dialog Resi Bayang; LKPD mengujinya dengan tebakan awal dan pernyataan benar/salah
-   beralasan.
-
-### 0.5 Satu hal yang harus diperhatikan: p bisa diubah guru
-
-Beberapa soal memakai nilai p bawaan (0,5; 0,6; 0,7; 0,4; 0,3), misalnya Q2.2 dan Q5.1. Jika guru
-mengubah p lewat Setting Guru atau tautan siswa, soal itu tidak berlaku. Di versi digital, soal bertanda
-**(p bawaan)** ditampilkan hanya jika sumber p di rekap adalah "nilai bawaan game", atau angkanya dihitung
-ulang dari p yang dipakai.
+2. **Cerita hanya bingkai.** Swarnadwipa dipakai di judul kegiatan dan pesan pembuka, bukan di setiap soal.
+3. **Setiap soal punya alasan.** Sekitar 20 isian.
+4. **Menyasar salah paham yang dipancing game:** "p = 0,7 berarti pasti menang", "setelah kalah peluang
+   naik", "QTE mengubah peluang", "tahap Tidak dimainkan = kalah".
 
 ---
 
-## Bagian A. Struktur LKPD (urutan halaman)
+## Bagian A. Struktur LKPD
 
-| No | Bagian | Isi pokok | Kolom isian |
+| No | Bagian | Isi pokok | Isian |
 |---|---|---|---|
-| 0 | Sampul | Judul, subjudul, identitas mapel, identitas siswa, identitas pembuat | Nama, Kelas, Nomor absen, Tanggal |
-| 1 | Petunjuk penggunaan | Langkah kerja siswa, ikon, waktu | - |
-| 2 | Tujuan pembelajaran dan alat | 4 tujuan, alat dan bahan, alokasi waktu | - |
-| 3 | Sebelum Mulai: Tebakan Awal | Tiga pertanyaan refleksi yang dipindah dari rekap game, dijawab sebelum belajar | 3 isian |
-| 3a | Gulungan Pengetahuan Resi Bayang (informasi pendukung) | Definisi, rumus, satu contoh | - |
-| 4 | Kegiatan 1: Catatan Pertarunganku | Tabel hasil dari rekap, ciri percobaan Bernoulli | Tabel 5 baris, 3 soal |
-| 5 | Kegiatan 2: Menghitung Setiap Pertarungan | P(X = 1), P(X = 0), E(X), Var(X) | Tabel 5 baris, 3 soal |
-| 6 | Kegiatan 3: Bertarung Lagi, Apakah Hasilnya Sama? | Frekuensi relatif dari beberapa kali main dan data kelas | 2 tabel, 3 soal |
-| 7 | Kegiatan 4: Peluang Satu Rangkaian Pertarungan | Peluang urutan hasil, kebebasan, nilai harapan jumlah | 4 soal |
-| 8 | Kegiatan 5: Dari Bernoulli ke Binomial | Menang semua, kalah semua, mengapa bukan binomial, andaikan p sama | 3 soal (+1 tantangan) |
-| 9 | Kegiatan 6: Di Luar Swarnadwipa | Empat situasi sehari-hari | 4 isian |
-| 10 | Refleksi dan Kesimpulan | Benar/salah beralasan, kesimpulan rumpang, membandingkan dengan tebakan awal, penilaian diri | 5 + 4 + 1 + 4 isian |
-| 11 | Penutup | Pesan Resi Bayang, tombol unduh atau kirim | - |
-| 12 | Glosarium | Istilah penting | - |
-| 13 | Daftar pustaka | Sumber yang benar-benar dipakai | - |
-| Guru | Kunci jawaban, rubrik, petunjuk guru | Terpisah dari LKPD siswa | - |
+| 0 | Sampul | Judul, identitas (terisi dari akun) | - |
+| 1 | Petunjuk penggunaan | Cara mengerjakan, editor persamaan, kirim | - |
+| 2 | Tujuan pembelajaran | 4 tujuan | - |
+| 3 | Tebakan Awal | 3 pertanyaan sebelum belajar | 3 |
+| 4 | Gulungan Pengetahuan Resi Bayang | Definisi, rumus, contoh | - |
+| 5 | Kegiatan 1: Catatan Pertarunganku | Data dua putaran, ciri Bernoulli | 2 tabel, 3 soal |
+| 6 | Kegiatan 2: Menghitung Setiap Pertarungan | P(X = x), E(X), Var(X) dengan p putaran 2 | 1 tabel, 3 soal |
+| 7 | Kegiatan 3: Ramalan Resi dan Kenyataan | Jumlah menang yang diharapkan vs nyata, sendiri dan sekelas | 3 tabel, 3 soal |
+| 8 | Kegiatan 4: Peluang Satu Rangkaian Pertarungan | Peluang urutan, kebebasan, urutan paling mungkin | 3 soal |
+| 9 | Kegiatan 5: Dari Bernoulli ke Binomial | Menang semua dan kalah semua, syarat binomial, C(5, 3) | 3 soal (+1 tantangan) |
+| 10 | Refleksi | Benar/salah beralasan, kesimpulan, membandingkan dengan Tebakan Awal, penilaian diri | 4 bagian |
+| 11 | Penutup | Pesan Resi Bayang, Kirim LKPD | - |
+| 12 | Glosarium | Istilah | - |
 
 ---
 
-## Bagian B. Isi lengkap untuk siswa
+## Bagian B. Isi untuk siswa
 
-Konvensi kolom isian: `[id | jenis]`. Jenis: `teks-pendek`, `teks-panjang`, `angka` (koma desimal),
-`pilihan`, `benar-salah`, `tabel`. ID dipakai saat pengodean.
+Konvensi: `[id | jenis]`. Jenis: `teks` (uraian dengan editor persamaan), `angka` (angka atau rumus dengan
+editor persamaan), `pilihan`, `benar-salah`, `tabel`. Data bertanda **(sistem)** ditampilkan dari akun dan
+tidak bisa diubah siswa.
 
 ### 0. Sampul
 
-- Judul: **LKPD Distribusi Bernoulli**
-- Subjudul: **Catatan Pertarungan di Kerajaan Swarnadwipa**
-- Keterangan: Lembar kerja pendamping game Adventure Bernoulli
-- Mata pelajaran: Matematika Tingkat Lanjut (konfirmasi kelompok)
-- Fase/Kelas: F / XI atau XII (konfirmasi kelompok)
-- Materi: Distribusi Peluang, Percobaan Bernoulli
-- Identitas siswa:
-  - Nama: `[s.nama | teks-pendek]` (versi digital: terisi dari Nama Siswa di game, boleh diubah)
-  - Kelas: `[s.kelas | teks-pendek]`
-  - Nomor absen: `[s.absen | angka]`
-  - Tanggal: `[s.tanggal | teks-pendek]`
-- Pembuat: Universitas Sriwijaya · by Kelompok 17
-- Ilustrasi saran: Arca Durgaraksa di ruang singgasana, Resi Bayang memegang gulungan.
+- **LKPD Distribusi Bernoulli**
+- *Catatan Pertarungan di Kerajaan Swarnadwipa*
+- Lembar kerja pendamping game Adventure Bernoulli
+- Matematika Tingkat Lanjut · Kelas XII · Fase F
+- Nama, kelas, email: (sistem, dari akun)
+- Universitas Sriwijaya · by Kelompok 17
 
 ### 1. Petunjuk penggunaan
 
-1. Mainkan Adventure Bernoulli sampai layar rekap. Kamu boleh berhenti sebelum tahap 5.
-2. Unduh PDF rekap atau biarkan rekap terbuka. Rekap hanya berisi hasil pertarunganmu; semua
-   perhitungan kamu kerjakan di LKPD ini.
-3. Kerjakan bagian secara berurutan, mulai dari Tebakan Awal.
-4. Tulis angka desimal dengan koma, misalnya 0,24.
-5. Jika kamu bermain lebih dari sekali, catat hasil setiap permainan di Kegiatan 3.
-6. Setelah selesai, unduh LKPD-mu atau kirim ke guru.
+1. LKPD ini terbuka setelah kamu menyelesaikan 2 permainan. Datamu terisi otomatis dari akunmu.
+2. Kerjakan berurutan, mulai dari Tebakan Awal. Jawabanmu tersimpan otomatis; kamu bisa melanjutkan di
+   perangkat lain dengan akun yang sama.
+3. Tulis angka desimal dengan koma, misalnya 0,24. Untuk pangkat, pecahan, atau indeks, tekan tombol
+   **Rumus**.
+4. Tidak ada tanda benar atau salah selama mengerjakan. Jawab dengan pemahamanmu sendiri.
+5. Tekan **Kirim LKPD** jika sudah selesai. Setelah terkirim, jawaban terkunci. Untuk mengubahnya, tekan
+   **Ajukan Perubahan** dan tunggu persetujuan guru.
 
-Ikon saran: buku (baca), pensil (tulis), pedang (data dari permainan), centang (periksa kembali).
-
-### 2. Tujuan pembelajaran, alat, dan waktu
+### 2. Tujuan pembelajaran
 
 Setelah bermain dan mengerjakan LKPD ini, kamu dapat:
-1. menjelaskan ciri percobaan Bernoulli dengan bukti dari permainan (Kegiatan 1);
+1. menjelaskan ciri percobaan Bernoulli dengan bukti dari hasil permainanmu (Kegiatan 1);
 2. menentukan fungsi peluang P(X = x) = p^x (1 - p)^(1 - x), nilai harapan E(X) = p, dan variansi
    Var(X) = p(1 - p) (Kegiatan 2);
-3. membedakan peluang p, hasil satu percobaan, dan frekuensi relatif dari banyak percobaan (Kegiatan 3);
-4. menghitung peluang rangkaian percobaan yang saling bebas dan menjelaskan hubungan Bernoulli dengan
-   binomial (Kegiatan 4 dan 5), lalu menerapkannya pada situasi lain (Kegiatan 6).
+3. membandingkan jumlah menang yang diharapkan dengan jumlah menang yang terjadi, dari sedikit dan dari
+   banyak percobaan (Kegiatan 3);
+4. menghitung peluang rangkaian percobaan Bernoulli yang saling bebas dan menjelaskan kapan jumlah
+   keberhasilannya berdistribusi binomial (Kegiatan 4 dan 5).
 
-Rumusan ini draf. Sesuaikan dengan kalimat CP resmi dan alur tujuan pembelajaran sekolah.
+(Rumusan dicocokkan lagi setelah kelompok mengirim tangkapan layar CP.)
 
-Alat dan bahan: laptop atau HP dengan internet, game Adventure Bernoulli, PDF rekap, alat tulis atau
-kalkulator.
+### 3. Tebakan Awal
 
-Waktu [Dugaan, perlu uji coba]: bermain 15 sampai 20 menit per sesi; LKPD sekitar 60 sampai 70 menit
-(Kegiatan 1 dan 2 sekitar 20 menit, Kegiatan 3 sekitar 15 menit, Kegiatan 4 dan 5 sekitar 20 menit,
-Kegiatan 6 dan refleksi sekitar 15 menit). Cocok untuk 2 JP ditambah waktu bermain.
+Jawab dengan pendapatmu sekarang. Bagian ini tidak dinilai benar atau salah; kamu akan melihatnya lagi di
+Refleksi.
 
-### 3. Sebelum Mulai: Tebakan Awal
+- **T1** Mengapa satu pertarungan melawan Arca Durgaraksa bisa disebut satu percobaan Bernoulli? `[t.t1 | teks]`
+- **T2** Jika peluang menang di suatu tahap 0,7, apakah kamu pasti menang? `[t.t2 | teks]`
+- **T3** Apakah kalah di satu tahap memengaruhi peluang menang di tahap berikutnya? `[t.t3 | teks]`
 
-Jawab dengan pendapatmu sendiri sekarang. Jawaban ini tidak dinilai benar atau salah; kamu akan
-melihatnya lagi di akhir LKPD.
+### 4. Gulungan Pengetahuan Resi Bayang
 
-- **T1** Mengapa satu pertarungan melawan Arca Durgaraksa bisa disebut satu percobaan Bernoulli?
-  `[t.t1 | teks-panjang]`
-- **T2** Pada tahap 3 dengan p = 0,7, apakah kamu pasti menang? `[t.t2 | teks-panjang]`
-- **T3** Apakah kalah di tahap 1 memengaruhi peluang menangmu di tahap 2? `[t.t3 | teks-panjang]`
+"Pengembara, setiap pertarunganmu sudah tercatat. Sekarang mari kita baca catatan itu."
 
-(Tiga pertanyaan ini sebelumnya ada di rekap dan PDF game. Di versi digital, angka tahap dan p di T2
-mengikuti tahap dengan p terbesar.)
-
-### 3a. Gulungan Pengetahuan Resi Bayang (informasi pendukung)
-
-Pesan pembuka: "Pengembara, setiap pertarunganmu sudah tercatat. Sekarang mari kita baca catatan itu."
-
-- **Percobaan Bernoulli** adalah satu percobaan yang hasilnya hanya dua: berhasil atau gagal.
-- **Variabel acak X** mencatat hasilnya: X = 1 jika berhasil, X = 0 jika gagal.
-- **p** adalah peluang berhasil, dan **1 - p** adalah peluang gagal. Keduanya selalu berjumlah 1.
+- **Percobaan Bernoulli:** satu percobaan dengan dua hasil saja, berhasil atau gagal.
+- **Variabel acak X:** X = 1 jika berhasil, X = 0 jika gagal.
+- **p** peluang berhasil, **1 - p** peluang gagal; jumlahnya selalu 1.
 - **Fungsi peluang:** P(X = x) = p^x (1 - p)^(1 - x), untuk x = 0 atau 1. [Pasti]
 - **Nilai harapan:** E(X) = p. **Variansi:** Var(X) = p(1 - p). [Pasti]
-- **Dua percobaan saling bebas** jika hasil yang satu tidak mengubah peluang yang lain. Peluang
-  rangkaian hasil dari percobaan yang saling bebas sama dengan hasil kali peluang masing-masing. [Pasti]
+- **Saling bebas:** hasil satu percobaan tidak mengubah peluang percobaan lain. Peluang rangkaian hasil
+  percobaan yang saling bebas = hasil kali peluang masing-masing. [Pasti]
 
-Contoh (sengaja memakai p yang tidak ada di game bawaan): sebuah percobaan Bernoulli dengan p = 0,45.
-P(X = 1) = 0,45; P(X = 0) = 1 - 0,45 = 0,55; E(X) = 0,45; Var(X) = 0,45 × 0,55 = 0,2475. [Pasti]
+Contoh (p yang tidak dipakai di game): p = 0,45. P(X = 1) = 0,45; P(X = 0) = 0,55; E(X) = 0,45;
+Var(X) = 0,45 × 0,55 = 0,2475. [Pasti]
 
-### 4. Kegiatan 1: Catatan Pertarunganku
+### 5. Kegiatan 1: Catatan Pertarunganku
 
-Pengantar: Salin tahap, p, dan hasil dari rekap permainan pertamamu. Kolom 1 - p dan X kamu isi
-sendiri.
+Tabel putaran 1 `[k1.r1 | tabel]` dan tabel putaran 2 `[k1.r2 | tabel]`, bentuknya sama:
 
-Tabel `[k1.tabel | tabel]`:
-
-| Tahap | Kondisi | p | 1 - p | Hasil (Menang / Kalah / Tidak dimainkan) | X |
+| Tahap | Kondisi | p (sistem) | Hasil (sistem) | 1 - p | X |
 |---|---|---|---|---|---|
-| 1 | Tanpa perlengkapan | `[k1.p1]` | `[k1.q1]` | `[k1.h1 | pilihan]` | `[k1.x1]` |
-| 2 | Mendapat pedang besi | `[k1.p2]` | `[k1.q2]` | `[k1.h2 | pilihan]` | `[k1.x2]` |
-| 3 | Pedang besi dan armor | `[k1.p3]` | `[k1.q3]` | `[k1.h3 | pilihan]` | `[k1.x3]` |
-| 4 | Arca Durgaraksa lebih kuat | `[k1.p4]` | `[k1.q4]` | `[k1.h4 | pilihan]` | `[k1.x4]` |
-| 5 | Arca Durgaraksa murka | `[k1.p5]` | `[k1.q5]` | `[k1.h5 | pilihan]` | `[k1.x5]` |
+| 1 sampai 5 | (sistem) | (sistem) | Menang / Kalah / Tidak dimainkan | `[angka]` | `[angka]` |
 
-Untuk tahap "Tidak dimainkan", kolom X diisi tanda "-".
+Untuk tahap Tidak dimainkan, kolom X diisi "-".
 
-Soal:
-- **Q1.1** Dalam satu tahap, ada berapa kemungkinan hasil Serangan Penentu? Sebutkan.
-  `[k1.q1_1 | teks-pendek]`
-- **Q1.2** Tuliskan ciri percobaan Bernoulli yang kamu lihat di game, masing-masing dengan satu bukti
-  dari permainanmu. `[k1.q1_2 | tabel 3 baris: ciri | bukti dari game]`
-  Petunjuk: pikirkan banyaknya hasil, apakah p berubah selama satu tahap, dan apakah hasil tahap
-  sebelumnya memengaruhi tahap berikutnya.
-- **Q1.3** Mengapa tahap yang "Tidak dimainkan" tidak diberi nilai X, padahal kamu tidak menang di tahap
-  itu? `[k1.q1_3 | teks-panjang]`
+- **Q1.1** Dalam satu tahap, ada berapa kemungkinan hasil Serangan Penentu? Sebutkan. `[k1.q1 | teks]`
+- **Q1.2** Tuliskan tiga ciri percobaan Bernoulli yang kamu lihat di game, masing-masing dengan satu bukti
+  dari permainanmu. `[k1.q2 | tabel 3 baris: ciri | bukti]`
+  Petunjuk: banyaknya hasil, apakah p berubah selama satu tahap, apakah hasil tahap sebelumnya
+  memengaruhi tahap berikutnya.
+- **Q1.3** Mengapa tahap yang Tidak dimainkan tidak diberi nilai X, padahal kamu tidak menang di tahap itu?
+  `[k1.q3 | teks]`
 
-### 5. Kegiatan 2: Menghitung Setiap Pertarungan
+### 6. Kegiatan 2: Menghitung Setiap Pertarungan (C)
 
-Pengantar: Gunakan rumus di Gulungan Pengetahuan. Rekap game tidak memuat angka-angka ini.
+Gunakan p putaran 2 milikmu.
 
 Tabel `[k2.tabel | tabel]`:
 
-| Tahap | p | P(X = 1) | P(X = 0) | P(hasilmu) | E(X) | Var(X) |
+| Tahap | p (sistem) | P(X = 1) | P(X = 0) | P(hasilmu) | E(X) | Var(X) |
 |---|---|---|---|---|---|---|
-| 1 sampai 5 | (dari Kegiatan 1) | `[angka]` | `[angka]` | `[angka]` | `[angka]` | `[angka]` |
+| 1 sampai 5 | | `[angka]` | `[angka]` | `[angka]` | `[angka]` | `[angka]` |
 
-P(hasilmu) adalah P(X = 1) jika kamu menang, P(X = 0) jika kamu kalah, dan "-" jika tidak dimainkan.
-E(X) dan Var(X) tetap bisa dihitung untuk tahap yang tidak dimainkan karena hanya bergantung pada p.
+P(hasilmu) = P(X = 1) jika menang, P(X = 0) jika kalah, "-" jika tidak dimainkan. E(X) dan Var(X) tetap
+dihitung untuk tahap yang tidak dimainkan karena hanya bergantung pada p.
 
-Soal:
-- **Q2.1** Tahap mana yang Var(X)-nya paling besar? Apa artinya bagi hasil pertarungan di tahap itu?
-  `[k2.q2_1a | pilihan: Tahap 1 sampai 5]` `[k2.q2_1b | teks-panjang]`
-- **Q2.2 (p bawaan)** Var(X) tahap 2 (p = 0,6) sama dengan Var(X) tahap 4 (p = 0,4). Mengapa bisa sama?
-  `[k2.q2_2 | teks-panjang]`
-- **Q2.3** E(X) tahap 3 adalah 0,7, padahal X hanya bisa 0 atau 1. Apa arti angka 0,7 itu?
-  `[k2.q2_3 | teks-panjang]`
+- **Q2.1** Di putaran 2, tahap mana yang Var(X)-nya paling besar? Apa artinya bagi hasil pertarungan di
+  tahap itu? `[k2.q1a | pilihan]` `[k2.q1b | teks]`
+- **Q2.2** Di putaran 1, Var(X) tahap 2 (p = 0,6) sama dengan Var(X) tahap 4 (p = 0,4). Mengapa bisa sama?
+  `[k2.q2 | teks]`
+- **Q2.3** E(X) sebuah tahap bisa 0,7, padahal X hanya 0 atau 1. Apa arti angka 0,7 itu? `[k2.q3 | teks]`
 
-### 6. Kegiatan 3: Bertarung Lagi, Apakah Hasilnya Sama?
+### 7. Kegiatan 3: Ramalan Resi dan Kenyataan
 
-**Bagian A (jika kamu bermain 2 kali atau lebih).** Lewati jika baru bermain sekali.
+"Sebelum bertarung, aku bisa meramal berapa kemenangan yang wajar. Mari kita lihat apakah ramalanku tepat."
 
-Tabel `[k3.main | tabel]` (isi M untuk menang, K untuk kalah, TD untuk tidak dimainkan):
+**Bagian A: dirimu**
 
-| Permainan ke- | T1 | T2 | T3 | T4 | T5 |
-|---|---|---|---|---|---|
-| 1 | | | | | |
-| 2 | | | | | |
-| 3 | | | | | |
-| 4 | | | | | |
-| 5 | | | | | |
+Tabel `[k3.diri | tabel]`:
 
-Tabel `[k3.frek | tabel]`:
+| Putaran | Jumlah p tahap yang dimainkan (jumlah menang yang diharapkan) | Jumlah menang nyata (sistem) | Selisih |
+|---|---|---|---|
+| 1 | `[angka]` | | `[angka]` |
+| 2 | `[angka]` | | `[angka]` |
 
-| Tahap | p | Banyak dimainkan | Banyak menang | Frekuensi relatif menang = menang : dimainkan |
+- **Q3.1** Apakah jumlah menangmu sama dengan ramalan? Jika berbeda, apakah game curang? Jelaskan.
+  `[k3.q1 | teks]`
+
+**Bagian B: satu kelas** (terbuka setelah guru menekan Buka Data Kelas)
+
+Tabel `[k3.kelas1 | tabel]`, putaran 1 per tahap:
+
+| Tahap | p | Banyak percobaan sekelas (sistem) | Banyak menang sekelas (sistem) | Frekuensi relatif menang |
 |---|---|---|---|---|
-| 1 sampai 5 | | `[angka]` | `[angka]` | `[angka]` |
+| 1 sampai 5 | 0,5; 0,6; 0,7; 0,4; 0,3 | | | `[angka]` |
 
-- **Q3.1** Apakah frekuensi relatif menangmu sama dengan p? Jika berbeda, apakah itu berarti game curang?
-  Jelaskan. `[k3.q3_1 | teks-panjang]`
+Tabel `[k3.kelas2 | tabel]`, putaran 2 seluruh kelas:
 
-**Bagian B (semua siswa).** Gurumu akan menuliskan data gabungan satu kelas.
+| Jumlah p semua siswa (sistem) | Jumlah menang semua siswa (sistem) | Selisih | Selisih dibagi jumlah p |
+|---|---|---|---|
+| | | `[angka]` | `[angka]` |
 
-Tabel `[k3.kelas | tabel]`:
+- **Q3.2** Hitung juga selisihmu sendiri di putaran 2 dibagi jumlah p milikmu. Bandingkan dengan hasil kelas.
+  Mana yang lebih kecil? Mengapa? `[k3.q2 | teks]`
+- **Q3.3** Mengapa data kelas putaran 2 dijumlahkan, bukan dihitung frekuensi per tahap seperti putaran 1?
+  `[k3.q3 | teks]`
 
-| Tahap | p | Banyak percobaan sekelas | Banyak menang sekelas | Frekuensi relatif kelas |
-|---|---|---|---|---|
-| 1 sampai 5 | | `[angka]` | `[angka]` | `[angka]` |
+### 8. Kegiatan 4: Peluang Satu Rangkaian Pertarungan (C)
 
-- **Q3.2** Mana yang lebih dekat dengan p: frekuensi relatifmu sendiri atau frekuensi relatif kelas?
-  Mengapa? `[k3.q3_2 | teks-panjang]`
-- **Q3.3** Jika satu kelas bermain 100 kali lagi, apa yang kamu perkirakan terjadi pada frekuensi relatif
-  menang tahap 3? `[k3.q3_3 | teks-panjang]`
+- **Q4.1** Tulis urutan hasilmu di putaran 2 (misalnya M, K, M, M, K) dan hitung peluang urutan itu.
+  `[k4.urutan | teks]` `[k4.hitung | angka]`
+- **Q4.2** Mengapa peluang setiap tahap boleh dikalikan? `[k4.q2 | teks]`
+- **Q4.3** Dengan p putaran 2 milikmu, urutan hasil apa yang peluangnya paling besar? Berapa peluangnya?
+  Apakah urutan itu pasti terjadi? `[k4.q3a | teks]` `[k4.q3b | angka]` `[k4.q3c | teks]`
 
-### 7. Kegiatan 4: Peluang Satu Rangkaian Pertarungan
+### 9. Kegiatan 5: Dari Bernoulli ke Binomial
 
-- **Q4.1** Tulis urutan hasilmu (misalnya M, K, M, M, K) dan hitung peluang urutan itu dengan mengalikan
-  P(hasil) setiap tahap yang dimainkan (dari Kegiatan 2).
-  `[k4.urutan | teks-pendek]` `[k4.perkalian | teks-pendek]` `[k4.hasil | angka]`
-- **Q4.2** Mengapa peluang setiap tahap boleh dikalikan? `[k4.q4_2 | teks-panjang]`
-- **Q4.3 (p bawaan)** Urutan hasil apa yang peluangnya paling besar? Berapa peluangnya? Apakah urutan itu
-  "kemungkinan besar terjadi"? `[k4.q4_3a | teks-pendek]` `[k4.q4_3b | angka]` `[k4.q4_3c | teks-panjang]`
-- **Q4.4** Jumlah menang yang diharapkan dari kelima tahap adalah jumlah E(X) kelima tahap. Hitunglah
-  (p bawaan). Mungkinkah kamu menang sebanyak angka itu? Apa artinya?
-  `[k4.q4_4a | angka]` `[k4.q4_4b | teks-panjang]`
+- **Q5.1** Dengan p putaran 1 (0,5; 0,6; 0,7; 0,4; 0,3), hitung peluang menang di kelima tahap dan peluang
+  kalah di kelima tahap. Apa yang kamu perhatikan? Mengapa?
+  `[k5.menang | angka]` `[k5.kalah | angka]` `[k5.q1 | teks]`
+- **Q5.2** Apakah jumlah kemenanganmu dari lima tahap berdistribusi binomial? Syarat mana yang menentukan
+  jawabanmu? `[k5.q2 | teks]`
+- **Q5.3** Andaikan kelima tahap punya p = 0,6 dan saling bebas.
+  a. Peluang satu urutan tertentu dengan tepat 3 menang, misalnya M, M, M, K, K. `[k5.a | angka]`
+  b. Banyak urutan berbeda dengan tepat 3 menang. `[k5.b | angka]`
+  c. Peluang menang tepat 3 kali. `[k5.c | angka]`
+- **Tantangan (pilihan)** Hitung jumlah Var(X) kelima tahap putaran 1. `[k5.t | angka]`
 
-### 8. Kegiatan 5: Dari Bernoulli ke Binomial
+### 10. Refleksi
 
-- **Q5.1 (p bawaan)** Hitung peluang menang di kelima tahap, lalu peluang kalah di kelima tahap. Apa
-  yang kamu perhatikan? Mengapa bisa begitu?
-  `[k5.menang_semua | angka]` `[k5.kalah_semua | angka]` `[k5.q5_1 | teks-panjang]`
-- **Q5.2** Apakah jumlah kemenanganmu dari lima tahap berdistribusi binomial? Syarat distribusi binomial
-  mana yang menentukan jawabanmu? `[k5.q5_2 | teks-panjang]`
-- **Q5.3** Andaikan kelima tahap punya peluang menang yang sama, p = 0,6, dan saling bebas.
-  a. Berapa peluang satu urutan tertentu dengan tepat 3 menang, misalnya M, M, M, K, K? `[k5.a | angka]`
-  b. Ada berapa urutan berbeda yang memuat tepat 3 menang dari 5 tahap? `[k5.b | angka]`
-  c. Berapa peluang menang tepat 3 kali? `[k5.c | angka]`
-- **Tantangan (pilihan)** Untuk p bawaan, hitung jumlah Var(X) kelima tahap. `[k5.tantangan | angka]`
-
-### 9. Kegiatan 6: Di Luar Swarnadwipa
-
-Tentukan apakah setiap situasi adalah satu percobaan Bernoulli. Jika ya, tuliskan hasil yang dianggap
-berhasil dan p-nya. Jika tidak, jelaskan alasannya. Angka dalam situasi ini hanya permisalan, bukan data.
-
-| No | Situasi | Bernoulli? | Berhasil = ... dan p | Alasan |
-|---|---|---|---|---|
-| 1 | Seorang pemain menendang satu penalti; misalkan peluang gol 0,8 | `[k6.b1 | pilihan Ya/Tidak]` | `[k6.p1]` | `[k6.a1]` |
-| 2 | Satu dadu dilempar dan dicatat angka yang muncul | `[k6.b2]` | `[k6.p2]` | `[k6.a2]` |
-| 3 | Satu dadu dilempar dan dicatat apakah muncul angka 6 | `[k6.b3]` | `[k6.p3]` | `[k6.a3]` |
-| 4 | Sepuluh benih ditanam dan dicatat banyak benih yang tumbuh | `[k6.b4]` | `[k6.p4]` | `[k6.a4]` |
-
-### 10. Refleksi dan Kesimpulan
-
-**A. Benar atau salah? Beri alasan.** `[r.bs1..bs5 | benar-salah + teks-pendek]`
+**A. Benar atau salah? Beri alasan.** `[r.bs1..bs5 | benar-salah + teks]`
 1. Jika p = 0,7, aku pasti menang.
 2. Setelah kalah di tahap 1, peluang menangku di tahap 2 menjadi lebih besar.
 3. P(X = 1) + P(X = 0) selalu sama dengan 1.
 4. Tahap yang Tidak dimainkan dihitung sebagai X = 0.
 5. Menekan tombol QTE lebih cepat menaikkan peluang menang.
 
-**B. Lengkapi kesimpulan.** `[r.k1..k4 | teks-pendek]`
+**B. Lengkapi kesimpulan.** `[r.k1..k4 | teks]`
 1. Percobaan Bernoulli adalah satu percobaan dengan tepat ____ hasil.
-2. Jika peluang berhasil p, maka peluang gagal adalah ____.
+2. Jika peluang berhasil p, peluang gagal adalah ____.
 3. Nilai harapan percobaan Bernoulli adalah ____ dan variansinya ____.
-4. Jumlah keberhasilan dari beberapa percobaan Bernoulli yang saling bebas berdistribusi binomial jika
-   ____.
+4. Jumlah keberhasilan dari beberapa percobaan Bernoulli yang saling bebas berdistribusi binomial jika ____.
 
-**C. Lihat lagi tebakan awalmu.** Baca jawabanmu untuk T1, T2, dan T3 di bagian Sebelum Mulai. Apa
-yang sekarang ingin kamu tambah atau ubah? `[r.banding | teks-panjang]`
+**C. Lihat lagi Tebakan Awalmu (T1 sampai T3, ditampilkan sistem).** Apa yang sekarang ingin kamu tambah
+atau ubah? `[r.banding | teks]`
 
 **D. Penilaian diri.** `[r.diri1..diri4 | pilihan: Sudah bisa / Belum yakin]`
 1. Aku bisa menjelaskan mengapa satu tahap adalah satu percobaan Bernoulli.
 2. Aku bisa menghitung P(X = x), E(X), dan Var(X).
-3. Aku bisa menjelaskan mengapa frekuensi relatif tidak harus sama dengan p.
+3. Aku bisa menjelaskan mengapa hasil nyata tidak harus sama dengan harapan.
 4. Aku bisa menjelaskan kapan jumlah keberhasilan menjadi binomial.
 
 ### 11. Penutup
 
-Pesan Resi Bayang (teks baru untuk LKPD, bukan dialog game): "Catatanmu kini lengkap, Pengembara.
-Peluang tidak menjanjikan hasil satu pertarungan, tetapi ia terlihat dari banyak pertarungan."
+"Catatanmu kini lengkap, Pengembara. Peluang tidak menjanjikan hasil satu pertarungan, tetapi ia terlihat
+dari banyak pertarungan." (Teks baru untuk LKPD, bukan dialog game.)
 
-Tombol versi digital: **Unduh LKPD (PDF)** dan **Kirim ke Guru** (lihat Bagian E).
+Tombol: **Kirim LKPD** · **Unduh LKPD (PDF)** · setelah terkirim: **Ajukan Perubahan**.
 
 ### 12. Glosarium
 
-- **Percobaan Bernoulli:** satu percobaan dengan dua hasil, berhasil atau gagal.
-- **Variabel acak:** aturan yang memberi angka pada setiap hasil percobaan.
-- **Fungsi peluang:** rumus yang memberi peluang setiap nilai variabel acak.
-- **Nilai harapan:** rata-rata jangka panjang variabel acak.
-- **Variansi:** ukuran seberapa jauh nilai variabel acak biasanya menyimpang dari nilai harapannya.
-- **Frekuensi relatif:** banyak kejadian dibagi banyak percobaan.
-- **Saling bebas:** hasil satu percobaan tidak mengubah peluang percobaan lain.
-- **Distribusi binomial:** distribusi banyak keberhasilan dari n percobaan Bernoulli yang saling bebas
-  dengan p yang sama.
-
-### 13. Daftar pustaka
-
-Isi hanya dengan sumber yang benar-benar dibaca kelompok. Kandidat:
-- Capaian Pembelajaran Matematika Tingkat Lanjut Fase F (laman resmi):
-  https://guru.kemdikbud.go.id/kurikulum/referensi-penerapan/capaian-pembelajaran/sd-sma/matematika-tingkat-lanjut/fase-f/
-- Depdiknas (2008), Panduan Pengembangan Bahan Ajar (cari dokumen aslinya; di bawah ini hanya sumber
-  sekunder yang mengutipnya):
-  https://eprints.umm.ac.id/id/eprint/28637/3/BAB%20II.pdf
-  https://etheses.iainkediri.ac.id/6930/3/932301518_bab2.pdf
+Percobaan Bernoulli; variabel acak; fungsi peluang; nilai harapan (rata-rata jangka panjang); variansi
+(ukuran seberapa jauh nilai biasanya menyimpang dari nilai harapan); frekuensi relatif; saling bebas;
+distribusi binomial (banyak keberhasilan dari n percobaan Bernoulli saling bebas dengan p sama).
 
 ---
 
-## Bagian C. Kunci jawaban dan rubrik (untuk guru)
+## Bagian C. Kunci jawaban dan rubrik (untuk penilai)
 
-### C.1 Kunci jawaban
+### C.1 Kunci
 
-Semua hitungan memakai p bawaan dan bisa dicek ulang. [Pasti]
+Putaran 1 memakai p bawaan. Putaran 2 berbeda tiap siswa; kuncinya mengikuti rumus, dan akun guru bisa
+menampilkan kunci hitungan per siswa dari p-nya (hanya terlihat oleh guru). Contoh pengerjaan untuk penilai
+memakai p putaran 2 = 0,2; 0,9; 0,5; 0,7; 0,1. [Pasti]
 
 | Soal | Jawaban |
 |---|---|
-| Q1.1 | Dua: MENANG (X = 1) atau KALAH (X = 0). |
-| Q1.2 | (1) Hanya dua hasil: Serangan Penentu selalu berakhir menang atau kalah, tidak ada seri. (2) p tetap: kotak peluang menunjukkan p yang sama dari pembuka tahap sampai Serangan Penentu; ramuan, perlengkapan, dan QTE tidak mengubahnya. (3) Tidak dipengaruhi tahap lain: setiap tahap memakai undian baru, Resi Bayang mengatakan pertarungan berikutnya tidak dipengaruhi hasil sebelumnya. |
-| Q1.3 | Percobaannya tidak dilakukan, jadi tidak ada hasil. X hanya ada jika percobaan terjadi. Mencatatnya sebagai X = 0 berarti mengaku kalah di pertarungan yang tidak pernah terjadi. |
-| Tabel K2 | P(X = 1) = p; P(X = 0) = 1 - p; E(X) = p; Var(X): tahap 1 0,25; tahap 2 0,24; tahap 3 0,21; tahap 4 0,24; tahap 5 0,21. |
-| Q2.1 | Tahap 1 (p = 0,5, Var = 0,25). Hasilnya paling sulit ditebak karena menang dan kalah sama besar peluangnya. |
-| Q2.2 | Var(X) = p(1 - p). Untuk p = 0,6: 0,6 × 0,4 = 0,24. Untuk p = 0,4: 0,4 × 0,6 = 0,24. Faktornya sama, hanya bertukar tempat. |
-| Q2.3 | E(X) adalah rata-rata jangka panjang. Jika tahap 3 dimainkan sangat banyak kali, rata-rata X mendekati 0,7, artinya sekitar 70% pertarungan berakhir menang. Bukan nilai yang muncul dalam satu pertarungan. |
-| Q3.1 | Tidak harus sama. Percobaannya sedikit, sehingga frekuensi relatif bisa jauh dari p. Contoh untuk p = 0,7 dan main 3 kali: peluang menang ketiganya 0,7³ = 0,343, peluang tidak pernah menang 0,3³ = 0,027. Frekuensi 1 atau 0 masih wajar dan tidak menunjukkan kecurangan. |
-| Q3.2 | Biasanya frekuensi kelas lebih dekat ke p karena percobaannya lebih banyak. Jawaban "tidak lebih dekat" tetap bisa benar jika alasannya data kelas masih sedikit; nilai alasannya. |
-| Q3.3 | Frekuensi relatif cenderung makin dekat ke 0,7 jika banyak percobaan bertambah (hukum bilangan besar, dikenalkan secara informal). Tetap tidak harus tepat 0,7. |
-| T1 sampai T3 | Tidak dinilai benar/salah. Dipakai untuk melihat perubahan pemahaman di Refleksi C. Jawaban ideal sama dengan Q1.2, Refleksi A1, dan Refleksi A2. |
-| Q4.1 | Tergantung data siswa: hasil kali P(hasil) tahap yang dimainkan. Versi digital bisa menghitung pembandingnya dari data permainan. |
-| Q4.2 | Tahap-tahap saling bebas: setiap Serangan Penentu memakai undian baru dengan p tahap itu, tanpa dipengaruhi hasil sebelumnya. |
-| Q4.3 | Pilih hasil berpeluang lebih besar di setiap tahap: tahap 1 seimbang (0,5), tahap 2 M (0,6), tahap 3 M (0,7), tahap 4 K (0,6), tahap 5 K (0,7). Ada dua urutan terbesar: M, M, M, K, K dan K, M, M, K, K, masing-masing 0,5 × 0,6 × 0,7 × 0,6 × 0,7 = 0,0882. Tidak "kemungkinan besar terjadi": hanya 8,82%, karena ada 2⁵ = 32 urutan yang mungkin. |
-| Q4.4 | 0,5 + 0,6 + 0,7 + 0,4 + 0,3 = 2,5. Tidak mungkin menang 2,5 kali; 2,5 adalah rata-rata banyak menang jika kelima tahap dimainkan berulang kali. |
-| Q5.1 | Menang semua: 0,5 × 0,6 × 0,7 × 0,4 × 0,3 = 0,0252. Kalah semua: 0,5 × 0,4 × 0,3 × 0,6 × 0,7 = 0,0252. Sama, karena kumpulan nilai 1 - p (0,5; 0,4; 0,3; 0,6; 0,7) berisi angka yang sama dengan kumpulan nilai p, hanya urutannya berbeda, dan perkalian tidak bergantung urutan. |
-| Q5.2 | Tidak. Binomial membutuhkan p yang sama di setiap percobaan (selain banyak percobaan tetap dan saling bebas). Di game, p tiap tahap berbeda. |
-| Q5.3 | a. 0,6³ × 0,4² = 0,216 × 0,16 = 0,03456. b. 10 urutan (memilih 3 dari 5 posisi: C(5, 3) = 10). c. 10 × 0,03456 = 0,3456. |
-| Tantangan | 0,25 + 0,24 + 0,21 + 0,24 + 0,21 = 1,15. (Variansi jumlah percobaan yang saling bebas sama dengan jumlah variansinya.) |
-| K6 no 1 | Ya. Berhasil = gol, p = 0,8. |
-| K6 no 2 | Tidak. Ada enam hasil, bukan dua. |
-| K6 no 3 | Ya. Berhasil = muncul 6, p = 1/6. |
-| K6 no 4 | Tidak, ini sepuluh percobaan, bukan satu. Setiap benih adalah satu percobaan Bernoulli. Banyak benih yang tumbuh berdistribusi binomial jika peluang tumbuh tiap benih sama dan saling bebas. |
-| Refleksi A | 1 Salah (p = 0,7 masih menyisakan peluang kalah 0,3). 2 Salah (tahap saling bebas; p tahap 2 tetap 0,6). 3 Benar. 4 Salah (tidak punya X). 5 Salah (QTE hanya mengubah animasi). |
-| Refleksi B | 1 dua; 2 1 - p; 3 p dan p(1 - p); 4 peluang berhasil setiap percobaan sama (dan banyak percobaan tetap). |
+| T1 sampai T3 | Tidak dinilai. Dipakai di Refleksi C |
+| Tabel K1 | 1 - p dari p; X = 1 jika Menang, 0 jika Kalah, "-" jika Tidak dimainkan |
+| Q1.1 | Dua: MENANG (X = 1) atau KALAH (X = 0) |
+| Q1.2 | Dua hasil saja (tidak ada seri); p tetap selama tahap (kotak peluang sama dari pembuka sampai Serangan Penentu, ramuan dan QTE tidak mengubahnya); tidak dipengaruhi tahap lain (undian baru tiap tahap) |
+| Q1.3 | Percobaannya tidak terjadi, jadi tidak ada hasil; X hanya ada jika percobaan dilakukan |
+| Tabel K2 (contoh) | E(X) = p. Var(X): 0,16; 0,09; 0,25; 0,21; 0,09 |
+| Q2.1 (contoh) | Tahap dengan p paling dekat 0,5 (contoh: tahap 3, Var = 0,25): hasilnya paling sulit ditebak |
+| Q2.2 | p(1 - p): 0,6 × 0,4 = 0,4 × 0,6 = 0,24; faktornya sama, hanya bertukar tempat |
+| Q2.3 | Rata-rata jangka panjang: jika tahap itu dimainkan sangat banyak kali, sekitar 70% berakhir menang |
+| K3 diri | Putaran 1 (semua tahap dimainkan): 0,5 + 0,6 + 0,7 + 0,4 + 0,3 = 2,5. Putaran 2 (contoh): 2,4 |
+| Q3.1 | Tidak harus sama; percobaan sedikit, hasil bisa jauh dari harapan; bukan tanda curang |
+| Q3.2 | Selisih relatif kelas umumnya lebih kecil karena percobaannya jauh lebih banyak. Jawaban sebaliknya tetap bisa diterima jika dijelaskan dengan banyaknya data |
+| Q3.3 | Di putaran 2 p tiap siswa berbeda, jadi percobaan per tahap tidak punya p yang sama untuk dibandingkan; jumlah tetap bermakna karena nilai harapan jumlah = jumlah p |
+| Q4.1 | Hasil kali P(hasil) tahap yang dimainkan |
+| Q4.2 | Tahap-tahap saling bebas: setiap Serangan Penentu memakai undian baru |
+| Q4.3 (contoh) | Pilih hasil berpeluang lebih besar di tiap tahap: K, M, (M atau K), M, K. Peluang 0,8 × 0,9 × 0,5 × 0,7 × 0,9 = 0,2268. Tidak pasti terjadi; peluangnya masih jauh dari 1 |
+| Q5.1 | Menang semua 0,5 × 0,6 × 0,7 × 0,4 × 0,3 = 0,0252; kalah semua 0,5 × 0,4 × 0,3 × 0,6 × 0,7 = 0,0252. Sama, karena kumpulan nilai 1 - p berisi angka yang sama dengan kumpulan nilai p |
+| Q5.2 | Tidak; binomial butuh p sama di setiap percobaan (juga banyak percobaan tetap dan saling bebas) |
+| Q5.3 | a. 0,6³ × 0,4² = 0,03456. b. C(5, 3) = 10. c. 10 × 0,03456 = 0,3456 |
+| Tantangan | 0,25 + 0,24 + 0,21 + 0,24 + 0,21 = 1,15 |
+| Refleksi A | 1 Salah; 2 Salah; 3 Benar; 4 Salah; 5 Salah |
+| Refleksi B | dua; 1 - p; p dan p(1 - p); p sama di setiap percobaan (dan banyak percobaan tetap) |
 
-### C.2 Rubrik soal uraian
+### C.2 Rubrik
+
+**Isian angka dan tabel**
 
 | Skor | Kriteria |
 |---|---|
-| 4 | Jawaban benar, alasan memakai konsep yang tepat (dua hasil, p tetap, saling bebas, jangka panjang) dan merujuk data permainan |
-| 3 | Jawaban benar, alasan benar tetapi kurang lengkap atau tidak merujuk data |
-| 2 | Jawaban sebagian benar atau alasan mengandung satu salah paham |
-| 1 | Jawaban salah atau tanpa alasan |
-| 0 | Tidak diisi |
+| 2 | Benar (selisih pembulatan di digit terakhir diterima) |
+| 1 | Cara benar tetapi salah hitung |
+| 0 | Salah atau kosong |
 
-Usulan bobot [Dugaan, sesuaikan]: Kegiatan 1 15%, Kegiatan 2 20%, Kegiatan 3 15%, Kegiatan 4 20%,
-Kegiatan 5 15%, Kegiatan 6 dan refleksi 15%. Isian angka: benar 1, salah 0, kesalahan pembulatan
-kecil tetap dianggap benar.
+**Soal uraian**
 
----
+| Skor | Kriteria |
+|---|---|
+| 4 | Benar, alasan memakai konsep yang tepat (dua hasil, p tetap, saling bebas, rata-rata jangka panjang) dan merujuk data permainan sendiri |
+| 3 | Benar, alasan benar tetapi kurang lengkap atau tidak merujuk data |
+| 2 | Sebagian benar, atau alasan mengandung satu salah paham |
+| 1 | Salah, atau benar tanpa alasan |
+| 0 | Kosong |
 
-## Bagian D. Petunjuk guru
+**Benar/salah beralasan:** 1 untuk pilihan benar, 0 sampai 2 untuk alasan (2 tepat, 1 sebagian, 0 salah
+atau kosong).
 
-1. **Samakan p untuk satu kelas.** Kegiatan 3 Bagian B hanya bermakna jika semua siswa memakai p yang
-   sama. Pakai p bawaan, atau bagikan satu tautan siswa dari Setting Guru.
-2. **Urutan pertemuan [Dugaan]:** bermain (15 sampai 20 menit) → Kegiatan 1 dan 2 → bermain lagi jika
-   waktu cukup → Kegiatan 3 sampai 6 → refleksi.
-3. **Mengumpulkan data kelas:** tulis di papan, per tahap, banyak siswa yang memainkan tahap itu dan
-   banyak yang menang (hitung dari semua permainan, termasuk permainan ulang).
-4. **Bahas Q3.1 dan Q4.3 bersama.** Dua soal ini paling sering memancing anggapan "game curang" atau
-   "urutan paling mungkin pasti terjadi".
-5. **Jika p diubah guru,** soal bertanda (p bawaan) diganti atau dihitung ulang (lihat Bagian 0.5).
-6. **Pengayaan:** Q5.3 dan Tantangan bisa menjadi pembuka pertemuan distribusi binomial.
+Tebakan Awal, Refleksi C, dan penilaian diri tidak diberi skor; dipakai untuk melihat perubahan pemahaman.
 
 ---
 
-## Bagian E. Catatan teknis untuk pengodean nanti
+## Bagian D. Panduan (dua dokumen terpisah, disusun nanti)
 
-Bagian ini belum dikerjakan; hanya mencatat keputusan yang harus diambil.
-
-1. **Posisi di game.** Usulan: tombol "Kerjakan LKPD" di layar rekap, membuka layar LKPD. Ini fitur
-   baru, jadi berlaku pengecualian aturan 3 di PRODUCT.md (sudah dicatat di bagian 18).
-2. **Isi otomatis.** Nama dan kelas boleh diisi otomatis. Untuk tabel Kegiatan 1, pilih: (a) diisi
-   otomatis dari rekap, atau (b) siswa menyalin sendiri lalu dicek. Saran: (b), karena menyalin dan
-   membaca rekap adalah bagian dari belajar.
-3. **Beberapa kali main.** Saat ini semua hasil hilang ketika halaman dimuat ulang, dan tombol Kembali
-   ke Menu Utama memuat ulang halaman. Agar Kegiatan 3 bisa diisi otomatis, riwayat permainan perlu
-   disimpan di localStorage perangkat itu. Ini mengubah perilaku "data tidak disimpan" di README dan
-   menyentuh `js/stages.js`, jadi perlu persetujuan pemilik. Alternatif tanpa perubahan: siswa mencatat
-   sendiri dari tiap PDF rekap.
-4. **Isian angka.** Terima koma dan titik desimal, simpan sebagai teks asli siswa. Karena rekap tidak
-   lagi memuat perhitungan, umpan balik (jika dipakai) dihitung LKPD sendiri dari data permainan dan
-   ditampilkan sebagai tanda cocok/belum tanpa skor. Pilihan lain: tanpa umpan balik, dinilai guru.
-5. **Draf otomatis.** Simpan jawaban sementara di localStorage agar tidak hilang saat HP mengunci layar.
-6. **Unduh.** PDF LKPD dibuat dengan jsPDF yang sudah dipakai game, dengan nama file
-   `LKPD_Bernoulli_<nama>.pdf`. Huruf yang tidak bisa dicetak sudah ditangani di Nama Siswa; jawaban
-   uraian perlu pembersihan yang sama.
-7. **Kirim ke guru: perlu keputusan pemilik**, karena game tidak punya backend (aturan 6 dan hosting
-   statis):
-   - **A. Unduh lalu unggah** ke Google Classroom, LMS sekolah, atau WhatsApp. Tanpa server tambahan,
-     paling aman untuk data siswa. Saran utama.
-   - **B. Netlify Forms.** Game sudah di Netlify, dan Netlify bisa menerima kiriman formulir dari situs
-     statis. Batas kiriman di paket gratis tidak jelas karena sumber saling bertentangan: forum Netlify
-     tahun 2020 menyebut 100 kiriman per bulan per situs, ulasan pihak ketiga menyebut tanpa batas di
-     paket berbasis kredit sejak 2026. **[Dugaan] Wajib dicek di https://www.netlify.com/pricing
-     sebelum dipilih.** Nama siswa terkirim ke akun Netlify kelompok, jadi perlu izin sekolah.
-   - **C. Google Apps Script ke Google Sheets milik guru.** Gratis, tetapi guru harus menyiapkan skrip
-     sendiri, dan datanya keluar dari game ke layanan pihak ketiga.
+1. **Panduan website untuk guru:** login dengan email guru, daftar siswa, hasil permainan dan PDF, progres
+   LKPD, Buka Data Kelas, mengganti p putaran 2, menyetujui pengajuan perubahan.
+2. **Panduan pembelajaran:** alur asinkron, cara membimbing pengisian nama dan kelas, kunci, rubrik, dan
+   soal yang perlu dibahas bersama (Q3.1 dan Q4.3).
 
 ---
 
-## Bagian F. Yang perlu dikonfirmasi kelompok
+## Bagian E. Yang masih perlu dikonfirmasi
 
-1. Mata pelajaran dan fase/kelas tujuan, serta kalimat CP resmi yang dikutip.
-2. Apakah Kegiatan 5 (binomial) wajib atau pengayaan, tergantung urutan materi di sekolah.
-3. Pilihan isi otomatis tabel Kegiatan 1 (Bagian E nomor 2).
-4. Penyimpanan riwayat permainan (Bagian E nomor 3).
-5. Cara mengirim ke guru (Bagian E nomor 7).
-6. Waktu pengerjaan setelah uji coba dengan siswa sungguhan.
+1. Pilihan putaran 2: rekomendasi C (p unik otomatis) atau B (satu set dari guru).
+2. Permainan yang dihitung: rekomendasi, sebuah permainan dihitung jika sampai rekap dan minimal 1 tahap
+   dimainkan. Tanpa syarat ini, siswa bisa membuka LKPD dengan berhenti di tahap 1 dua kali.
+3. Apakah Tebakan Awal tetap dipakai.
+4. Tangkapan layar CP untuk mencocokkan Tujuan Pembelajaran.
