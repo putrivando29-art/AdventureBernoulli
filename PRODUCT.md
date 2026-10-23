@@ -1,39 +1,210 @@
 # PRODUCT.md: Adventure Bernoulli
 
-## Ringkasan produk
+Dokumen ini adalah gambaran lengkap game: isi, alur, konsep, tampilan, teknologi, aturan kerja, dan
+keputusan pemilik proyek. Semua angka di dokumen ini diambil dari kode (`js/config.js`,
+`js/bernoulli.js`, `js/pdf.js`, `css/style.css`), bukan perkiraan.
+
+## 1. Ringkasan produk
 
 - **Nama:** Adventure Bernoulli.
-- **Jenis:** game edukasi 3D berbasis browser (Three.js) untuk mengajarkan distribusi Bernoulli kepada siswa.
+- **Jenis:** game edukasi 3D hack and slash berbasis browser untuk mengajarkan distribusi Bernoulli.
 - **Pembuat:** Kelompok 17, Universitas Sriwijaya.
-- **Hosting:** website statis gratis di GitHub Pages. Tanpa build tool, tanpa backend, tanpa database. npm hanya untuk tes di komputer pengembang.
+- **Hosting:** website statis gratis (GitHub Pages atau Netlify). Tanpa build tool, tanpa backend,
+  tanpa database. npm hanya untuk tes di komputer pengembang.
+- **Teknologi:** HTML, CSS, JavaScript murni (ES module), Three.js 0.160.0 lewat import map dari
+  jsDelivr, jsPDF 2.5.1 dari cdnjs, font Cinzel dari Google Fonts.
 
-## Pengguna
+## 2. Pengguna
 
 - Siswa, bermain mandiri tanpa pendamping.
-- Perangkat: laptop (utama) dan HP.
+- Guru, mengatur nilai p lewat Setting Guru dan membagikan tautan siswa.
+- Perangkat: laptop (utama) dan HP Android (lebar 360 sampai 412 piksel; bermain dalam landscape,
+  menu dan rekap dalam portrait).
 - Lama satu sesi: 15 sampai 20 menit.
 
-## Cerita
+## 3. Cerita dan tokoh
 
-Di ruang singgasana Kerajaan Swarnadwipa, pemain melawan Arca Durgaraksa dalam 5 tahap, dipandu Resi Bayang.
+Di ruang singgasana Kerajaan Swarnadwipa, pemain (Pengembara) melawan Arca Durgaraksa, arca batu kuno
+yang bangkit, dalam 5 tahap. Resi Bayang, pertapa bertudung dengan tongkat bercahaya, memandu pemain
+dan menjelaskan konsep peluang.
 
-## Konsep yang diajarkan
+| Tokoh | Peran |
+|---|---|
+| Pengembara (pemain) | Karakter yang dipilih dan dikustomisasi siswa; namanya diambil dari Nama Siswa |
+| Arca Durgaraksa | Boss di kelima tahap; makin kuat di tahap 4 (kristal ungu) dan 5 (aura merah) |
+| Resi Bayang | Pemandu; dialognya menjelaskan p, 1 - p, kebebasan antarpercobaan, dan "Tidak dimainkan" |
 
-- Setiap tahap adalah satu percobaan Bernoulli.
-- Hasil hanya dua: MENANG (X = 1) atau KALAH (X = 0), ditentukan oleh Serangan Penentu dengan peluang p yang tetap untuk tiap tahap.
-- Pemain boleh berhenti. Tahap yang tidak dimainkan dicatat "Tidak dimainkan", bukan kalah.
-- Rekap akhir diunduh sebagai PDF.
+## 4. Data lima tahap (nilai bawaan)
 
-## Gaya visual
+| Tahap | Nama | Kondisi | p | 1 - p | Perlengkapan pemain | Kerusakan tebasan | HP arca | Kekuatan pukulan arca |
+|---|---|---|---|---|---|---|---|---|
+| 1 | Pertemuan Pertama | Tanpa perlengkapan | 0,5 | 0,5 | Pedang kayu | 10 | 1000 | 1,0 |
+| 2 | Pedang Besi | Mendapat pedang besi | 0,6 | 0,4 | Pedang besi bercahaya biru | 14 | 1000 | 1,0 |
+| 3 | Pedang dan Armor | Pedang besi dan armor | 0,7 | 0,3 | Pedang besi, armor perak | 17 | 1000 | 1,0 |
+| 4 | Arca Bangkit Lebih Kuat | Arca Durgaraksa lebih kuat | 0,4 | 0,6 | Pedang ksatria, armor perak, perisai ksatria | 22 | 1400 | 1,25 |
+| 5 | Arca Murka | Arca Durgaraksa murka | 0,3 | 0,7 | Pedang api, armor emas, perisai emas, jubah | 28 | 1800 | 1,5 |
 
-- Fantasi gelap yang hangat: model kotak-kotak dengan toon shading, aksen emas, font judul Cinzel.
-- Menu utama yang sekarang (langit berbintang, siluet kastil, kartu menu) sudah disukai dan harus dipertahankan.
+Perlengkapan, kerusakan, HP arca, ramuan, sihir, kostum, dan QTE hanya mengubah fase hack and slash
+dan animasi. Tidak satu pun mengubah p.
 
-## Bahasa dan nada
+## 5. Alur layar
 
-Bahasa Indonesia yang jelas, singkat, dan ramah untuk siswa.
+1. **Menu utama**: langit berbintang, siluet kastil, kartu menu. Isi: Universitas Sriwijaya, judul,
+   by Kelompok 17, input Nama Siswa (maks. 40 karakter) dan Kelas (maks. 15 karakter), tombol Mulai
+   Petualangan (aktif hanya jika keduanya terisi), Cara Bermain, Setting Guru, keterangan sumber p,
+   dan tombol Layar Penuh.
+2. **Cara Bermain**: penjelasan singkat, kontrol laptop dan HP (format "tombol: aksi"), lalu tips.
+3. **Setting Guru**: p tiap tahap (angka di antara 0 dan 1, paling banyak dua desimal, setiap tahap
+   berbeda), Simpan, Kembalikan Bawaan, Salin Tautan untuk Siswa (`?p=35-45-80-25-65`). Tombol Setting
+   Guru disembunyikan jika game dibuka lewat tautan siswa.
+4. **Pilih karakter**: tubuh, warna kulit, 5 gaya rambut, 6 warna rambut, 8 warna baju, 4 warna
+   celana, aksesori, tombol Acak dan Pilih. Hanya tampilan.
+5. **Percakapan singkat** (gaya visual novel) sebelum setiap tahap: Resi Bayang, Arca Durgaraksa, dan
+   pemain. Ketuk atau Enter untuk lanjut, Lewati untuk melewati.
+6. **Pembuka tahap**: nama tahap, kondisi pemain dan arca, kotak peluang ("Peluang menang: 50% (1/2 =
+   0,5)" dan "Peluang kalah: ..."), keterangan "Peluang bukan jaminan: dari 100 pertarungan seperti
+   ini, kira-kira 50 berakhir menang.", pesan Resi, dan di tahap 1 daftar kontrol. Tombol Mulai
+   Pertarungan dan Berhenti dan Lihat Rekap.
+7. **Fase hack and slash**: HUD (nama tahap, HP pemain, bar HP arca dengan tanda 20%, kotak peluang
+   ringkas Menang/Kalah, tabel mini T1 sampai T5, tombol jeda), ramuan dan gulungan sihir muncul di
+   arena.
+8. **Serangan Penentu**: dipicu yang lebih dulu terjadi antara HP arca 20% ("gacha serangan") atau HP
+   pemain 1 ("gacha kabur"). Bilah sinematik, potongan kamera, kotak peluang, catatan "Tombol yang
+   muncul hanya mengubah gaya serangan, bukan peluang menang", tiga QTE (hanya animasi), lalu satu
+   undian dan hasil besar MENANG (X = 1) atau KALAH (X = 0).
+9. **Hasil tahap**: judul hasil, baris "Tercatat: Tahap 1 · Tanpa perlengkapan · p = 0,5 · 1 - p = 0,5
+   · X = 1", baris pemicu, tombol Lanjut ke Tahap Berikutnya (di tahap 5: Lihat Rekap) dan Berhenti dan
+   Lihat Rekap. Jika kalah, Resi Bayang membangkitkan pemain (efek dissolve) sebelum lanjut.
+10. **Menu jeda**: Lanjut Bertarung, Daftar Kontrol, Layar Penuh, Efek gerak (Nyaman/Penuh), Berhenti
+    dan Lihat Rekap.
+11. **Konfirmasi berhenti**: "Yakin berhenti? Tahap yang belum dimainkan dicatat "Tidak dimainkan":
+    tidak dihitung menang atau kalah. Setelah itu rekap langsung tampil." Tombol Ya, berhenti dan
+    Batal. Tidak bisa dibuka saat percakapan, Serangan Penentu, atau kebangkitan.
+12. **Rekap**: identitas (nama, kelas, karakter, tanggal, sumber p), pesan penutup Resi, tabel 9 kolom
+    (Tahap, Kondisi, p, 1 - p, Hasil, X, P(hasil), E(X), Var(X)), rumus, keterangan kolom P(hasil),
+    E(X), Var(X), ringkasan (tahap dimainkan, menang, kalah), peluang urutan hasil, jumlah menang yang
+    diharapkan, catatan "bukan distribusi binomial", tiga pertanyaan refleksi, tombol Unduh PDF Rekap,
+    Buka PDF di Tab Baru, Kembali ke Menu Utama.
+13. **PDF rekap**: isi yang sama dengan rekap ditambah garis jawaban tulisan tangan untuk refleksi.
+    Nama file `Rekap_Bernoulli_<nama>.pdf` (karakter tidak aman diganti garis bawah).
 
-## Aturan untuk semua perintah impeccable berikutnya
+Pertanyaan refleksi di rekap dan PDF:
+1. Mengapa satu pertarungan melawan Arca Durgaraksa disebut satu percobaan Bernoulli?
+2. Pada tahap dengan p terbesar (bawaan: tahap 3, p = 0,7), apakah kamu pasti menang? Jelaskan.
+3. Apakah kalah di tahap 1 memengaruhi peluang menangmu di tahap 2? Mengapa?
+
+## 6. Konsep yang diajarkan dan aturannya di kode
+
+- Setiap tahap adalah satu percobaan Bernoulli dengan dua hasil saja: MENANG (X = 1) atau KALAH (X = 0).
+- p dibaca sekali saat petualangan dimulai (prioritas: tautan `?p=`, lalu nilai tersimpan Setting Guru,
+  lalu bawaan) dan dibekukan selama sesi.
+- Serangan Penentu memanggil `decisiveRoll(p)` di `js/bernoulli.js`: satu bilangan acak U di [0, 1)
+  dari `crypto.getRandomValues`, X = 1 jika U < p, selain itu X = 0. Satu undian per tahap, tidak bisa
+  dibatalkan. Perhitungan memakai bilangan bulat perseratus agar tepat.
+- Fase hack and slash hanya membawa pertarungan ke Serangan Penentu: HP arca berhenti di 20% dan HP
+  pemain berhenti di 1.
+- Menang atau kalah, pemain lanjut ke tahap berikutnya.
+- Rekap memakai P(X = x) = p^x (1 - p)^(1 - x), E(X) = p, Var(X) = p(1 - p). Peluang urutan hasil adalah
+  perkalian P(hasil) tahap yang dimainkan; jumlah menang yang diharapkan adalah jumlah p tahap yang
+  dimainkan.
+- Jumlah kemenangan dari 5 tahap bukan distribusi binomial karena p tiap tahap berbeda.
+- Tahap yang tidak dimainkan karena berhenti dicatat "Tidak dimainkan", bukan kalah, dan tidak punya X.
+- Format angka memakai koma desimal (0,6) di HUD, layar hasil, rekap, dan PDF.
+
+## 7. Fitur permainan
+
+- **Kontrol laptop:** W A S D bergerak, mouse memutar kamera (klik untuk mengunci kursor; jika ditolak,
+  seret mouse), klik kiri tebas (combo 3), Space lompat, C atau Ctrl jongkok, Shift menghindar, Q sihir,
+  Esc jeda. Lompat, jongkok, dan menghindar membatalkan tebasan.
+- **Kontrol HP:** joystick kiri, geser sisi kanan untuk kamera, tombol Tebas, Lompat, Jongkok, Hindar,
+  Sihir di kanan bawah, tombol jeda di kanan atas. Petunjuk "Putar HP ke mode landscape" muncul saat
+  bertarung dalam portrait, tanpa mengunci orientasi.
+- **Serangan arca dengan aba-aba:** hantaman (dua lengan diangkat, hindari dengan berguling), sapuan
+  (satu lengan ditarik, hindari dengan jongkok), hentakan (satu kaki diangkat, gelombang di lantai,
+  hindari dengan lompat).
+- **Ramuan dan sihir:** Ramuan Darah +35 HP, Ramuan Serangan kerusakan 2 kali selama 15 detik, gulungan
+  Bola Api (6 kali kerusakan tebasan) dan Petir (8 kali, arca terpaku 1,5 detik). Muncul tiap 8 detik,
+  paling banyak 2 di arena.
+- **Efek gerak Nyaman** (bawaan): guncangan dan kilatan layar diredam, kamera tidak berputar-putar.
+- **Musik latar sintetis** (dengung, akor, derak obor, drum saat bertarung, detak jantung saat
+  Serangan Penentu) dan efek suara. Tombol suara (ikon gong) selalu tersedia.
+- **Kualitas grafis otomatis:** di HP dan saat fps di bawah 40, bloom, bayangan, dan sebagian partikel
+  dimatikan.
+
+## 8. Gaya visual
+
+- Dunia: ruang singgasana batu, emas kusam, api obor, arca kuno. Model kotak-kotak dengan toon shading
+  dan garis tepi.
+- Palet antarmuka: batu gelap hangat (`--bg #14110d`, `--panel #1f1a14`, `--panel-2 #2b241b`), garis
+  emas kusam (`--line #4a3d28`, garis panel `rgba(246, 196, 83, .45)`), teks perkamen (`--text #f3ead8`),
+  aksen emas `#f6c453`, hijau menang `#3ecf8e`, merah kalah `#ff6b6b`. Aksen ungu dipakai hanya untuk
+  Resi Bayang sebagai warna tokohnya.
+- Huruf: Cinzel untuk judul, font sistem untuk isi.
+- Tombol: primer emas seperti lempeng emas, sekunder batu gelap bergaris emas tipis, bahaya merah
+  bata. Sudut 10 px, tidak berbentuk pil.
+- Ikon: SVG garis emas (gong untuk suara, bingkai sudut untuk layar penuh), bukan emoji.
+- Menu utama (langit berbintang, siluet kastil, kartu menu) dipertahankan tata letaknya.
+
+## 9. Bahasa dan nada
+
+Bahasa Indonesia yang jelas, singkat, dan ramah untuk siswa. Tombol menyebut akibatnya ("Berhenti dan
+Lihat Rekap", "Buka PDF di Tab Baru").
+
+## 10. Aksesibilitas dan tampilan di berbagai layar
+
+- Fokus keyboard terlihat (garis emas), urutan Tab dimulai dari Nama Siswa.
+- MENANG, KALAH, dan Tidak dimainkan dibedakan dengan teks, bukan hanya warna. Kontras teks minimal
+  4,5:1.
+- Perangkat sentuh: tombol aksi minimal 54 px (Tebas 66 px), jarak 10 px; tombol jeda, suara, dan layar
+  penuh 48 px; zona aman poni memakai `env(safe-area-inset-*)`.
+- Zona aman kanan bawah (`--safe-bottom`) untuk badge hosting seperti Netlify.
+- Di HP landscape, tabel mini pindah ke bawah panel HP agar sisi kanan tidak menumpuk.
+- Portrait: menu sampai rekap bisa digulir tanpa scroll ke samping; tabel rekap bergeser di dalam
+  wadahnya sendiri.
+
+## 11. Ketahanan terhadap kasus pinggir
+
+- Nama atau Kelas kosong atau hanya spasi: tombol Mulai nonaktif dengan petunjuk.
+- Emoji dan simbol yang tidak bisa dicetak di PDF dihapus saat mengetik, dengan pesan; huruf beraksen
+  di luar Latin-1 diganti huruf dasarnya.
+- Internet putus atau CDN gagal (termasuk menggantung 30 detik): pesan "Game membutuhkan koneksi
+  internet. Periksa koneksi lalu muat ulang halaman." dengan tombol Muat Ulang.
+- Dibuka dengan klik dua kali `index.html` (file://): pesan cara membuka yang benar.
+- Klik ganda tombol Mulai Pertarungan, Lanjut, Ya berhenti, Unduh PDF, Buka PDF tidak menjalankan aksi
+  dua kali.
+
+## 12. Data dan privasi
+
+Tidak ada data yang dikirim ke server. Hasil hanya ada selama halaman terbuka; siswa harus mengunduh PDF
+rekap sebelum menutup halaman. Setting Guru dan pilihan Efek gerak disimpan di localStorage browser itu.
+
+## 13. Tes
+
+- `npm test`: 12 tes Node untuk `js/bernoulli.js` dan data `js/config.js`.
+- `?test=1`: tes browser, termasuk 10.000 undian p = 60 yang harus memberi frekuensi 0,58 sampai 0,62.
+
+## 14. Struktur folder
+
+```
+index.html, .nojekyll, README.md, PRODUCT.md, package.json
+css/style.css
+tests/bernoulli.test.js
+docs/LKPD-struktur-dan-isi.md
+js/  bernoulli.js  config.js  main.js  player.js  boss.js  mystic.js  arena.js
+     controls.js  combat.js  stages.js  ui.js  shaders.js  pdf.js  audio.js  browser-tests.js
+     cutscene.js  qte.js  potions.js  spells.js  settings.js  teacher.js
+```
+
+## 15. Keterbatasan yang diketahui
+
+- Butuh internet untuk Three.js, jsPDF, dan font.
+- Belum diuji di Safari atau iPhone.
+- Setelah tab ditinggal lalu dibuka lagi, pengukur fps di `js/main.js` dapat menurunkan grafis laptop
+  ke kualitas rendah secara permanen. Perbaikannya ada di loop render (area terlarang) dan menunggu izin
+  pemilik.
+- Siswa juga bisa membuka Setting Guru jika tidak memakai tautan siswa; periksa baris "Sumber nilai p".
+
+## 16. Aturan untuk semua perintah impeccable berikutnya
 
 1. Hanya boleh mengubah tampilan antarmuka HTML/CSS: menu utama, layar Cara Bermain, layar pilih karakter, HUD, dialog Resi Bayang, layar hasil tahap, konfirmasi berhenti, dan layar rekap.
 2. DILARANG mengubah: `js/bernoulli.js`, `js/config.js` (termasuk nilai p 50, 60, 70, 40, 30), logika Serangan Penentu, logika fitur berhenti, logika pencatatan hasil, rumus dan isi perhitungan di PDF, scene Three.js, model 3D, kontrol, shader, dan tes.
@@ -43,8 +214,31 @@ Bahasa Indonesia yang jelas, singkat, dan ramah untuk siswa.
 6. Tidak boleh ada path absolut berawalan "/", dan game tidak boleh bergantung pada npm untuk berjalan.
 7. Sebelum mengubah file apa pun, tunjukkan daftar perubahan dan tunggu persetujuan pemilik proyek.
 
-## Keputusan pemilik (sudah diputuskan)
+## 17. Keputusan pemilik (sudah diputuskan)
 
-- **Nilai p bawaan resmi: 50, 60, 70, 40, 30** (0,5; 0,6; 0,7; 0,4; 0,3), semuanya berbeda. Nilai ini yang dipertahankan dan tidak boleh diubah.
-- **Setting Guru tetap ada** agar guru bisa mencoba berbagai nilai p dan membagikan tautan siswa (`?p=...`). Saat game dibuka lewat tautan siswa, tombol Setting Guru disembunyikan.
-- Fitur yang sudah ada dan dipertahankan: tombol "Efek gerak: Nyaman/Penuh" di menu jeda, kustomisasi karakter, percakapan singkat gaya visual novel, QTE di Serangan Penentu (hanya animasi), ramuan, gulungan sihir, musik latar, dan Serangan Penentu yang juga dipicu saat player sekarat (peluang tetap p tahap itu). Aturan 3 berlaku untuk penambahan baru.
+- **Nilai p bawaan resmi: 50, 60, 70, 40, 30** (0,5; 0,6; 0,7; 0,4; 0,3), semuanya berbeda. Nilai ini
+  yang dipertahankan dan tidak boleh diubah.
+- **Setting Guru tetap ada** agar guru bisa mencoba berbagai nilai p dan membagikan tautan siswa
+  (`?p=...`). Saat game dibuka lewat tautan siswa, tombol Setting Guru disembunyikan.
+- Fitur yang sudah ada dan dipertahankan: tombol "Efek gerak: Nyaman/Penuh" di menu jeda, kustomisasi
+  karakter, percakapan singkat gaya visual novel, QTE di Serangan Penentu (hanya animasi), ramuan,
+  gulungan sihir, musik latar, dan Serangan Penentu yang juga dipicu saat player sekarat (peluang tetap
+  p tahap itu). Aturan 3 berlaku untuk penambahan baru.
+- Hosting tetap di Netlify; zona aman badge hosting di kanan bawah dipertahankan.
+- **Rekap dan PDF akhir dibuat ringkas (diputuskan 23 Oktober 2026, belum dikerjakan):** hanya berisi
+  identitas, tahap, kondisi, p, hasil (Menang/Kalah/Tidak dimainkan), dan jumlah menang serta kalah.
+  Kolom 1 - p, X, P(hasil), E(X), Var(X), rumus, peluang urutan, jumlah menang yang diharapkan, catatan
+  "bukan binomial", dan tiga pertanyaan refleksi dipindah ke LKPD agar jawabannya tidak tersedia di
+  rekap. Keputusan ini mengesampingkan aturan 2 (isi perhitungan PDF) dan aturan 4 khusus untuk rekap
+  dan PDF. Layar hasil tahap, HUD, dan Serangan Penentu tetap menampilkan p, 1 - p, dan X. Daftar
+  perubahan kodenya menunggu persetujuan pemilik sebelum dikerjakan (aturan 7).
+
+## 18. Rencana yang diminta pemilik: LKPD digital
+
+- Pemilik meminta LKPD (Lembar Kerja Peserta Didik) sebagai kelanjutan setelah bermain 1 kali atau
+  lebih. Struktur dan isinya ada di `docs/LKPD-struktur-dan-isi.md`.
+- Desain LKPD akan diberikan kelompok, lalu dikodekan 1:1 dengan kolom isian, dan jawaban bisa diunduh
+  siswa atau dikirim ke guru.
+- LKPD adalah penambahan atas permintaan langsung pemilik, jadi menjadi pengecualian tertulis untuk
+  aturan 3. Cara pengiriman ke guru belum diputuskan karena game tidak punya backend (lihat bagian
+  keputusan teknis di dokumen LKPD).
