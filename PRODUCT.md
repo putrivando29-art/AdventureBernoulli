@@ -248,10 +248,10 @@ mengganti prinsip "tanpa backend". Aturan 6 tetap berlaku: semua pustaka dimuat 
 
 - **Login Google** (Firebase). Setelah login, siswa mengisi nama dan kelas sendiri. Data tersimpan di
   akun sehingga bisa pindah perangkat.
-- **Dua putaran permainan.** Putaran 1 memakai p bawaan. Putaran 2 memakai p lain; rekomendasi p unik per
-  siswa (satu desimal, 0,1 sampai 0,9, kelima tahap berbeda) yang diacak sekali dan disimpan di akun,
-  menunggu konfirmasi pemilik.
-- **LKPD digital** terbuka setelah 2 permainan tercatat. Struktur dan isi: `docs/LKPD-struktur-dan-isi.md`.
+- **Satu permainan per siswa** (tahap 1 sampai 5) dengan p bawaan. Tidak ada putaran kedua. Usulan yang
+  menunggu konfirmasi: Setting Guru dan tautan `?p=` hanya untuk akun guru, dan aturan database menolak
+  permainan siswa dengan p selain bawaan.
+- **LKPD digital** terbuka setelah permainan itu tercatat. Struktur dan isi: `docs/LKPD-struktur-dan-isi.md`.
   Desain dari kelompok, dikodekan 1:1. Semua isian memakai editor persamaan. Tidak ada tanda benar/salah
   otomatis. Setelah dikirim, perubahan hanya dengan persetujuan guru.
 - **Akun guru** (4 email dari pemilik): memantau hasil permainan, PDF, progres dan jawaban LKPD,

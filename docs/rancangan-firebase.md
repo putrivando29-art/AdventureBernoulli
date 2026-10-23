@@ -24,23 +24,22 @@ terlampaui, layanan berhenti sampai periode berikutnya. Perkiraan pemakaian [Dug
 
 1. Buka website → **Masuk dengan Google**.
 2. Pertama kali: isi **Nama** dan **Kelas** (ditulis sendiri). Tersimpan di akun.
-3. **Putaran 1**: p bawaan (0,5; 0,6; 0,7; 0,4; 0,3). Sampai rekap → isi umpan balik aplikasi (pilihan) →
-   permainan tersimpan. Saat itu juga p putaran 2 diacak sekali dan disimpan di akun.
-4. **Putaran 2**: game otomatis memakai p dari akun. Sampai rekap → umpan balik → tersimpan.
-5. **LKPD** terbuka setelah 2 permainan tercatat. Jawaban tersimpan otomatis; bisa dilanjutkan di perangkat
-   lain.
-6. **Kirim LKPD** → terkunci. **Ajukan Perubahan** (dengan alasan) → menunggu guru.
-7. Permainan ke-3 dan seterusnya boleh, tetap tersimpan, tetapi LKPD hanya memakai putaran 1 dan 2.
+3. **Bermain satu kali**, tahap 1 sampai 5, dengan p bawaan (0,5; 0,6; 0,7; 0,4; 0,3). Setting Guru dan
+   tautan `?p=` tidak berlaku untuk akun siswa. Sampai rekap → isi umpan balik aplikasi (pilihan) →
+   permainan tersimpan.
+4. **LKPD** terbuka setelah permainan itu tercatat. Jawaban tersimpan otomatis; bisa dilanjutkan di
+   perangkat lain.
+5. **Kirim LKPD** → terkunci. **Ajukan Perubahan** (dengan alasan) → menunggu guru.
 
-Permainan dihitung jika sampai rekap dan minimal 1 tahap dimainkan (usulan, menunggu konfirmasi).
+Menunggu konfirmasi: aturan jika siswa berhenti sebelum tahap 5, dan apakah boleh bermain lagi setelah
+permainan pertama tercatat (permainan berikutnya tidak dipakai LKPD).
 
 ## 3. Alur guru
 
 1. Masuk dengan Google memakai salah satu email guru → tab **Guru** muncul.
 2. Daftar siswa per kelas (dikelompokkan dari isian Kelas, huruf besar-kecil dan spasi diabaikan): nama,
    email, jumlah permainan, progres LKPD (persen kolom terisi), status (draf, terkirim, minta ubah).
-3. Detail siswa: hasil putaran 1 dan 2, p putaran 2 (bisa diganti selama putaran 2 belum dimainkan), umpan
-   balik, jawaban LKPD terakhir, unduh PDF rekap dan PDF LKPD, kunci hitungan sesuai p siswa itu.
+3. Detail siswa: hasil permainan, umpan balik, jawaban LKPD terakhir, unduh PDF rekap dan PDF LKPD.
 4. **Persetujuan perubahan**: setujui (LKPD siswa terbuka lagi) atau tolak.
 5. **Buka Data Kelas**: menghitung data gabungan kelas dan menerbitkannya untuk Kegiatan 3 Bagian B.
 6. Unduh semua data kelas (CSV) untuk penilaian di luar website.
@@ -51,17 +50,16 @@ Permainan dihitung jika sampai rekap dan minimal 1 tahap dimainkan (usulan, menu
 guru/{email}                         dibuat manual di Firebase Console, satu dokumen per email guru
 users/{uid}
   nama, kelas, kelasKey, email, dibuat
-  p2: [5 bilangan perseratus], p2Sumber: "acak" | "guru"
 users/{uid}/permainan/{id}
-  putaran: 1 | 2, p: [5], x: [5, berisi 1, 0, atau null], karakter, mulai, selesai
+  p: [5], x: [5, berisi 1, 0, atau null], karakter, mulai, selesai, dipakaiLkpd (true untuk yang pertama)
   umpanBalik: { suka, bingung, saran }      (boleh diisi sekali setelah permainan tersimpan)
 users/{uid}/lkpd/jawaban
   isian: { "<id kolom>": "<teks, rumus ditulis sebagai $...$ LaTeX>" }
   status: "draf" | "terkirim" | "minta-ubah" | "dibuka"
   progres, diperbarui, dikirim, alasanUbah, diputuskanOleh, diputuskanPada
 kelas/{kelasKey}
-  statistik putaran 1 per tahap (banyak percobaan, banyak menang), jumlah p dan jumlah menang putaran 2,
-  diterbitkan, diterbitkanOleh
+  per tahap: banyak siswa yang memainkan dan banyak yang menang; jumlah menang yang diharapkan dan jumlah
+  menang nyata sekelas; diterbitkan, diterbitkanOleh
 ```
 
 Email guru disimpan sebagai dokumen di koleksi `guru`, bukan ditulis di kode, supaya tidak ikut terbuka di
@@ -85,19 +83,14 @@ service cloud.firestore {
 
     match /users/{uid} {
       allow read: if pemilik(uid) || guru();
-      allow create: if pemilik(uid) && !('p2' in request.resource.data);
-      // siswa boleh mengubah nama dan kelas, dan mengisi p2 satu kali saja
-      allow update: if guru()
-        || (pemilik(uid) && hanyaUbah(['nama', 'kelas', 'kelasKey']))
-        || (pemilik(uid) && !('p2' in resource.data) && hanyaUbah(['p2', 'p2Sumber']));
+      allow create: if pemilik(uid);
+      // siswa boleh mengubah nama dan kelas
+      allow update: if guru() || (pemilik(uid) && hanyaUbah(['nama', 'kelas', 'kelasKey']));
 
       match /permainan/{id} {
         allow read: if pemilik(uid) || guru();
-        // putaran 1 wajib p bawaan; putaran 2 wajib sama dengan p2 di akun
-        allow create: if pemilik(uid) && (
-          (request.resource.data.putaran == 1 && request.resource.data.p == [50, 60, 70, 40, 30])
-          || (request.resource.data.putaran == 2
-              && request.resource.data.p == get(/databases/$(database)/documents/users/$(uid)).data.p2));
+        // akun siswa hanya boleh menyimpan permainan dengan p bawaan
+        allow create: if pemilik(uid) && request.resource.data.p == [50, 60, 70, 40, 30];
         allow update: if pemilik(uid) && !('umpanBalik' in resource.data) && hanyaUbah(['umpanBalik']);
         allow delete: if false;
       }
@@ -131,9 +124,9 @@ Catatan:
 - Siswa bisa berpindah dari "dibuka" ke "draf" lewat aturan pertama. Ini tidak berbahaya karena kedua
   status sama-sama boleh diisi, tetapi akan dirapikan saat pengujian.
 - Batas yang harus disadari [Pasti]: undian dan pencatatan berjalan di perangkat siswa. Aturan di atas
-  mencegah siswa memalsukan p, tetapi siswa yang paham alat developer browser masih bisa mengirim hasil
-  menang/kalah palsu. Untuk LKPD yang menilai penalaran, ini dapat diterima.
-- Kunci LKPD (2 permainan) dicek di perangkat. Aturan tidak bisa menghitung isi koleksi; jika perlu dikunci
+  mencegah siswa memakai p selain bawaan, tetapi siswa yang paham alat developer browser masih bisa mengirim
+  hasil menang/kalah palsu. Untuk LKPD yang menilai penalaran, ini dapat diterima.
+- Kunci LKPD (permainan sudah tercatat) dicek di perangkat. Aturan tidak bisa menghitung isi koleksi; jika perlu dikunci
   ketat, ditambah penghitung permainan di dokumen `users`.
 
 ## 6. Hal teknis yang harus dicek saat pengerjaan
@@ -152,9 +145,9 @@ Catatan:
 
 | Tahap | Isi | Butuh dari kelompok |
 |---|---|---|
-| A | Login Google, profil nama dan kelas, penyimpanan permainan putaran 1 dan 2, p putaran 2 di akun, rekap ringkas dengan umpan balik, PDF ringkas | Konfigurasi web Firebase (`firebaseConfig`), domain Vercel |
+| A | Login Google, profil nama dan kelas, penyimpanan permainan dengan p bawaan, Setting Guru hanya untuk akun guru, rekap ringkas dengan umpan balik, PDF ringkas | Konfigurasi web Firebase (`firebaseConfig`), domain Vercel |
 | B | Layar LKPD siswa sesuai desain, editor persamaan, simpan otomatis, kirim, ajukan perubahan, PDF LKPD | Desain LKPD |
-| C | Tab guru: daftar dan detail siswa, persetujuan, Buka Data Kelas, ganti p putaran 2, unduh CSV | Email guru dimasukkan ke koleksi `guru` |
+| C | Tab guru: daftar dan detail siswa, persetujuan, Buka Data Kelas, unduh CSV | Email guru dimasukkan ke koleksi `guru` |
 | D | Uji dengan akun siswa dan akun guru, panduan website dan panduan pembelajaran | Dua akun Google untuk uji |
 
 Tahap A sudah bisa dikerjakan sebelum desain LKPD datang.
