@@ -27,12 +27,14 @@ terlampaui, layanan berhenti sampai periode berikutnya. Perkiraan pemakaian [Dug
 3. **Bermain satu kali**, tahap 1 sampai 5, dengan p bawaan (0,5; 0,6; 0,7; 0,4; 0,3). Setting Guru dan
    tautan `?p=` tidak berlaku untuk akun siswa. Sampai rekap → isi umpan balik aplikasi (pilihan) →
    permainan tersimpan.
-4. **LKPD** terbuka setelah permainan itu tercatat. Jawaban tersimpan otomatis; bisa dilanjutkan di
-   perangkat lain.
-5. **Kirim LKPD** → terkunci. **Ajukan Perubahan** (dengan alasan) → menunggu guru.
-
-Menunggu konfirmasi: aturan jika siswa berhenti sebelum tahap 5, dan apakah boleh bermain lagi setelah
-permainan pertama tercatat (permainan berikutnya tidak dipakai LKPD).
+4. **LKPD** terbuka setelah tercatat permainan ber-p bawaan dengan minimal 1 tahap dimainkan. Jawaban
+   tersimpan otomatis; bisa dilanjutkan di perangkat lain.
+5. Selama LKPD belum dikirim, LKPD memakai permainan ber-p bawaan **terbaru**. Jika data berganti karena
+   bermain lagi, LKPD menampilkan pemberitahuan agar siswa memeriksa jawabannya.
+6. **Kirim LKPD** → id permainan yang dipakai disimpan di dokumen LKPD, sehingga data dan jawaban
+   terkunci. Bermain lagi sesudahnya tidak mengubah LKPD dan tidak membuka LKPD baru. **Ajukan Perubahan**
+   (dengan alasan) → menunggu guru. Guru juga bisa menghapus data siswa agar ia mulai dari awal.
+7. Permainan dengan p dari Setting Guru (mode latihan) tidak disimpan dan tidak dipakai LKPD.
 
 ## 3. Alur guru
 
@@ -52,11 +54,12 @@ guru/{email}                         dibuat manual di Firebase Console, satu dok
 users/{uid}
   nama, kelas, kelasKey, email, dibuat
 users/{uid}/permainan/{id}
-  p: [5], x: [5, berisi 1, 0, atau null], karakter, mulai, selesai, dipakaiLkpd (true untuk yang pertama)
+  p: [5], x: [5, berisi 1, 0, atau null], karakter, mulai, selesai
   umpanBalik: { suka, bingung, saran }      (boleh diisi sekali setelah permainan tersimpan)
 users/{uid}/lkpd/jawaban
   isian: { "<id kolom>": "<teks, rumus ditulis sebagai $...$ LaTeX>" }
   status: "draf" | "terkirim" | "minta-ubah" | "dibuka"
+  permainanId (diisi saat dikirim; permainan yang dipakai dan dikunci)
   progres, diperbarui, dikirim, alasanUbah, diputuskanOleh, diputuskanPada
 ```
 

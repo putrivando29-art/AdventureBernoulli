@@ -251,7 +251,8 @@ mengganti prinsip "tanpa backend". Aturan 6 tetap berlaku: semua pustaka dimuat 
 - **Satu permainan per siswa** (tahap 1 sampai 5) dengan p bawaan. Tidak ada putaran kedua. Usulan yang
   menunggu konfirmasi: Setting Guru dan tautan `?p=` hanya untuk akun guru, dan aturan database menolak
   permainan siswa dengan p selain bawaan.
-- **LKPD digital** terbuka setelah permainan itu tercatat. Struktur dan isi: `docs/LKPD-struktur-dan-isi.md`.
+- **LKPD digital** hanya tentang distribusi Bernoulli (permintaan dosen), terbuka setelah permainan ber-p
+  bawaan tercatat. LKPD memakai permainan terbaru sampai LKPD dikirim; setelah itu data dan jawaban terkunci. Struktur dan isi: `docs/LKPD-struktur-dan-isi.md`.
   Desain dari kelompok, dikodekan 1:1. Semua isian memakai editor persamaan. Tidak ada tanda benar/salah
   otomatis. Setelah dikirim, perubahan hanya dengan persetujuan guru.
 - **Akun guru** (4 email dari pemilik): memantau hasil permainan, PDF, progres dan jawaban LKPD,
