@@ -41,7 +41,8 @@ permainan pertama tercatat (permainan berikutnya tidak dipakai LKPD).
    email, jumlah permainan, progres LKPD (persen kolom terisi), status (draf, terkirim, minta ubah).
 3. Detail siswa: hasil permainan, umpan balik, jawaban LKPD terakhir, unduh PDF rekap dan PDF LKPD.
 4. **Persetujuan perubahan**: setujui (LKPD siswa terbuka lagi) atau tolak.
-5. **Buka Data Kelas**: menghitung data gabungan kelas dan menerbitkannya untuk Kegiatan 3 Bagian B.
+5. **Hapus Data Siswa**: menghapus permainan dan LKPD seorang siswa atas permintaannya, agar ia bisa
+   bermain ulang dan LKPD memakai data baru.
 6. Unduh semua data kelas (CSV) untuk penilaian di luar website.
 
 ## 4. Struktur data Firestore
@@ -57,9 +58,6 @@ users/{uid}/lkpd/jawaban
   isian: { "<id kolom>": "<teks, rumus ditulis sebagai $...$ LaTeX>" }
   status: "draf" | "terkirim" | "minta-ubah" | "dibuka"
   progres, diperbarui, dikirim, alasanUbah, diputuskanOleh, diputuskanPada
-kelas/{kelasKey}
-  per tahap: banyak siswa yang memainkan dan banyak yang menang; jumlah menang yang diharapkan dan jumlah
-  menang nyata sekelas; diterbitkan, diterbitkanOleh
 ```
 
 Email guru disimpan sebagai dokumen di koleksi `guru`, bukan ditulis di kode, supaya tidak ikut terbuka di
@@ -92,7 +90,7 @@ service cloud.firestore {
         // akun siswa hanya boleh menyimpan permainan dengan p bawaan
         allow create: if pemilik(uid) && request.resource.data.p == [50, 60, 70, 40, 30];
         allow update: if pemilik(uid) && !('umpanBalik' in resource.data) && hanyaUbah(['umpanBalik']);
-        allow delete: if false;
+        allow delete: if guru();   // Hapus Data Siswa
       }
 
       match /lkpd/{doc} {
@@ -107,15 +105,10 @@ service cloud.firestore {
              && request.resource.data.status == 'minta-ubah' && hanyaUbah(['status', 'alasanUbah']))
           // guru memutuskan pengajuan
           || (guru() && hanyaUbah(['status', 'diputuskanOleh', 'diputuskanPada']));
-        allow delete: if false;
+        allow delete: if guru();   // Hapus Data Siswa
       }
     }
 
-    match /kelas/{kelasKey} {
-      allow read: if guru() || (masuk()
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.kelasKey == kelasKey);
-      allow write: if guru();
-    }
   }
 }
 ```
@@ -147,7 +140,7 @@ Catatan:
 |---|---|---|
 | A | Login Google, profil nama dan kelas, penyimpanan permainan dengan p bawaan, Setting Guru hanya untuk akun guru, rekap ringkas dengan umpan balik, PDF ringkas | Konfigurasi web Firebase (`firebaseConfig`), domain Vercel |
 | B | Layar LKPD siswa sesuai desain, editor persamaan, simpan otomatis, kirim, ajukan perubahan, PDF LKPD | Desain LKPD |
-| C | Tab guru: daftar dan detail siswa, persetujuan, Buka Data Kelas, unduh CSV | Email guru dimasukkan ke koleksi `guru` |
+| C | Tab guru: daftar dan detail siswa, persetujuan, Hapus Data Siswa, unduh CSV | Email guru dimasukkan ke koleksi `guru` |
 | D | Uji dengan akun siswa dan akun guru, panduan website dan panduan pembelajaran | Dua akun Google untuk uji |
 
 Tahap A sudah bisa dikerjakan sebelum desain LKPD datang.
