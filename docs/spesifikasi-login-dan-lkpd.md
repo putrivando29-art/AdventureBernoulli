@@ -10,8 +10,7 @@ menunggu permintaan pemilik.
 
 ```
 Buka situs
-  → Halaman Masuk (tombol "Masuk dengan Google")
-  → [pertama kali] Isi Nama dan Kelas
+  → Halaman Masuk (email dan kata sandi) atau Daftar (email, kata sandi, nama, kelas)
   → Menu utama (email dan tombol Keluar terlihat)
   → Bermain tahap 1 sampai 5 (boleh berhenti)
   → Rekap ringkas: hasil menang dan kalah
@@ -22,20 +21,21 @@ Akun guru (email terdaftar) → tab "Guru" di menu
 
 ---
 
-## 2. Login dan profil
+## 2. Login dan profil (email dan kata sandi)
 
 | Fitur | Perilaku |
 |---|---|
-| Halaman Masuk | Ditampilkan sebelum menu. Isi: judul game, Universitas Sriwijaya · by Kelompok 17, tombol **Masuk dengan Google**. Tanpa login, game tidak bisa dimulai |
-| Cara login | Jendela pop-up Google. Jika pop-up diblokir, muncul pesan "Izinkan pop-up untuk situs ini, lalu coba lagi" |
-| Profil pertama kali | Setelah login pertama, siswa mengisi **Nama** (maks. 40 karakter) dan **Kelas** (maks. 15 karakter) sendiri. Disimpan di akun |
-| Login berikutnya | Nama dan kelas terisi otomatis dari akun; masih bisa diubah di menu |
-| Pindah perangkat | Login dengan akun yang sama; permainan dan jawaban LKPD muncul kembali |
+| Halaman Masuk | Ditampilkan sebelum menu. Isi: judul game, Universitas Sriwijaya · by Kelompok 17, dua tab: **Masuk** dan **Daftar**. Tanpa login, game tidak bisa dimulai |
+| Tab Masuk | Email, Kata sandi (dengan tombol tampilkan/sembunyikan), tombol **Masuk**, tautan **Lupa kata sandi?** |
+| Tab Daftar | Email, Kata sandi (minimal 6 karakter), Ulangi kata sandi, Nama (maks. 40 karakter), Kelas (maks. 15 karakter), tombol **Daftar**. Setelah berhasil, langsung masuk ke menu |
+| Lupa kata sandi | Siswa mengisi email, sistem mengirim email untuk membuat kata sandi baru. Pesan: "Jika email terdaftar, tautan untuk membuat kata sandi baru sudah dikirim. Periksa juga folder spam." |
+| Pesan galat (Bahasa Indonesia) | "Email sudah terdaftar. Silakan masuk." · "Kata sandi minimal 6 karakter." · "Kata sandi tidak sama." · "Email atau kata sandi salah." · "Format email tidak valid." · "Terlalu banyak percobaan. Tunggu beberapa menit, lalu coba lagi." · "Tidak ada koneksi internet." |
+| Login berikutnya | Tetap masuk di perangkat itu sampai menekan Keluar. Nama dan kelas terisi dari akun; masih bisa diubah di menu |
+| Pindah perangkat | Masuk dengan email dan kata sandi yang sama; permainan dan jawaban LKPD muncul kembali |
 | Keluar | Tombol **Keluar** di menu. Data tetap tersimpan di akun |
-| Pengenalan guru | Jika email ada di koleksi `guru` (Firestore), tombol **Guru** muncul di menu |
+| Akun guru | Dibuat pemilik di Firebase Console (bukan lewat tab Daftar). Dikenali dari UID-nya di koleksi `guru`; tombol **Guru** muncul di menu |
 | Gagal terhubung | Jika Firebase tidak bisa dimuat, muncul pesan internet yang sudah ada beserta tombol Muat Ulang |
-
----
+| Analytics | Tidak dipakai |
 
 ## 3. Permainan dan rekap
 
@@ -146,7 +146,7 @@ Penilaian dilakukan kelompok di luar website; akun guru tidak menyimpan nilai.
 ## 6. Data yang tersimpan (ringkas)
 
 ```
-guru/{email}                     diisi manual (tutorial Bagian 6)
+guru/{uid}                       diisi manual dengan UID akun guru (tutorial Bagian 6)
 users/{uid}                      nama, kelas, kelasKey, email, dibuat, diperbarui
 users/{uid}/permainan/{id}       p, x (5 nilai: 1, 0, atau null), karakter, mulai, selesai
 users/{uid}/lkpd/jawaban         isian {id: teks}, status, progres, diperbarui, dikirim,

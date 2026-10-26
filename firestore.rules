@@ -2,18 +2,18 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function masuk() { return request.auth != null; }
+    // akun guru dikenali dari UID-nya di koleksi guru (dibuat manual di Console)
     function guru() {
-      return masuk() && request.auth.token.email_verified == true
-        && exists(/databases/$(database)/documents/guru/$(request.auth.token.email));
+      return masuk() && exists(/databases/$(database)/documents/guru/$(request.auth.uid));
     }
     function pemilik(uid) { return masuk() && request.auth.uid == uid; }
     function hanyaUbah(kolom) {
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly(kolom);
     }
 
-    // daftar guru: diisi manual di Console; tiap orang hanya bisa mengecek emailnya sendiri
-    match /guru/{email} {
-      allow read: if masuk() && request.auth.token.email == email;
+    // daftar guru: tiap akun hanya bisa mengecek dirinya sendiri
+    match /guru/{uid} {
+      allow read: if masuk() && request.auth.uid == uid;
       allow write: if false;
     }
 

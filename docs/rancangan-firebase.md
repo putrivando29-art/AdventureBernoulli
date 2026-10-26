@@ -1,4 +1,4 @@
-# Rancangan Pendataan: Login Google, Firestore, dan Akun Guru
+# Rancangan Pendataan: Login Email, Firestore, dan Akun Guru
 
 Rancangan agar hasil setiap siswa (permainan dan LKPD) tersimpan di akunnya, bisa dilanjutkan di
 perangkat lain, dan bisa dipantau guru. Belum dikodekan. Bagian bertanda **[Dugaan]** harus dicek saat
@@ -9,7 +9,7 @@ pengerjaan.
 | Kebutuhan | Pilihan | Alasan |
 |---|---|---|
 | Hosting | Vercel (website statis, file yang sama seperti sekarang) | Keputusan pemilik |
-| Login | Firebase Authentication, penyedia Google | Siswa memakai akun Google apa pun |
+| Login | Firebase Authentication, email dan kata sandi | Siswa mendaftar sendiri dengan email apa pun; akun guru dibuat pemilik |
 | Database | Cloud Firestore | Data per akun, aturan akses per email, sinkron antarperangkat |
 | PDF | Dibuat ulang dari data dengan jsPDF (sudah ada di game) | Tidak perlu Cloud Storage. Satu sumber pihak ketiga menyebut Cloud Storage kini wajib paket berbayar Blaze [Dugaan, cek dokumen resmi] |
 | Editor persamaan | MathLive (lisensi MIT, dari CDN) | Pangkat, indeks bawah, pecahan, keyboard virtual di HP |
@@ -22,8 +22,8 @@ terlampaui, layanan berhenti sampai periode berikutnya. Perkiraan pemakaian [Dug
 
 ## 2. Alur siswa
 
-1. Buka website → **Masuk dengan Google**.
-2. Pertama kali: isi **Nama** dan **Kelas** (ditulis sendiri). Tersimpan di akun.
+1. Buka website → **Masuk** dengan email dan kata sandi, atau **Daftar** (email, kata sandi, nama, kelas).
+2. Nama dan kelas tersimpan di akun.
 3. **Bermain satu kali**, tahap 1 sampai 5, dengan p bawaan (0,5; 0,6; 0,7; 0,4; 0,3). Setting Guru dan
    tautan `?p=` tidak berlaku untuk akun siswa. Sampai rekap →
    permainan tersimpan.
@@ -38,7 +38,7 @@ terlampaui, layanan berhenti sampai periode berikutnya. Perkiraan pemakaian [Dug
 
 ## 3. Alur guru
 
-1. Masuk dengan Google memakai salah satu email guru → tab **Guru** muncul.
+1. Masuk dengan akun guru (dibuat pemilik di Console, UID terdaftar di koleksi `guru`) → tombol **Guru** muncul.
 2. Daftar siswa per kelas (dikelompokkan dari isian Kelas, huruf besar-kecil dan spasi diabaikan): nama,
    email, jumlah permainan, progres LKPD (persen kolom terisi), status (draf, terkirim, minta ubah).
 3. Detail siswa: hasil permainan, jawaban LKPD terakhir, unduh PDF rekap dan PDF LKPD.
@@ -50,7 +50,7 @@ terlampaui, layanan berhenti sampai periode berikutnya. Perkiraan pemakaian [Dug
 ## 4. Struktur data Firestore
 
 ```
-guru/{email}                         dibuat manual di Firebase Console, satu dokumen per email guru
+guru/{uid}                           dibuat manual di Firebase Console, Document ID = UID akun guru
 users/{uid}
   nama, kelas, kelasKey, email, dibuat
 users/{uid}/permainan/{id}
@@ -62,8 +62,8 @@ users/{uid}/lkpd/jawaban
   progres, diperbarui, dikirim, alasanUbah, diputuskanOleh, diputuskanPada
 ```
 
-Email guru disimpan sebagai dokumen di koleksi `guru`, bukan ditulis di kode, supaya tidak ikut terbuka di
-repository.
+Guru dikenali dari UID di koleksi `guru`, bukan dari email, karena dengan login email dan kata sandi siapa pun
+bisa mendaftar memakai email orang lain. Daftar guru tidak ditulis di kode.
 
 ## 5. Aturan akses
 
@@ -80,9 +80,8 @@ Catatan:
 
 ## 6. Hal teknis yang harus dicek saat pengerjaan
 
-1. **Login di HP** [Kemungkinan Besar]: login lewat jendela pop-up paling sederhana. Login lewat pengalihan
-   halaman di domain selain Firebase Hosting bermasalah di browser yang memblokir penyimpanan pihak ketiga.
-   Jika pop-up gagal di HP tertentu, solusinya meneruskan alamat `/__/auth/` lewat `vercel.json`.
+1. **Login email dan kata sandi** tidak memakai pop-up atau pengalihan halaman, jadi tidak terkena masalah
+   pemblokiran penyimpanan pihak ketiga di browser HP. [Kemungkinan Besar]
 2. **Domain Vercel** harus ditambahkan di Firebase Console → Authentication → Settings → Authorized domains.
 3. **Cache luring Firestore** diaktifkan agar jawaban tidak hilang saat sinyal putus sesaat.
 4. **Rumus di PDF**: jsPDF tidak bisa mencetak LaTeX. Usulan: di PDF rumus ditulis sebagai teks biasa
@@ -94,9 +93,9 @@ Catatan:
 
 | Tahap | Isi | Butuh dari kelompok |
 |---|---|---|
-| A | Login Google, profil nama dan kelas, penyimpanan permainan dengan p bawaan, tanda mode latihan, rekap ringkas, PDF ringkas | Konfigurasi web Firebase (`firebaseConfig`), domain Vercel |
+| A | Login email dan kata sandi (masuk, daftar, lupa kata sandi), profil nama dan kelas, penyimpanan permainan dengan p bawaan, tanda mode latihan, rekap ringkas, PDF ringkas | Domain Vercel (konfigurasi Firebase sudah diterima) |
 | B | Layar LKPD siswa sesuai desain, editor persamaan, simpan otomatis, kirim, ajukan perubahan, PDF LKPD | Desain LKPD |
 | C | Tab guru: daftar dan detail siswa, persetujuan, Hapus Data Siswa, unduh CSV | Email guru dimasukkan ke koleksi `guru` |
-| D | Uji dengan akun siswa dan akun guru, panduan website dan panduan pembelajaran | Dua akun Google untuk uji |
+| D | Uji dengan akun siswa dan akun guru, panduan website dan panduan pembelajaran | Satu email siswa uji dan satu akun guru |
 
 Tahap A sudah bisa dikerjakan sebelum desain LKPD datang.

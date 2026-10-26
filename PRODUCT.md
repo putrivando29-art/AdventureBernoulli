@@ -11,7 +11,7 @@ keputusan pemilik proyek. Semua angka di dokumen ini diambil dari kode (`js/conf
 - **Pembuat:** Kelompok 17, Universitas Sriwijaya.
 - **Hosting:** website statis di Vercel (sebelumnya Netlify). Tanpa build tool. npm hanya untuk tes di
   komputer pengembang.
-- **Backend (direncanakan, belum dikodekan):** Firebase Authentication (login Google) dan Cloud Firestore
+- **Backend (direncanakan, belum dikodekan):** Firebase Authentication (email dan kata sandi) dan Cloud Firestore
   untuk menyimpan hasil permainan dan LKPD per siswa, serta akun guru. Rancangan:
   `docs/rancangan-firebase.md`.
 - **Teknologi:** HTML, CSS, JavaScript murni (ES module), Three.js 0.160.0 lewat import map dari
@@ -246,7 +246,8 @@ js/  bernoulli.js  config.js  main.js  player.js  boss.js  mystic.js  arena.js
 Penambahan ini atas permintaan langsung pemilik, jadi menjadi pengecualian tertulis untuk aturan 3, dan
 mengganti prinsip "tanpa backend". Aturan 6 tetap berlaku: semua pustaka dimuat dari CDN, tanpa npm.
 
-- **Login Google** (Firebase). Setelah login, siswa mengisi nama dan kelas sendiri. Data tersimpan di
+- **Login email dan kata sandi** (Firebase; bukan Google, keputusan pemilik). Siswa mendaftar sendiri dengan
+  email, kata sandi, nama, dan kelas; akun guru dibuat pemilik di Console. Data tersimpan di
   akun sehingga bisa pindah perangkat.
 - **Satu permainan per siswa** (tahap 1 sampai 5) dengan p bawaan. Tidak ada putaran kedua. Usulan yang
   menunggu konfirmasi: Setting Guru dan tautan `?p=` hanya untuk akun guru, dan aturan database menolak
