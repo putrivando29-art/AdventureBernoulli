@@ -615,6 +615,59 @@ kbd {
   .screen-menu.is-active { padding-top: 72px; }
 }
 
+/* ---------- LKPD digital ---------- */
+.lk-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .9rem; margin: 0 0 .6rem; }
+.lk-status { font-weight: 700; color: var(--accent); }
+.lk-bar .btn { margin-left: auto; min-height: 40px; }
+.lk-rekap { margin-bottom: .8rem; }
+.lk-pages h3 { font-size: 1.3rem; color: var(--accent); }
+.lk-pages h4 { margin: 1rem 0 .4rem; font-family: var(--font-title); color: var(--accent); }
+.lk-pages p, .lk-pages li { line-height: 1.6; }
+.lk-q { margin: 1.1rem 0 .4rem; }
+.lk-sub { margin: 0 0 .4rem; }
+.lk-answer { display: grid; gap: .4rem; margin-bottom: .6rem; }
+.lk-answer textarea, .lk-table input[type="text"], #ubah-alasan {
+  width: 100%; font: inherit; font-size: 1rem; color: var(--text); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 10px; padding: .6em .75em; resize: vertical;
+}
+.lk-answer textarea { min-height: 96px; }
+.lk-answer textarea:disabled, .lk-table input:disabled { opacity: .75; }
+.lk-rumus-btn { justify-self: start; min-height: 38px; padding: .3em .9em; font-size: .85rem; }
+.lk-rumus { padding: .6rem; border-radius: 10px; background: rgba(0, 0, 0, .25); border: 1px dashed rgba(246, 196, 83, .35); }
+.lk-rumus-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.lk-rumus-row .chip-btn { min-width: 44px; min-height: 40px; justify-content: center; }
+.lk-rumus-row .chip-btn[aria-pressed="true"] { border-color: var(--accent); background: #4a3a22; }
+.lk-rumus p { margin: .4rem 0 0; }
+.lk-info { margin: 1rem 0; padding: .8rem 1rem; border-radius: 12px; background: rgba(246, 196, 83, .08); border: 1px solid rgba(246, 196, 83, .5); }
+.lk-info h4 { margin-top: 0; }
+.lk-info p { margin: .3rem 0; }
+.lk-two { display: grid; gap: .8rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.lk-two .lk-info { margin: 0; }
+.lk-table td, .lk-table th { white-space: normal; text-align: center; }
+.lk-table input[type="text"] { min-width: 64px; padding: .4em .5em; text-align: center; }
+.lk-table input[type="radio"] { width: 22px; height: 22px; accent-color: var(--accent); }
+.lk-off td { color: var(--muted); }
+.lk-cover { text-align: center; padding: 1rem .5rem 1.5rem; }
+.lk-cover-top { font-family: var(--font-title); font-weight: 800; font-size: clamp(1.6rem, 6vw, 2.2rem); line-height: 1.15; margin: .5rem 0 1rem; }
+.lk-cover-title { font-family: var(--font-title); font-size: 1.4rem; color: var(--accent); margin: 0; }
+.lk-cover-sub { font-style: italic; color: var(--text-2); margin: .2rem 0 1.4rem; }
+.lk-cover-id { display: grid; gap: .4rem; max-width: 360px; margin: 0 auto 1.2rem; text-align: left; }
+.lk-cover-id div { display: grid; grid-template-columns: 5em 1fr; gap: .5rem; border-bottom: 1px solid rgba(246, 196, 83, .3); padding: .3rem 0; }
+.lk-cover-id dt { color: var(--muted); }
+.lk-cover-id dd { margin: 0; font-weight: 700; overflow-wrap: anywhere; }
+.lk-nav { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-top: .8rem; flex-wrap: wrap; }
+.lk-dots { display: flex; gap: 4px; }
+.lk-dots .btn { min-width: 44px; padding: .4em; }
+.lk-dots .btn[aria-current="true"] { border-color: var(--accent); color: var(--accent); }
+.lk-page-no { text-align: center; margin: .4rem 0 0; }
+.lk-actions { justify-content: center; }
+.lk-swipe { display: none; }
+@media (max-width: 700px) { .lk-swipe { display: block; margin: 0 0 .3rem; } }
+@media (max-width: 480px) {
+  .lk-dots { order: 3; width: 100%; justify-content: center; }
+  .lk-nav .btn:not(.lk-dots .btn) { flex: 1; }
+}
+
 /* ---------- pesan tanpa internet ---------- */
 .offline {
   position: fixed; inset: 0; z-index: 100; display: grid; place-content: center; gap: 1rem; padding: 24px;

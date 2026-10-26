@@ -177,6 +177,8 @@ export class Adventure {
         location.reload();
       }
       if (e.target.closest("#btn-save-retry")) this.saveToAccount();
+      // LKPD dibuka lewat muat ulang halaman (game 3D dimatikan); hasil sudah tersimpan di akun
+      if (e.target.closest("#btn-recap-lkpd") && this.saved) location.search = "?lkpd=1";
       const pdfBtn = e.target.closest("#btn-pdf, #btn-pdf-open");
       // klik ganda dalam 1,5 detik diabaikan agar PDF tidak terunduh atau terbuka dua kali
       if (pdfBtn && performance.now() - (this.pdfAt || -Infinity) > 1500) {
@@ -741,7 +743,8 @@ export class Adventure {
       await akun.simpanPermainan({ p: this.stages.map((s) => s.p), x, karakter: this.characterLabel(), mulai: this.mulai });
       this.saved = true;
       msg.className = "form-msg save-msg txt-win";
-      msg.textContent = "Hasil permainan tersimpan di akunmu.";
+      msg.textContent = "Hasil permainan tersimpan di akunmu. Sekarang kerjakan LKPD.";
+      ui.$("#btn-recap-lkpd").hidden = false;
     } catch (err) {
       console.error("Gagal menyimpan permainan:", err);
       msg.className = "form-msg save-msg";

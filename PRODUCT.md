@@ -11,7 +11,7 @@ keputusan pemilik proyek. Semua angka di dokumen ini diambil dari kode (`js/conf
 - **Pembuat:** Kelompok 17, Universitas Sriwijaya.
 - **Hosting:** website statis di Vercel (sebelumnya Netlify). Tanpa build tool. npm hanya untuk tes di
   komputer pengembang.
-- **Backend (Tahap A sudah dikodekan: login, profil, simpan permainan, rekap ringkas):** Firebase Authentication (email dan kata sandi) dan Cloud Firestore
+- **Backend (Tahap A dan B sudah dikodekan: login, profil, simpan permainan, rekap ringkas, LKPD siswa; akun guru belum):** Firebase Authentication (email dan kata sandi) dan Cloud Firestore
   untuk menyimpan hasil permainan dan LKPD per siswa, serta akun guru. Rancangan:
   `docs/rancangan-firebase.md`.
 - **Teknologi:** HTML, CSS, JavaScript murni (ES module), Three.js 0.160.0 lewat import map dari

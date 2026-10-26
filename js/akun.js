@@ -102,6 +102,49 @@ export async function permainanTerbaru() {
   return snap.docs.length ? { id: snap.docs[0].id, ...snap.docs[0].data() } : null;
 }
 
+/** Satu permainan menurut id, atau null. */
+export async function bacaPermainan(id) {
+  const u = penggunaSekarang();
+  if (!u || !id) return null;
+  const snap = await F.getDoc(F.doc(db, "users", u.uid, "permainan", id));
+  return snap.exists() ? { id, ...snap.data() } : null;
+}
+
+// ---------- LKPD: users/{uid}/lkpd/jawaban ----------
+const lkpdRef = () => F.doc(db, "users", penggunaSekarang().uid, "lkpd", "jawaban");
+
+/** Dokumen LKPD milik akun yang sedang masuk, atau null jika belum pernah dibuka. */
+export async function bacaLkpd() {
+  if (!penggunaSekarang()) return null;
+  const snap = await F.getDoc(lkpdRef());
+  return snap.exists() ? snap.data() : null;
+}
+
+/** Membuat LKPD baru berstatus draf (aturan Firestore hanya mengizinkan status draf saat dibuat). */
+export async function buatLkpd(permainanId) {
+  const data = { isian: {}, status: "draf", progres: 0, permainanId, dibuat: F.serverTimestamp(), diperbarui: F.serverTimestamp() };
+  await F.setDoc(lkpdRef(), data);
+  return { ...data, isian: {} };
+}
+
+/** Menyimpan sebagian isian. ID kolom memakai garis bawah, bukan titik (titik berarti kolom bersarang). */
+export async function simpanIsian(perubahan, progres, permainanId) {
+  const data = { progres, diperbarui: F.serverTimestamp() };
+  if (permainanId) data.permainanId = permainanId;
+  for (const [id, v] of Object.entries(perubahan)) data["isian." + id] = v;
+  await F.updateDoc(lkpdRef(), data);
+}
+
+/** Mengirim LKPD: jawaban dan permainan yang dipakai terkunci. */
+export async function kirimLkpd(permainanId, progres) {
+  await F.updateDoc(lkpdRef(), { status: "terkirim", permainanId, progres, dikirim: F.serverTimestamp(), diperbarui: F.serverTimestamp() });
+}
+
+/** Mengajukan perubahan setelah terkirim; guru yang memutuskan. */
+export async function ajukanPerubahan(alasan) {
+  await F.updateDoc(lkpdRef(), { status: "minta-ubah", alasanUbah: alasan });
+}
+
 /** Pesan galat Firebase dalam Bahasa Indonesia. */
 export function pesanGalat(err) {
   const code = (err && err.code) || "";

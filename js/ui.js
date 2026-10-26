@@ -300,6 +300,7 @@ export function renderRecap({ student, stages, records, closing, date, latihan }
     <div class="row-buttons" id="recap-buttons">
       <button type="button" class="btn btn-primary btn-lg" id="btn-pdf">Unduh PDF Rekap</button>
       <button type="button" class="btn" id="btn-pdf-open">Buka PDF di Tab Baru</button>
+      <button type="button" class="btn btn-primary" id="btn-recap-lkpd" hidden>Kerjakan LKPD</button>
       <button type="button" class="btn" id="btn-menu">Kembali ke Menu Utama</button>
     </div>`;
   showOverlay("#ov-recap");

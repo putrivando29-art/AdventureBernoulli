@@ -85,16 +85,16 @@ Akun guru (email terdaftar) → tab "Guru" di menu
 
 Kolom Peluang menang (p) di tabel diisi sistem (0,5; 0,6; 0,7; 0,4; 0,3) dan tidak bisa diubah.
 
-### 4.4 Editor rumus
+### 4.4 Papan rumus (sudah dikodekan)
 
-- Setiap kotak jawaban punya tombol **Rumus**.
-- Menekan **Rumus** membuka editor persamaan (MathLive, dari CDN) dengan papan tombol: pangkat (x²),
-  indeks bawah, pecahan, kali (·), kurang (−), kurung, huruf p, q, x, X, E, Var.
-- Di HP, papan tombol rumus muncul sebagai keyboard virtual di bawah layar.
-- Rumus disisipkan ke dalam jawaban uraian sebagai potongan rumus; teks biasa tetap bisa diketik sebelum dan
-  sesudahnya. Contoh hasil: "P(X = 1) = 0,6¹ · 0,4⁰ = 0,6".
-- Disimpan sebagai teks dengan rumus LaTeX di antara tanda `$...$`. Di layar guru ditampilkan rapi; di PDF
-  ditulis sebagai teks biasa dengan pangkat (karena jsPDF tidak bisa mencetak LaTeX).
+- Setiap kotak jawaban punya tombol **Rumus** yang membuka papan rumus: tombol **Pangkat x²** dan
+  **Indeks x₂** (saat aktif, angka, huruf x, n, p, i, tanda kurung, plus, dan minus yang diketik menjadi
+  pangkat atau indeks bawah), serta simbol · − × = ≠ ≤ ≥ √ ( ) /.
+- Dipakai karakter Unicode, bukan editor LaTeX (MathLive), karena lebih ringan, berjalan di semua HP tanpa
+  pustaka tambahan, dan bisa diuji. Batasnya: huruf q tidak punya bentuk pangkat di Unicode, dan pangkat
+  tampil kecil. Jika perlu editor penuh, MathLive bisa ditambahkan kemudian.
+- Di PDF, pangkat ditulis sebagai `^(...)` dan indeks sebagai `_(...)` karena font PDF tidak memuat
+  karakter pangkat.
 
 ### 4.5 Penyimpanan, kirim, dan perubahan
 

@@ -99,6 +99,7 @@
           <div class="menu-buttons">
             <button type="submit" class="btn btn-primary btn-lg" id="btn-start" aria-describedby="start-hint" disabled>Mulai Petualangan</button>
             <p id="start-hint" class="muted small start-hint">Isi Nama Siswa dan Kelas untuk memulai.</p>
+            <button type="button" class="btn" id="btn-menu-lkpd">Kerjakan LKPD</button>
           </div>
         </form>
         <div class="menu-buttons menu-shared">
@@ -182,6 +183,49 @@
           </div>
         </form>
       </div>
+    </section>
+
+    <!-- ============ LKPD ============ -->
+    <section id="screen-lkpd" class="screen screen-page" aria-labelledby="lkpd-title">
+      <header class="page-head">
+        <button class="btn btn-ghost" data-go="menu">← Kembali ke Menu</button>
+        <h2 id="lkpd-title">LKPD Distribusi Bernoulli</h2>
+      </header>
+      <p id="lk-load" class="page-body" role="status">Memuat LKPD...</p>
+      <div id="lk-body" hidden>
+        <div class="lk-bar">
+          <span id="lk-status" class="lk-status"></span>
+          <span id="lk-progress" class="muted small"></span>
+          <span id="lk-save" class="muted small" role="status"></span>
+          <button type="button" class="btn" id="lk-rekap-btn" aria-expanded="false" aria-controls="lk-rekap">Lihat Rekapku</button>
+        </div>
+        <p id="lk-changed" class="latihan-note" hidden>Datamu berubah karena kamu bermain lagi. Periksa kembali jawabanmu.</p>
+        <div id="lk-rekap" class="lk-rekap page-body" hidden><h4>Rekap permainanmu</h4><div id="lk-rekap-body" class="table-scroll"></div></div>
+        <div id="lk-pages" class="page-body lk-pages"></div>
+        <nav class="lk-nav" aria-label="Halaman LKPD">
+          <button type="button" class="btn" id="lk-prev">Sebelumnya</button>
+          <span id="lk-dots" class="lk-dots">
+            <button type="button" class="btn" data-go2="1" aria-label="Halaman 1">1</button>
+            <button type="button" class="btn" data-go2="2" aria-label="Halaman 2">2</button>
+            <button type="button" class="btn" data-go2="3" aria-label="Halaman 3">3</button>
+            <button type="button" class="btn" data-go2="4" aria-label="Halaman 4">4</button>
+            <button type="button" class="btn" data-go2="5" aria-label="Halaman 5">5</button>
+          </span>
+          <button type="button" class="btn btn-primary" id="lk-next">Berikutnya</button>
+        </nav>
+        <p id="lk-page-no" class="muted small lk-page-no"></p>
+      </div>
+      <dialog id="dlg-ubah" class="dialog">
+        <form id="form-ubah" method="dialog">
+          <p>Ajukan perubahan jawaban. Tulis alasan singkat; guru akan menyetujui atau menolak.</p>
+          <label class="field" for="ubah-alasan"><span>Alasan</span><textarea id="ubah-alasan" rows="3" maxlength="300"></textarea></label>
+          <p id="ubah-msg" class="form-msg" role="alert"></p>
+          <div class="row-buttons">
+            <button class="btn btn-primary" value="ok">Kirim Pengajuan</button>
+            <button class="btn" value="cancel" formnovalidate>Batal</button>
+          </div>
+        </form>
+      </dialog>
     </section>
 
     <!-- ============ AREA GAME 3D ============ -->

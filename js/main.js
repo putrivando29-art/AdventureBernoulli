@@ -6,6 +6,7 @@ import { initAudio } from "./audio.js";
 import { initTeacher } from "./teacher.js";
 import * as akun from "./akun.js";
 import { initMasuk } from "./masuk.js";
+import { initLkpd, bukaLkpd } from "./lkpd.js";
 
 let libs = null;
 let adventure = null;
@@ -265,7 +266,9 @@ async function boot() {
     return;
   }
   window.__booted = true;
+  initLkpd();
   initMasuk();
+  $("#btn-menu-lkpd").addEventListener("click", () => bukaLkpd());
   if (new URLSearchParams(location.search).get("test") === "1") {
     const { runBrowserTests } = await import("./browser-tests.js");
     runBrowserTests();

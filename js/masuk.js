@@ -1,5 +1,6 @@
 // Kartu menu utama: Masuk atau Daftar dengan email dan kata sandi, lalu menu bermain setelah masuk.
 import * as akun from "./akun.js";
+import { bukaLkpd } from "./lkpd.js";
 import { $, printableText, syncStart } from "./ui.js";
 
 const rapi = (s) => printableText(s).trim().replace(/\s+/g, " ");
@@ -132,5 +133,12 @@ export function initMasuk() {
       console.warn("Profil belum bisa dibaca:", e);
     }
     syncStart();
+    // datang dari tombol Kerjakan LKPD di rekap
+    const url = new URL(location.href);
+    if (url.searchParams.has("lkpd")) {
+      url.searchParams.delete("lkpd");
+      history.replaceState(null, "", url.toString());
+      bukaLkpd();
+    }
   });
 }
