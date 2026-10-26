@@ -129,13 +129,12 @@ berguling, **sapuan** (satu lengan ditarik ke samping) dihindari dengan jongkok,
   | 4 | Arca Durgaraksa lebih kuat | 0,4 = 2/5 | 0,6 = 3/5 |
   | 5 | Arca Durgaraksa murka | 0,3 = 3/10 | 0,7 = 7/10 |
 
-- **Setting Guru** (menu utama) dapat mengganti p tiap tahap: angka di antara 0 dan 1 dengan
-  paling banyak dua desimal, dan setiap tahap harus berbeda. Nilai tersimpan di browser itu, dan
-  tombol "Salin Tautan untuk Siswa" membuat tautan seperti `.../?p=35-45-80-25-65` agar semua
-  siswa memakai peluang yang sama. Prioritas: tautan, lalu nilai tersimpan, lalu bawaan.
+- **Setting Guru** (menu utama) untuk mencoba-coba p tiap tahap sebagai **latihan**: angka di antara
+  0 dan 1 dengan paling banyak dua desimal, setiap tahap harus berbeda. Peluang latihan hanya berlaku di
+  tab browser itu sampai tab ditutup atau tombol Kembalikan Bawaan ditekan. Permainan biasa selalu
+  memakai p bawaan; hasil latihan tidak disimpan ke akun dan tidak dipakai LKPD.
 - p dibaca sekali saat petualangan dimulai lalu dibekukan; selama sesi p tidak berubah karena
-  cara bermain, sisa HP, pilihan karakter, hasil tahap sebelumnya, atau Setting Guru. Rekap dan
-  PDF mencatat sumber nilai p (bawaan, Setting Guru, atau tautan).
+  cara bermain, sisa HP, pilihan karakter, atau hasil tahap sebelumnya.
 
 - QTE, ramuan, perlengkapan, dan kostum hanya mengubah fase hack and slash dan animasi. Tidak
   satu pun mengubah p; di layar Serangan Penentu tertulis "Tombol yang muncul hanya mengubah

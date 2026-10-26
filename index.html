@@ -106,7 +106,10 @@
           <button type="button" class="btn" data-go="teacher">Setting Guru</button>
         </div>
         <p class="muted small p-source" id="p-source"></p>
-        <p class="latihan-note" id="latihan-note" hidden>Mode latihan: peluang diubah lewat Setting Guru, jadi hasil permainan tidak disimpan dan tidak dipakai LKPD.</p>
+        <div class="latihan-note" id="latihan-note" hidden>
+          <p>Mode latihan: peluang diubah lewat Setting Guru, jadi hasil permainan tidak disimpan dan tidak dipakai LKPD.</p>
+          <button type="button" class="btn" id="btn-latihan-off">Kembali ke Peluang Bawaan</button>
+        </div>
         <p class="muted small fs-note" id="fs-note" hidden>Browser ini tidak mendukung layar penuh. Di iPhone, pakai menu Bagikan lalu "Tambahkan ke Layar Utama".</p>
       </div>
       <!-- di akhir agar urutan Tab dimulai dari Nama Siswa; posisinya tetap di pojok kanan atas -->
@@ -168,17 +171,15 @@
         <h2 id="teacher-title">Setting Guru</h2>
       </header>
       <div class="page-body">
-        <p class="prose">Atur peluang menang <strong>p</strong> untuk setiap tahap. Isi angka di antara 0 dan 1 dengan paling banyak dua desimal (contoh 0,45). Setiap tahap harus punya peluang yang berbeda. Nilai berlaku untuk petualangan berikutnya dan tidak bisa diubah saat permainan berlangsung.</p>
+        <p class="prose">Coba berbagai peluang menang <strong>p</strong> untuk setiap tahap sebagai <strong>latihan</strong>. Isi angka di antara 0 dan 1 dengan paling banyak dua desimal (contoh 0,45). Setiap tahap harus punya peluang yang berbeda.</p>
+        <p class="prose">Permainan biasa selalu memakai peluang bawaan (0,5; 0,6; 0,7; 0,4; 0,3). Peluang latihan hanya berlaku di tab browser ini sampai tab ditutup atau tombol Kembalikan Bawaan ditekan. Hasil latihan tidak disimpan ke akun dan tidak dipakai LKPD.</p>
         <form id="teacher-form" novalidate>
           <div id="teacher-rows" class="teacher-rows"></div>
           <p id="teacher-msg" class="form-msg" role="status" aria-live="polite"></p>
           <div class="row-buttons">
-            <button type="submit" class="btn btn-primary">Simpan</button>
+            <button type="submit" class="btn btn-primary">Pakai untuk Latihan</button>
             <button type="button" class="btn" id="btn-teacher-reset">Kembalikan Bawaan</button>
-            <button type="button" class="btn" id="btn-teacher-link">Salin Tautan untuk Siswa</button>
           </div>
-          <p class="muted small">Pengaturan tersimpan di browser ini saja. Agar semua siswa memakai peluang yang sama di HP masing-masing, bagikan tautan dari tombol "Salin Tautan untuk Siswa".</p>
-          <p id="teacher-link" class="teacher-link" hidden></p>
         </form>
       </div>
     </section>

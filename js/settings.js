@@ -1,9 +1,17 @@
-// Setting Guru: nilai p tiap tahap. Sumber nilai (urutan prioritas):
-// 1) tautan dari guru (?p=50-60-70-40-30), 2) disimpan di browser ini, 3) bawaan js/config.js.
+// Setting Guru: peluang latihan untuk mencoba-coba nilai p. Permainan biasa selalu memakai p bawaan
+// js/config.js. Peluang latihan hanya berlaku di tab browser ini (sessionStorage) dan hilang saat tab
+// ditutup, sehingga tidak pernah terbawa diam-diam ke permainan berikutnya.
 // Nilai dibaca SEKALI saat petualangan dimulai dan tidak berubah selama sesi.
 import { CONFIG } from "./config.js";
 
 const KEY = "ab.teacherP";
+
+// Versi lama menyimpan p di localStorage (permanen) dan membaca tautan ?p=. Keduanya tidak dipakai lagi.
+try {
+  localStorage.removeItem(KEY);
+} catch (e) {
+  /* abaikan */
+}
 const B = () => window.Bernoulli;
 
 export const defaultPs = () => CONFIG.stages.map((s) => s.p);
@@ -28,26 +36,17 @@ export function validatePs(ps) {
   return null;
 }
 
-function readUrl() {
-  const raw = new URLSearchParams(location.search).get("p");
-  if (!raw) return null;
-  const ps = raw.split("-").map(Number);
-  return validatePs(ps) ? null : ps;
-}
-
 function readStore() {
   try {
-    const ps = JSON.parse(localStorage.getItem(KEY));
+    const ps = JSON.parse(sessionStorage.getItem(KEY));
     return ps && !validatePs(ps) ? ps : null;
   } catch (e) {
     return null;
   }
 }
 
-/** { ps, source } dengan source "tautan" | "guru" | "bawaan". */
+/** { ps, source } dengan source "guru" (latihan) | "bawaan". */
 export function loadPs() {
-  const fromUrl = readUrl();
-  if (fromUrl) return { ps: fromUrl, source: "tautan" };
   const stored = readStore();
   if (stored) return { ps: stored, source: "guru" };
   return { ps: defaultPs(), source: "bawaan" };
@@ -55,7 +54,7 @@ export function loadPs() {
 
 export function savePs(ps) {
   try {
-    localStorage.setItem(KEY, JSON.stringify(ps));
+    sessionStorage.setItem(KEY, JSON.stringify(ps));
     return true;
   } catch (e) {
     return false;
@@ -64,23 +63,13 @@ export function savePs(ps) {
 
 export function clearPs() {
   try {
-    localStorage.removeItem(KEY);
+    sessionStorage.removeItem(KEY);
   } catch (e) {
     /* abaikan */
   }
 }
 
-/** Tautan untuk dibagikan ke siswa agar semua memakai p yang sama. */
-export function shareUrl(ps) {
-  const u = new URL(location.href);
-  u.search = "";
-  u.hash = "";
-  u.searchParams.set("p", ps.join("-"));
-  return u.toString();
-}
-
 export const SOURCE_LABEL = {
   bawaan: "nilai bawaan game",
-  guru: "diatur di Setting Guru",
-  tautan: "diatur guru lewat tautan",
+  guru: "latihan dari Setting Guru",
 };

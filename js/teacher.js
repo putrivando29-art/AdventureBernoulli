@@ -1,6 +1,6 @@
-// Layar Setting Guru: mengisi p tiap tahap, menyimpan, mengembalikan bawaan, dan membuat tautan untuk siswa.
+// Layar Setting Guru: mencoba-coba p tiap tahap sebagai latihan (hanya di tab ini) dan mengembalikan bawaan.
 import { CONFIG } from "./config.js";
-import { loadPs, savePs, clearPs, defaultPs, parseP, validatePs, shareUrl, SOURCE_LABEL } from "./settings.js";
+import { loadPs, savePs, clearPs, defaultPs, parseP, validatePs, SOURCE_LABEL } from "./settings.js";
 import { $, probParts, escapeHtml } from "./ui.js";
 
 const B = () => window.Bernoulli;
@@ -46,24 +46,12 @@ function message(text, ok) {
   m.className = "form-msg " + (ok ? "txt-win" : "");
 }
 
-function dropUrlParam() {
-  // Nilai di tautan lebih diutamakan; hapus dari alamat agar nilai yang baru disimpan yang dipakai.
-  const u = new URL(location.href);
-  if (u.searchParams.has("p")) {
-    u.searchParams.delete("p");
-    history.replaceState(null, "", u.toString());
-  }
-}
-
 export function initTeacher() {
   renderPSource();
-  // Tautan siswa (?p=...): Setting Guru disembunyikan agar siswa langsung bermain dengan peluang dari guru.
-  if (loadPs().source === "tautan") document.querySelectorAll('[data-go="teacher"]').forEach((b) => (b.hidden = true));
   document.addEventListener("click", (e) => {
     if (e.target.closest('[data-go="teacher"]')) {
       renderRows(loadPs().ps);
       message("", true);
-      $("#teacher-link").hidden = true;
     }
   });
   $("#teacher-rows").addEventListener("input", (e) => {
@@ -81,30 +69,22 @@ export function initTeacher() {
     }
     const err = validatePs(ps);
     if (err) return message(err, false);
-    dropUrlParam();
-    message(savePs(ps) ? "Tersimpan. Peluang ini dipakai mulai petualangan berikutnya." : "Browser menolak penyimpanan. Gunakan tombol Salin Tautan untuk Siswa.", true);
+    message(
+      savePs(ps)
+        ? "Dipakai untuk latihan di tab ini. Hasil latihan tidak disimpan ke akun dan tidak dipakai LKPD. Tekan Kembalikan Bawaan untuk bermain biasa."
+        : "Browser menolak penyimpanan peluang latihan.",
+      true
+    );
+    renderPSource();
+  });
+  $("#btn-latihan-off").addEventListener("click", () => {
+    clearPs();
     renderPSource();
   });
   $("#btn-teacher-reset").addEventListener("click", () => {
     clearPs();
-    dropUrlParam();
     renderRows(defaultPs());
     renderPSource();
     message("Peluang dikembalikan ke nilai bawaan.", true);
-  });
-  $("#btn-teacher-link").addEventListener("click", async () => {
-    const ps = readForm();
-    const err = ps.some((p) => p === null) ? "Ada peluang yang belum valid." : validatePs(ps);
-    if (err) return message(err, false);
-    const url = shareUrl(ps);
-    const box = $("#teacher-link");
-    box.textContent = url;
-    box.hidden = false;
-    try {
-      await navigator.clipboard.writeText(url);
-      message("Tautan disalin. Bagikan ke siswa; game akan memakai peluang ini.", true);
-    } catch (e2) {
-      message("Salin tautan di bawah ini secara manual, lalu bagikan ke siswa.", true);
-    }
   });
 }

@@ -712,7 +712,7 @@ export class Adventure {
     this.saveToAccount();
   }
 
-  /** Permainan latihan: p berbeda dari nilai bawaan (diubah lewat Setting Guru atau tautan). */
+  /** Permainan latihan: p berbeda dari nilai bawaan (diubah lewat Setting Guru). */
   isPractice() {
     return this.stages.map((s) => s.p).join() !== CONFIG.stages.map((s) => s.p).join();
   }

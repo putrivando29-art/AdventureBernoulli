@@ -58,9 +58,10 @@ dan animasi. Tidak satu pun mengubah p.
    Petualangan (aktif hanya jika keduanya terisi), Cara Bermain, Setting Guru, keterangan sumber p,
    dan tombol Layar Penuh.
 2. **Cara Bermain**: penjelasan singkat, kontrol laptop dan HP (format "tombol: aksi"), lalu tips.
-3. **Setting Guru**: p tiap tahap (angka di antara 0 dan 1, paling banyak dua desimal, setiap tahap
-   berbeda), Simpan, Kembalikan Bawaan, Salin Tautan untuk Siswa (`?p=35-45-80-25-65`). Tombol Setting
-   Guru disembunyikan jika game dibuka lewat tautan siswa.
+3. **Setting Guru**: mencoba p tiap tahap sebagai latihan (angka di antara 0 dan 1, paling banyak dua
+   desimal, setiap tahap berbeda). Tombol Pakai untuk Latihan dan Kembalikan Bawaan. Peluang latihan hanya
+   berlaku di tab itu (sessionStorage); hasil latihan tidak disimpan dan tidak dipakai LKPD. Tautan `?p=`
+   dihapus.
 4. **Pilih karakter**: tubuh, warna kulit, 5 gaya rambut, 6 warna rambut, 8 warna baju, 4 warna
    celana, aksesori, tombol Acak dan Pilih. Hanya tampilan.
 5. **Percakapan singkat** (gaya visual novel) sebelum setiap tahap: Resi Bayang, Arca Durgaraksa, dan
@@ -100,8 +101,8 @@ Pertanyaan refleksi di rekap dan PDF:
 ## 6. Konsep yang diajarkan dan aturannya di kode
 
 - Setiap tahap adalah satu percobaan Bernoulli dengan dua hasil saja: MENANG (X = 1) atau KALAH (X = 0).
-- p dibaca sekali saat petualangan dimulai (prioritas: tautan `?p=`, lalu nilai tersimpan Setting Guru,
-  lalu bawaan) dan dibekukan selama sesi.
+- p dibaca sekali saat petualangan dimulai (peluang latihan Setting Guru di tab itu jika ada, selain itu
+  bawaan) dan dibekukan selama sesi.
 - Serangan Penentu memanggil `decisiveRoll(p)` di `js/bernoulli.js`: satu bilangan acak U di [0, 1)
   dari `crypto.getRandomValues`, X = 1 jika U < p, selain itu X = 0. Satu undian per tahap, tidak bisa
   dibatalkan. Perhitungan memakai bilangan bulat perseratus agar tepat.
@@ -210,7 +211,7 @@ js/  bernoulli.js  config.js  main.js  player.js  boss.js  mystic.js  arena.js
 - Setelah tab ditinggal lalu dibuka lagi, pengukur fps di `js/main.js` dapat menurunkan grafis laptop
   ke kualitas rendah secara permanen. Perbaikannya ada di loop render (area terlarang) dan menunggu izin
   pemilik.
-- Siswa juga bisa membuka Setting Guru jika tidak memakai tautan siswa; periksa baris "Sumber nilai p".
+- Siswa bisa membuka Setting Guru untuk latihan; permainan latihan ditandai dan tidak disimpan.
 
 ## 16. Aturan untuk semua perintah impeccable berikutnya
 
@@ -226,8 +227,9 @@ js/  bernoulli.js  config.js  main.js  player.js  boss.js  mystic.js  arena.js
 
 - **Nilai p bawaan resmi: 50, 60, 70, 40, 30** (0,5; 0,6; 0,7; 0,4; 0,3), semuanya berbeda. Nilai ini
   yang dipertahankan dan tidak boleh diubah.
-- **Setting Guru tetap ada** agar guru bisa mencoba berbagai nilai p dan membagikan tautan siswa
-  (`?p=...`). Saat game dibuka lewat tautan siswa, tombol Setting Guru disembunyikan.
+- **Setting Guru tetap ada untuk latihan** (mencoba-coba p). Permainan biasa selalu memakai p bawaan;
+  peluang latihan tidak tersimpan permanen dan tautan siswa `?p=` dihapus (keputusan pemilik setelah p
+  latihan sempat terbawa ke permainan biasa).
 - Fitur yang sudah ada dan dipertahankan: tombol "Efek gerak: Nyaman/Penuh" di menu jeda, kustomisasi
   karakter, percakapan singkat gaya visual novel, QTE di Serangan Penentu (hanya animasi), ramuan,
   gulungan sihir, musik latar, dan Serangan Penentu yang juga dipicu saat player sekarat (peluang tetap
@@ -249,9 +251,8 @@ mengganti prinsip "tanpa backend". Aturan 6 tetap berlaku: semua pustaka dimuat 
 - **Login email dan kata sandi** (Firebase; bukan Google, keputusan pemilik). Siswa mendaftar sendiri dengan
   email, kata sandi, nama, dan kelas; akun guru dibuat pemilik di Console. Data tersimpan di
   akun sehingga bisa pindah perangkat.
-- **Satu permainan per siswa** (tahap 1 sampai 5) dengan p bawaan. Tidak ada putaran kedua. Usulan yang
-  menunggu konfirmasi: Setting Guru dan tautan `?p=` hanya untuk akun guru, dan aturan database menolak
-  permainan siswa dengan p selain bawaan.
+- **Satu permainan per siswa** (tahap 1 sampai 5) dengan p bawaan. Tidak ada putaran kedua. Setting Guru tetap
+  terlihat untuk latihan; aturan database menolak permainan dengan p selain bawaan.
 - **LKPD digital** hanya tentang distribusi Bernoulli (permintaan dosen), terbuka setelah permainan ber-p
   bawaan tercatat. LKPD memakai permainan terbaru sampai LKPD dikirim; setelah itu data dan jawaban terkunci. Struktur dan isi: `docs/LKPD-struktur-dan-isi.md`.
   Desain dari kelompok, dikodekan 1:1. Semua isian memakai editor persamaan. Tidak ada tanda benar/salah
