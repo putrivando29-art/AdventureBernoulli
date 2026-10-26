@@ -590,6 +590,30 @@ kbd {
   .decisive .pb-pct { font-size: 1.15em; }
 }
 
+/* ---------- masuk dan daftar (email dan kata sandi) ---------- */
+.auth-loading { margin: .4rem 0 1rem; }
+.auth-panel { display: grid; gap: .8rem; }
+.auth-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 12px; background: var(--bg); border: 1px solid rgba(246, 196, 83, .3); }
+.auth-tab {
+  appearance: none; border: 0; border-radius: 9px; padding: .6em; min-height: 44px; cursor: pointer;
+  font: inherit; font-weight: 700; color: var(--text-2); background: transparent;
+}
+.auth-tab[aria-selected="true"] { background: var(--panel-2); color: var(--accent); box-shadow: inset 0 0 0 1px rgba(246, 196, 83, .45); }
+.show-pass { display: flex; align-items: center; gap: .5rem; font-size: .85rem; color: var(--text-2); text-align: left; min-height: 32px; cursor: pointer; }
+.show-pass input { width: 18px; height: 18px; accent-color: var(--accent); }
+.btn-lupa { justify-self: center; font-size: .9rem; min-height: 40px; }
+.akun-line { margin: 0; font-size: .85rem; color: var(--text-2); display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .2rem .5rem; overflow-wrap: anywhere; }
+.akun-line strong { color: var(--text); }
+.btn-keluar { min-height: 36px; padding: .3em .7em; font-size: .85rem; text-decoration: underline; }
+.menu-shared { margin-top: .55rem; }
+.latihan-note { margin: .6rem 0 0; padding: .5rem .7rem; border-radius: 10px; font-size: .85rem; font-weight: 600; color: #ffd27a; background: rgba(246, 196, 83, .1); border: 1px solid rgba(246, 196, 83, .35); }
+.save-msg { margin: .4rem 0 0; }
+
+/* HP: kartu menu turun di bawah tombol Layar Penuh agar judul tidak tertutup */
+@media (max-width: 480px) {
+  .screen-menu.is-active { padding-top: 72px; }
+}
+
 /* ---------- pesan tanpa internet ---------- */
 .offline {
   position: fixed; inset: 0; z-index: 100; display: grid; place-content: center; gap: 1rem; padding: 24px;

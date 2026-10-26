@@ -39,6 +39,13 @@ export function printableText(s) {
   return out;
 }
 
+/** Tombol Mulai aktif hanya jika Nama dan Kelas terisi (bukan hanya spasi) dan library sudah termuat. */
+export function syncStart() {
+  const filled = !!($("#student-name").value.trim() && $("#student-class").value.trim());
+  $("#btn-start").disabled = !filled || !$("#offline-message").hidden;
+  $("#start-hint").hidden = filled;
+}
+
 /** Menu utama: Nama Siswa dan Kelas wajib diisi sebelum mulai. */
 export function initMenu(onStart) {
   document.addEventListener("click", (ev) => {
@@ -48,12 +55,6 @@ export function initMenu(onStart) {
 
   const nameInput = $("#student-name");
   const classInput = $("#student-class");
-  // Tombol Mulai aktif hanya jika Nama dan Kelas terisi (bukan hanya spasi) dan library sudah termuat.
-  const syncStart = () => {
-    const filled = !!(nameInput.value.trim() && classInput.value.trim());
-    $("#btn-start").disabled = !filled || !$("#offline-message").hidden;
-    $("#start-hint").hidden = filled;
-  };
   [nameInput, classInput].forEach((input) =>
     input.addEventListener("input", () => {
       const clean = printableText(input.value);
@@ -264,53 +265,37 @@ export function showStageResult(stage, record, isLast) {
 }
 
 // ---------- rekap ----------
-export function renderRecap({ student, character, stages, records, closing, date, reflection, pSource }) {
+export const RECAP_INTRO = "Berikut catatan pertarunganmu melawan Arca Durgaraksa di Kerajaan Swarnadwipa.";
+
+/** Rekap ringkas: hanya hasil menang dan kalah. Perhitungan peluang dikerjakan siswa di LKPD. */
+export function renderRecap({ student, stages, records, closing, date, latihan }) {
   const b = B();
   const summary = b.summarize(records.map((r, i) => ({ p: stages[i].p, x: r.x })));
   const rows = stages
     .map((s, i) => {
       const r = records[i];
-      const played = r.x === 0 || r.x === 1;
       const hasil = r.x === 1 ? '<span class="tag tag-win">Menang</span>' : r.x === 0 ? '<span class="tag tag-lose">Kalah</span>' : '<span class="tag tag-none">Tidak dimainkan</span>';
-      return `<tr><td>${s.id}</td><td>${escapeHtml(s.kondisi)}</td><td>${b.fmtP(s.p)}</td><td>${b.fmtP(b.complement(s.p))}</td><td>${hasil}</td>` +
-        `<td>${played ? r.x : "-"}</td><td>${played ? b.fmtPmf(r.x, s.p) : "-"}</td><td>${b.fmtP(s.p)}</td><td>${b.fmtVar(s.p)}</td></tr>`;
+      return `<tr><td>${s.id}</td><td>${escapeHtml(s.kondisi)}</td><td>${b.fmtP(s.p)}</td><td>${hasil}</td></tr>`;
     })
     .join("");
-  let calc;
-  if (summary.played === 0) {
-    calc = `<p><strong>Belum ada percobaan yang dilakukan.</strong></p>`;
-  } else {
-    const played = records.map((r, i) => ({ r, s: stages[i] })).filter(({ r }) => r.x === 0 || r.x === 1);
-    const seq = b.fmtSequence(summary);
-    calc = `
-      <p>Peluang urutan hasil = ${played.map(({ r, s }) => b.fmtPmf(r.x, s.p)).join(" × ")} = <strong>${seq.decimal}</strong> (${seq.percent}).</p>
-      <p>Jumlah menang yang diharapkan = ${played.map(({ s }) => b.fmtP(s.p)).join(" + ")} = <strong>${b.fmtTrim(summary.expectedNum, 2, 1)}</strong>. Nilai harapan jumlah sama dengan jumlah nilai harapannya.</p>`;
-  }
   $("#recap").innerHTML = `
     <header class="recap-head">
       <h2 id="recap-title">Rekap Adventure Bernoulli</h2>
       <p class="muted">Universitas Sriwijaya · by Kelompok 17</p>
-      <p>Nama Siswa: <strong>${escapeHtml(student.nama)}</strong> · Kelas: <strong>${escapeHtml(student.kelas)}</strong></p>
-      <p class="muted small">Karakter: ${escapeHtml(character)} · ${escapeHtml(date)}</p>
-      <p class="muted small">Sumber nilai p: ${escapeHtml(pSource)}</p>
+      <p>${RECAP_INTRO}</p>
+      <p>Nama Siswa: <strong>${escapeHtml(student.nama)}</strong> · Kelas: <strong>${escapeHtml(student.kelas)}</strong> · ${escapeHtml(date)}</p>
+      ${latihan ? '<p class="latihan-note">Mode latihan: peluang diubah lewat Setting Guru, jadi hasil ini tidak disimpan dan tidak dipakai LKPD.</p>' : ""}
     </header>
     ${closing ? `<div class="resi-line"><div class="portrait" aria-hidden="true"><i></i><i></i></div><p>${escapeHtml(closing)}</p></div>` : ""}
     <div class="table-scroll"><table class="data-table">
-      <thead><tr><th>Tahap</th><th>Kondisi</th><th>p</th><th>1 - p</th><th>Hasil</th><th>X</th><th>P(hasil)</th><th>E(X)</th><th>Var(X)</th></tr></thead>
+      <thead><tr><th>Tahap</th><th>Kondisi</th><th>p</th><th>Hasil</th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div>
-    <p class="muted small">P(X = x) = p^x (1 - p)^(1 - x); E(X) = p; Var(X) = p(1 - p).</p>
-    <ul class="muted small col-legend">
-      <li><strong>P(hasil)</strong>: peluang hasil yang terjadi di tahap itu (p jika menang, 1 - p jika kalah).</li>
-      <li><strong>E(X)</strong>: nilai harapan, yaitu rata-rata X jika tahap itu diulang sangat banyak kali.</li>
-      <li><strong>Var(X)</strong>: ukuran seberapa jauh X biasanya menyimpang dari E(X).</li>
-    </ul>
-    <p>Tahap dimainkan: <strong>${summary.played}</strong> · Menang: <strong>${summary.wins}</strong> · Kalah: <strong>${summary.losses}</strong></p>
-    ${calc}
-    <p class="note">Jumlah kemenangan ini bukan distribusi binomial karena peluang tiap tahap berbeda.</p>
-    <h3>Pertanyaan Refleksi</h3>
-    <ol class="reflection">${reflection.map((q) => `<li>${escapeHtml(q)}</li>`).join("")}</ol>
-    <p class="muted small">Jawab pertanyaan refleksi dengan tulisan tangan di PDF. Data tidak disimpan; semua hilang saat halaman ditutup.</p>
+    ${summary.played === 0
+      ? "<p><strong>Belum ada percobaan yang dilakukan.</strong></p>"
+      : `<p>Tahap dimainkan: <strong>${summary.played}</strong> · Menang: <strong>${summary.wins}</strong> · Kalah: <strong>${summary.losses}</strong> · Tidak dimainkan: <strong>${summary.notPlayed}</strong></p>`}
+    <p id="save-msg" class="form-msg save-msg" role="status"></p>
+    <button type="button" class="btn" id="btn-save-retry" hidden>Simpan Ulang</button>
     <p id="pdf-msg" class="form-msg" role="status"></p>
     <div class="row-buttons" id="recap-buttons">
       <button type="button" class="btn btn-primary btn-lg" id="btn-pdf">Unduh PDF Rekap</button>

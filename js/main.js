@@ -4,6 +4,8 @@ import { initMenu, showOffline, $, initFullscreen, enterFullscreen } from "./ui.
 import { isTouchDevice } from "./controls.js";
 import { initAudio } from "./audio.js";
 import { initTeacher } from "./teacher.js";
+import * as akun from "./akun.js";
+import { initMasuk } from "./masuk.js";
 
 let libs = null;
 let adventure = null;
@@ -244,12 +246,18 @@ async function startAdventure(student) {
 }
 
 async function boot() {
-  initMenu((student) => startAdventure(student));
+  // Mulai hanya untuk akun yang sudah masuk; nama dan kelas di menu ikut disimpan ke akun.
+  initMenu((student) => {
+    const u = akun.penggunaSekarang();
+    if (!u) return;
+    akun.simpanProfil(student.nama, student.kelas).catch((e) => console.warn("Profil belum tersimpan:", e));
+    startAdventure({ ...student, uid: u.uid, email: u.email });
+  });
   initFullscreen(isTouchDevice());
   initTeacher();
   try {
     if (!window.jspdf || !window.jspdf.jsPDF) throw new Error("jsPDF tidak termuat");
-    libs = await loadLibs();
+    [libs] = await Promise.all([loadLibs(), akun.initAkun()]);
   } catch (err) {
     console.error("Library dari CDN gagal dimuat:", err);
     showOffline();
@@ -257,6 +265,7 @@ async function boot() {
     return;
   }
   window.__booted = true;
+  initMasuk();
   if (new URLSearchParams(location.search).get("test") === "1") {
     const { runBrowserTests } = await import("./browser-tests.js");
     runBrowserTests();

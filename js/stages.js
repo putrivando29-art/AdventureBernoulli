@@ -15,8 +15,9 @@ import { Spells, SPELL_LABEL } from "./spells.js";
 import { playCutscene } from "./cutscene.js";
 import { runQte, qteFeedback } from "./qte.js";
 import * as ui from "./ui.js";
-import { buildRecapPdf, pdfFileName, reflectionQuestions } from "./pdf.js";
-import { loadPs, SOURCE_LABEL } from "./settings.js";
+import { buildRecapPdf, pdfFileName } from "./pdf.js";
+import * as akun from "./akun.js";
+import { loadPs } from "./settings.js";
 import { sfx, setMuted, isMuted, setMood } from "./audio.js";
 
 const B = window.Bernoulli;
@@ -46,6 +47,7 @@ export class Adventure {
     this.index = 0;
     // Satu catatan per tahap. x = null berarti belum/tidak dimainkan (bukan kalah).
     this.records = CONFIG.stages.map((s) => ({ stageId: s.id, x: null, U: null, skipped: false }));
+    this.mulai = new Date().toISOString();
     // p sesi ini: diambil sekali, lalu dibekukan sampai halaman ditutup.
     const { ps, source } = loadPs();
     this.pSource = source;
@@ -166,7 +168,15 @@ export class Adventure {
     ui.$("#btn-next").addEventListener("click", () => this.next());
     ui.$("#btn-stop-result").addEventListener("click", () => this.requestStop());
     ui.$("#ov-recap").addEventListener("click", (e) => {
-      if (e.target.closest("#btn-menu")) location.reload();
+      if (e.target.closest("#btn-menu")) {
+        // hasil yang belum terkirim ke server akan hilang jika halaman dimuat ulang
+        if (this.saving) {
+          ui.$("#save-msg").textContent = "Tunggu sampai hasil tersimpan, lalu kembali ke menu.";
+          return;
+        }
+        location.reload();
+      }
+      if (e.target.closest("#btn-save-retry")) this.saveToAccount();
       const pdfBtn = e.target.closest("#btn-pdf, #btn-pdf-open");
       // klik ganda dalam 1,5 detik diabaikan agar PDF tidak terunduh atau terbuka dua kali
       if (pdfBtn && performance.now() - (this.pdfAt || -Infinity) > 1500) {
@@ -692,15 +702,55 @@ export class Adventure {
     this.engine.rig.mode = "intro";
     this.recapData = {
       student: this.student,
-      character: this.characterLabel(),
       stages: this.stages,
-      pSource: SOURCE_LABEL[this.pSource],
       records: this.records,
       closing,
       date: new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }),
-      reflection: reflectionQuestions(this.stages),
+      latihan: this.isPractice(),
     };
     ui.renderRecap(this.recapData);
+    this.saveToAccount();
+  }
+
+  /** Permainan latihan: p berbeda dari nilai bawaan (diubah lewat Setting Guru atau tautan). */
+  isPractice() {
+    return this.stages.map((s) => s.p).join() !== CONFIG.stages.map((s) => s.p).join();
+  }
+
+  /** Menyimpan permainan ke akun: hanya p bawaan dan minimal 1 tahap dimainkan, sekali per permainan. */
+  async saveToAccount() {
+    const msg = ui.$("#save-msg");
+    const retry = ui.$("#btn-save-retry");
+    if (!msg || this.saved || this.saving) return;
+    const x = this.records.map((r) => (r.x === 0 || r.x === 1 ? r.x : null));
+    if (this.isPractice()) return;
+    if (x.every((v) => v === null)) {
+      msg.className = "form-msg save-msg";
+      msg.textContent = "Tidak ada tahap yang dimainkan, jadi tidak ada hasil yang disimpan.";
+      return;
+    }
+    retry.hidden = true;
+    msg.className = "form-msg save-msg muted";
+    msg.textContent = "Menyimpan hasil ke akunmu...";
+    this.saving = true;
+    // Saat sinyal putus, Firestore menahan tulisan dan mengirimnya saat koneksi kembali (tanpa tulisan ganda).
+    const slow = setTimeout(() => {
+      msg.textContent = "Koneksi lambat. Jangan tutup halaman ini; hasil akan tersimpan otomatis saat koneksi kembali.";
+    }, 8000);
+    try {
+      await akun.simpanPermainan({ p: this.stages.map((s) => s.p), x, karakter: this.characterLabel(), mulai: this.mulai });
+      this.saved = true;
+      msg.className = "form-msg save-msg txt-win";
+      msg.textContent = "Hasil permainan tersimpan di akunmu.";
+    } catch (err) {
+      console.error("Gagal menyimpan permainan:", err);
+      msg.className = "form-msg save-msg";
+      msg.textContent = "Gagal menyimpan. Periksa koneksi, lalu tekan Simpan Ulang.";
+      retry.hidden = false;
+    } finally {
+      clearTimeout(slow);
+      this.saving = false;
+    }
   }
 
   /** Unduh PDF dengan doc.save; cadangan untuk HP: buka PDF di tab baru. */

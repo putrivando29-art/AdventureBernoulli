@@ -8,6 +8,8 @@ const B = () => window.Bernoulli;
 export function renderPSource() {
   const { ps, source } = loadPs();
   $("#p-source").textContent = `Peluang menang tiap tahap: ${ps.map((p) => B().fmtP(p)).join(" · ")} (${SOURCE_LABEL[source]})`;
+  // p bukan bawaan: permainan hanya latihan, tidak disimpan ke akun dan tidak dipakai LKPD
+  $("#latihan-note").hidden = ps.join() === defaultPs().join();
 }
 
 function renderRows(ps) {

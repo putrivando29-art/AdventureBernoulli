@@ -156,10 +156,11 @@ berguling, **sapuan** (satu lengan ditarik ke samping) dihindari dengan jongkok,
 
 ## 6. Keterbatasan
 
-- Butuh internet untuk memuat Three.js dan jsPDF. Tanpa internet, game menampilkan pesan
+- Butuh internet untuk memuat Three.js, jsPDF, dan Firebase. Tanpa internet, game menampilkan pesan
   "Game membutuhkan koneksi internet. Periksa koneksi lalu muat ulang halaman."
-- Data tidak disimpan. Semua hasil hilang saat halaman ditutup atau dimuat ulang, jadi
-  unduh PDF rekap sebelum menutup halaman.
+- Siswa wajib masuk dengan email dan kata sandi (Firebase Authentication). Hasil permainan ber-p
+  bawaan disimpan ke akun di Firestore saat rekap tampil; permainan latihan (p diubah lewat Setting
+  Guru) tidak disimpan. Pemasangan Firebase: `docs/tutorial-firebase.md`; aturan akses: `firestore.rules`.
 - Durasi fase hack and slash diatur lewat `power` tiap tahap dan `potions` di `js/config.js`.
   Durasi untuk siswa sungguhan masih perkiraan dan perlu dicek saat uji coba.
 - Siswa juga bisa membuka Setting Guru dan mengubah p sebelum bermain. Periksa baris "Sumber

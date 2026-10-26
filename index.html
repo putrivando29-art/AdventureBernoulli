@@ -13,7 +13,10 @@
   {
     "imports": {
       "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+      "firebase/app": "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js",
+      "firebase/auth": "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js",
+      "firebase/firestore": "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js"
     }
   }
   </script>
@@ -45,7 +48,45 @@
         <h1 id="menu-title" class="game-title">Adventure<br><span>Bernoulli</span></h1>
         <p class="menu-by">by Kelompok 17</p>
 
-        <form id="menu-form" class="menu-form" novalidate>
+        <p id="auth-loading" class="muted small auth-loading" role="status">Memeriksa akun...</p>
+
+        <!-- belum masuk: Masuk atau Daftar dengan email dan kata sandi -->
+        <div id="auth-panel" class="auth-panel" hidden>
+          <div class="auth-tabs" role="tablist" aria-label="Masuk atau daftar">
+            <button type="button" role="tab" class="auth-tab" id="tab-masuk" aria-selected="true" aria-controls="form-masuk">Masuk</button>
+            <button type="button" role="tab" class="auth-tab" id="tab-daftar" aria-selected="false" aria-controls="form-daftar">Daftar</button>
+          </div>
+          <form id="form-masuk" class="menu-form" role="tabpanel" aria-labelledby="tab-masuk" novalidate>
+            <label class="field" for="masuk-email"><span>Email</span>
+              <input id="masuk-email" type="email" autocomplete="email" inputmode="email" required></label>
+            <label class="field" for="masuk-sandi"><span>Kata sandi</span>
+              <input id="masuk-sandi" type="password" autocomplete="current-password" required></label>
+            <label class="show-pass"><input type="checkbox" data-show-pass="masuk-sandi"> Tampilkan kata sandi</label>
+            <p id="masuk-msg" class="form-msg" role="alert"></p>
+            <button type="submit" class="btn btn-primary btn-lg" id="btn-masuk">Masuk</button>
+            <button type="button" class="btn btn-ghost btn-lupa" id="btn-lupa">Lupa kata sandi?</button>
+          </form>
+          <form id="form-daftar" class="menu-form" role="tabpanel" aria-labelledby="tab-daftar" novalidate hidden>
+            <label class="field" for="daftar-email"><span>Email</span>
+              <input id="daftar-email" type="email" autocomplete="email" inputmode="email" required></label>
+            <label class="field" for="daftar-sandi"><span>Kata sandi (minimal 6 karakter)</span>
+              <input id="daftar-sandi" type="password" autocomplete="new-password" minlength="6" required></label>
+            <label class="field" for="daftar-sandi2"><span>Ulangi kata sandi</span>
+              <input id="daftar-sandi2" type="password" autocomplete="new-password" minlength="6" required></label>
+            <label class="show-pass"><input type="checkbox" data-show-pass="daftar-sandi daftar-sandi2"> Tampilkan kata sandi</label>
+            <label class="field" for="daftar-nama"><span>Nama Siswa</span>
+              <input id="daftar-nama" type="text" maxlength="40" autocomplete="name" required></label>
+            <label class="field" for="daftar-kelas"><span>Kelas</span>
+              <input id="daftar-kelas" type="text" maxlength="15" autocomplete="off" required></label>
+            <p id="daftar-msg" class="form-msg" role="alert"></p>
+            <button type="submit" class="btn btn-primary btn-lg" id="btn-daftar">Daftar</button>
+          </form>
+        </div>
+
+        <!-- sudah masuk -->
+        <form id="menu-form" class="menu-form" novalidate hidden>
+          <p class="akun-line">Masuk sebagai <strong id="akun-email"></strong>
+            <button type="button" class="btn btn-ghost btn-keluar" id="btn-keluar">Keluar</button></p>
           <label class="field" for="student-name">
             <span>Nama Siswa</span>
             <input id="student-name" name="nama" type="text" maxlength="40" autocomplete="off" required>
@@ -58,12 +99,15 @@
           <div class="menu-buttons">
             <button type="submit" class="btn btn-primary btn-lg" id="btn-start" aria-describedby="start-hint" disabled>Mulai Petualangan</button>
             <p id="start-hint" class="muted small start-hint">Isi Nama Siswa dan Kelas untuk memulai.</p>
-            <button type="button" class="btn" data-go="howto">Cara Bermain</button>
-            <button type="button" class="btn" data-go="teacher">Setting Guru</button>
           </div>
-          <p class="muted small p-source" id="p-source"></p>
-          <p class="muted small fs-note" id="fs-note" hidden>Browser ini tidak mendukung layar penuh. Di iPhone, pakai menu Bagikan lalu "Tambahkan ke Layar Utama".</p>
         </form>
+        <div class="menu-buttons menu-shared">
+          <button type="button" class="btn" data-go="howto">Cara Bermain</button>
+          <button type="button" class="btn" data-go="teacher">Setting Guru</button>
+        </div>
+        <p class="muted small p-source" id="p-source"></p>
+        <p class="latihan-note" id="latihan-note" hidden>Mode latihan: peluang diubah lewat Setting Guru, jadi hasil permainan tidak disimpan dan tidak dipakai LKPD.</p>
+        <p class="muted small fs-note" id="fs-note" hidden>Browser ini tidak mendukung layar penuh. Di iPhone, pakai menu Bagikan lalu "Tambahkan ke Layar Utama".</p>
       </div>
       <!-- di akhir agar urutan Tab dimulai dari Nama Siswa; posisinya tetap di pojok kanan atas -->
       <button type="button" class="btn fs-btn menu-fs" data-fullscreen>Layar Penuh</button>
