@@ -12,7 +12,7 @@ keputusan pemilik proyek. Semua angka di dokumen ini diambil dari kode (`js/conf
 - **Hosting:** website statis di Vercel (sebelumnya Netlify). Tanpa build tool. npm hanya untuk tes di
   komputer pengembang.
 - **Backend (direncanakan, belum dikodekan):** Firebase Authentication (login Google) dan Cloud Firestore
-  untuk menyimpan hasil permainan, umpan balik, dan LKPD per siswa, serta akun guru. Rancangan:
+  untuk menyimpan hasil permainan dan LKPD per siswa, serta akun guru. Rancangan:
   `docs/rancangan-firebase.md`.
 - **Teknologi:** HTML, CSS, JavaScript murni (ES module), Three.js 0.160.0 lewat import map dari
   jsDelivr, jsPDF 2.5.1 dari cdnjs, font Cinzel dari Google Fonts.
@@ -181,7 +181,7 @@ Lihat Rekap", "Buka PDF di Tab Baru").
 
 - Saat ini: belum ada data yang dikirim ke server. Hasil hanya ada selama halaman terbuka. Setting Guru dan
   pilihan Efek gerak disimpan di localStorage browser itu.
-- Setelah rencana Firebase dikerjakan: nama, kelas, email, hasil permainan, umpan balik, dan jawaban LKPD
+- Setelah rencana Firebase dikerjakan: nama, kelas, email, hasil permainan, dan jawaban LKPD
   disimpan di Firestore milik akun Firebase pemilik. Siswa hanya bisa membaca datanya sendiri; guru bisa
   membaca semua. Data siswa di bawah 18 tahun memerlukan persetujuan orang tua atau wali (Pasal 25 UU
   27/2022); izin diurus kelompok.
@@ -234,8 +234,8 @@ js/  bernoulli.js  config.js  main.js  player.js  boss.js  mystic.js  arena.js
   p tahap itu). Aturan 3 berlaku untuk penambahan baru.
 - Hosting pindah ke Vercel. Zona aman kanan bawah tetap dipertahankan.
 - **Rekap dan PDF akhir dibuat ringkas (diputuskan 23 Oktober 2026, belum dikerjakan):** hanya berisi
-  identitas, tahap, kondisi, p, hasil (Menang/Kalah/Tidak dimainkan), jumlah menang serta kalah, dan
-  umpan balik singkat siswa tentang aplikasi. Kolom 1 - p, X, P(hasil), E(X), Var(X), rumus, peluang
+  identitas, tahap, kondisi, p, hasil (Menang/Kalah/Tidak dimainkan), jumlah menang serta kalah, dengan satu
+  kalimat pembuka. Tidak ada umpan balik aplikasi. Kolom 1 - p, X, P(hasil), E(X), Var(X), rumus, peluang
   urutan, jumlah menang yang diharapkan, catatan "bukan binomial", dan pertanyaan refleksi dipindah ke
   LKPD agar jawabannya tidak tersedia di rekap. Keputusan ini mengesampingkan aturan 2 (isi perhitungan PDF) dan aturan 4 khusus untuk rekap
   dan PDF. Layar hasil tahap, HUD, dan Serangan Penentu tetap menampilkan p, 1 - p, dan X. Daftar
@@ -257,5 +257,6 @@ mengganti prinsip "tanpa backend". Aturan 6 tetap berlaku: semua pustaka dimuat 
   otomatis. Setelah dikirim, perubahan hanya dengan persetujuan guru.
 - **Akun guru** (4 email dari pemilik): memantau hasil permainan, PDF, progres dan jawaban LKPD,
   menyetujui pengajuan perubahan, menerbitkan data kelas. Penilaian dilakukan kelompok di luar website.
-- Rancangan teknis: `docs/rancangan-firebase.md`. Tahapan: A (login dan data permainan), B (LKPD), C (akun
+- Rancangan teknis: `docs/rancangan-firebase.md`; tutorial pemasangan: `docs/tutorial-firebase.md`;
+  spesifikasi fitur: `docs/spesifikasi-login-dan-lkpd.md`. Tahapan: A (login dan data permainan), B (LKPD), C (akun
   guru), D (uji dan panduan).

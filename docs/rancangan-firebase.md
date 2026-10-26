@@ -1,6 +1,6 @@
 # Rancangan Pendataan: Login Google, Firestore, dan Akun Guru
 
-Rancangan agar hasil setiap siswa (permainan, umpan balik, LKPD) tersimpan di akunnya, bisa dilanjutkan di
+Rancangan agar hasil setiap siswa (permainan dan LKPD) tersimpan di akunnya, bisa dilanjutkan di
 perangkat lain, dan bisa dipantau guru. Belum dikodekan. Bagian bertanda **[Dugaan]** harus dicek saat
 pengerjaan.
 
@@ -25,7 +25,7 @@ terlampaui, layanan berhenti sampai periode berikutnya. Perkiraan pemakaian [Dug
 1. Buka website → **Masuk dengan Google**.
 2. Pertama kali: isi **Nama** dan **Kelas** (ditulis sendiri). Tersimpan di akun.
 3. **Bermain satu kali**, tahap 1 sampai 5, dengan p bawaan (0,5; 0,6; 0,7; 0,4; 0,3). Setting Guru dan
-   tautan `?p=` tidak berlaku untuk akun siswa. Sampai rekap → isi umpan balik aplikasi (pilihan) →
+   tautan `?p=` tidak berlaku untuk akun siswa. Sampai rekap →
    permainan tersimpan.
 4. **LKPD** terbuka setelah tercatat permainan ber-p bawaan dengan minimal 1 tahap dimainkan. Jawaban
    tersimpan otomatis; bisa dilanjutkan di perangkat lain.
@@ -41,7 +41,7 @@ terlampaui, layanan berhenti sampai periode berikutnya. Perkiraan pemakaian [Dug
 1. Masuk dengan Google memakai salah satu email guru → tab **Guru** muncul.
 2. Daftar siswa per kelas (dikelompokkan dari isian Kelas, huruf besar-kecil dan spasi diabaikan): nama,
    email, jumlah permainan, progres LKPD (persen kolom terisi), status (draf, terkirim, minta ubah).
-3. Detail siswa: hasil permainan, umpan balik, jawaban LKPD terakhir, unduh PDF rekap dan PDF LKPD.
+3. Detail siswa: hasil permainan, jawaban LKPD terakhir, unduh PDF rekap dan PDF LKPD.
 4. **Persetujuan perubahan**: setujui (LKPD siswa terbuka lagi) atau tolak.
 5. **Hapus Data Siswa**: menghapus permainan dan LKPD seorang siswa atas permintaannya, agar ia bisa
    bermain ulang dan LKPD memakai data baru.
@@ -55,7 +55,6 @@ users/{uid}
   nama, kelas, kelasKey, email, dibuat
 users/{uid}/permainan/{id}
   p: [5], x: [5, berisi 1, 0, atau null], karakter, mulai, selesai
-  umpanBalik: { suka, bingung, saran }      (boleh diisi sekali setelah permainan tersimpan)
 users/{uid}/lkpd/jawaban
   isian: { "<id kolom>": "<teks, rumus ditulis sebagai $...$ LaTeX>" }
   status: "draf" | "terkirim" | "minta-ubah" | "dibuka"
@@ -66,55 +65,9 @@ users/{uid}/lkpd/jawaban
 Email guru disimpan sebagai dokumen di koleksi `guru`, bukan ditulis di kode, supaya tidak ikut terbuka di
 repository.
 
-## 5. Aturan akses (draf, diuji di Rules Playground Firebase Console)
+## 5. Aturan akses
 
-```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    function masuk() { return request.auth != null; }
-    function guru() {
-      return masuk() && request.auth.token.email_verified == true
-        && exists(/databases/$(database)/documents/guru/$(request.auth.token.email));
-    }
-    function pemilik(uid) { return masuk() && request.auth.uid == uid; }
-    function hanyaUbah(kolom) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(kolom); }
-
-    match /guru/{email} { allow read: if guru(); allow write: if false; }
-
-    match /users/{uid} {
-      allow read: if pemilik(uid) || guru();
-      allow create: if pemilik(uid);
-      // siswa boleh mengubah nama dan kelas
-      allow update: if guru() || (pemilik(uid) && hanyaUbah(['nama', 'kelas', 'kelasKey']));
-
-      match /permainan/{id} {
-        allow read: if pemilik(uid) || guru();
-        // akun siswa hanya boleh menyimpan permainan dengan p bawaan
-        allow create: if pemilik(uid) && request.resource.data.p == [50, 60, 70, 40, 30];
-        allow update: if pemilik(uid) && !('umpanBalik' in resource.data) && hanyaUbah(['umpanBalik']);
-        allow delete: if guru();   // Hapus Data Siswa
-      }
-
-      match /lkpd/{doc} {
-        allow read: if pemilik(uid) || guru();
-        allow create: if pemilik(uid) && request.resource.data.status == 'draf';
-        allow update: if
-          // siswa mengisi selama draf atau dibuka guru, lalu boleh mengirim
-          (pemilik(uid) && resource.data.status in ['draf', 'dibuka']
-             && request.resource.data.status in ['draf', 'dibuka', 'terkirim'])
-          // siswa mengajukan perubahan setelah terkirim
-          || (pemilik(uid) && resource.data.status == 'terkirim'
-             && request.resource.data.status == 'minta-ubah' && hanyaUbah(['status', 'alasanUbah']))
-          // guru memutuskan pengajuan
-          || (guru() && hanyaUbah(['status', 'diputuskanOleh', 'diputuskanPada']));
-        allow delete: if guru();   // Hapus Data Siswa
-      }
-    }
-
-  }
-}
-```
+Versi final aturan ada di `docs/tutorial-firebase.md` Bagian 5 (satu sumber, supaya tidak berbeda).
 
 Catatan:
 - Siswa bisa berpindah dari "dibuka" ke "draf" lewat aturan pertama. Ini tidak berbahaya karena kedua
@@ -141,7 +94,7 @@ Catatan:
 
 | Tahap | Isi | Butuh dari kelompok |
 |---|---|---|
-| A | Login Google, profil nama dan kelas, penyimpanan permainan dengan p bawaan, Setting Guru hanya untuk akun guru, rekap ringkas dengan umpan balik, PDF ringkas | Konfigurasi web Firebase (`firebaseConfig`), domain Vercel |
+| A | Login Google, profil nama dan kelas, penyimpanan permainan dengan p bawaan, tanda mode latihan, rekap ringkas, PDF ringkas | Konfigurasi web Firebase (`firebaseConfig`), domain Vercel |
 | B | Layar LKPD siswa sesuai desain, editor persamaan, simpan otomatis, kirim, ajukan perubahan, PDF LKPD | Desain LKPD |
 | C | Tab guru: daftar dan detail siswa, persetujuan, Hapus Data Siswa, unduh CSV | Email guru dimasukkan ke koleksi `guru` |
 | D | Uji dengan akun siswa dan akun guru, panduan website dan panduan pembelajaran | Dua akun Google untuk uji |

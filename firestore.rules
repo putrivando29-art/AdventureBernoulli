@@ -1,0 +1,48 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function masuk() { return request.auth != null; }
+    function guru() {
+      return masuk() && request.auth.token.email_verified == true
+        && exists(/databases/$(database)/documents/guru/$(request.auth.token.email));
+    }
+    function pemilik(uid) { return masuk() && request.auth.uid == uid; }
+    function hanyaUbah(kolom) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(kolom);
+    }
+
+    // daftar guru: diisi manual di Console; tiap orang hanya bisa mengecek emailnya sendiri
+    match /guru/{email} {
+      allow read: if masuk() && request.auth.token.email == email;
+      allow write: if false;
+    }
+
+    match /users/{uid} {
+      allow read: if pemilik(uid) || guru();
+      allow create: if pemilik(uid);
+      allow update: if guru() || (pemilik(uid) && hanyaUbah(['nama', 'kelas', 'kelasKey', 'diperbarui']));
+      allow delete: if guru();
+
+      // permainan: hanya p bawaan yang disimpan; tidak bisa diubah setelah tersimpan
+      match /permainan/{id} {
+        allow read: if pemilik(uid) || guru();
+        allow create: if pemilik(uid) && request.resource.data.p == [50, 60, 70, 40, 30];
+        allow update: if false;
+        allow delete: if guru();
+      }
+
+      // LKPD: siswa mengisi saat draf atau dibuka guru; setelah terkirim hanya bisa mengajukan perubahan
+      match /lkpd/{doc} {
+        allow read: if pemilik(uid) || guru();
+        allow create: if pemilik(uid) && request.resource.data.status == 'draf';
+        allow update: if
+          (pemilik(uid) && resource.data.status in ['draf', 'dibuka']
+             && request.resource.data.status in ['draf', 'dibuka', 'terkirim'])
+          || (pemilik(uid) && resource.data.status == 'terkirim'
+             && request.resource.data.status == 'minta-ubah' && hanyaUbah(['status', 'alasanUbah']))
+          || (guru() && hanyaUbah(['status', 'diputuskanOleh', 'diputuskanPada']));
+        allow delete: if guru();
+      }
+    }
+  }
+}
