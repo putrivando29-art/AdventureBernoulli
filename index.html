@@ -104,11 +104,11 @@
         </form>
         <div class="menu-buttons menu-shared">
           <button type="button" class="btn" data-go="howto">Cara Bermain</button>
-          <button type="button" class="btn" data-go="teacher">Setting Guru</button>
+          <button type="button" class="btn" data-go="teacher">Setting Peluang</button>
         </div>
         <p class="muted small p-source" id="p-source"></p>
         <div class="latihan-note" id="latihan-note" hidden>
-          <p>Mode latihan: peluang diubah lewat Setting Guru, jadi hasil permainan tidak disimpan dan tidak dipakai LKPD.</p>
+          <p>Mode latihan: peluang diubah lewat Setting Peluang, jadi hasil permainan tidak disimpan dan tidak dipakai LKPD.</p>
           <button type="button" class="btn" id="btn-latihan-off">Kembali ke Peluang Bawaan</button>
         </div>
         <p class="muted small fs-note" id="fs-note" hidden>Browser ini tidak mendukung layar penuh. Di iPhone, pakai menu Bagikan lalu "Tambahkan ke Layar Utama".</p>
@@ -169,7 +169,7 @@
     <section id="screen-teacher" class="screen screen-page" aria-labelledby="teacher-title">
       <header class="page-head">
         <button class="btn btn-ghost" data-go="menu">← Kembali ke Menu</button>
-        <h2 id="teacher-title">Setting Guru</h2>
+        <h2 id="teacher-title">Setting Peluang</h2>
       </header>
       <div class="page-body">
         <p class="prose">Coba berbagai peluang menang <strong>p</strong> untuk setiap tahap sebagai <strong>latihan</strong>. Isi angka di antara 0 dan 1 dengan paling banyak dua desimal (contoh 0,45). Setiap tahap harus punya peluang yang berbeda.</p>
@@ -186,7 +186,7 @@
     </section>
 
     <!-- ============ LKPD ============ -->
-    <section id="screen-lkpd" class="screen screen-page" aria-labelledby="lkpd-title">
+    <section id="screen-lkpd" class="screen screen-page screen-lkpd" aria-labelledby="lkpd-title">
       <header class="page-head">
         <button class="btn btn-ghost" data-go="menu">← Kembali ke Menu</button>
         <h2 id="lkpd-title">LKPD Distribusi Bernoulli</h2>
@@ -197,11 +197,33 @@
           <span id="lk-status" class="lk-status"></span>
           <span id="lk-progress" class="muted small"></span>
           <span id="lk-save" class="muted small" role="status"></span>
-          <button type="button" class="btn" id="lk-rekap-btn" aria-expanded="false" aria-controls="lk-rekap">Lihat Rekapku</button>
+          <span class="lk-zoom" role="group" aria-label="Ukuran halaman">
+            <button type="button" class="btn" id="lk-zoom-out" aria-label="Perkecil halaman">−</button>
+            <span id="lk-zoom-nilai" class="small">100%</span>
+            <button type="button" class="btn" id="lk-zoom-in" aria-label="Perbesar halaman">+</button>
+            <button type="button" class="btn" id="lk-zoom-pas">Pas Layar</button>
+          </span>
         </div>
+        <div id="lk-main" class="lk-main"></div>
+        <p id="lk-hint" class="muted small lk-hint">Ketuk kotak untuk menulis langsung di LKPD. Cubit dua jari untuk memperbesar. Papan Rumus ada di kiri bawah.</p>
         <p id="lk-changed" class="latihan-note" hidden>Datamu berubah karena kamu bermain lagi. Periksa kembali jawabanmu.</p>
-        <div id="lk-rekap" class="lk-rekap page-body" hidden><h4>Rekap permainanmu</h4><div id="lk-rekap-body" class="table-scroll"></div></div>
-        <div id="lk-pages" class="page-body lk-pages"></div>
+        <div id="lk-viewport" class="lk-viewport"><div id="lk-pages" class="lk-pages"></div></div>
+        <div id="lk-akhir" class="lk-akhir page-body" hidden>
+          <h3>Identitas dan Pengiriman</h3>
+          <p class="muted small">Tulis nama dan kelasmu sendiri. Keduanya tampil di sampul LKPD (halaman 1).</p>
+          <div class="lk-identitas">
+            <label class="field" for="lk-nama"><span>Nama</span><input id="lk-nama" data-f="nama" maxlength="40" autocomplete="off" spellcheck="false"></label>
+            <label class="field" for="lk-kelas"><span>Kelas</span><input id="lk-kelas" data-f="kelas" maxlength="15" autocomplete="off" spellcheck="false"></label>
+          </div>
+          <p id="lk-send-msg" class="form-msg" role="status"></p>
+          <div class="row-buttons">
+            <button type="button" class="btn btn-primary" id="btn-lk-kirim">Kirim LKPD</button>
+            <button type="button" class="btn" id="btn-lk-hasil">Lihat Hasil</button>
+            <button type="button" class="btn" id="btn-lk-pdf">Unduh PDF</button>
+            <button type="button" class="btn" id="btn-lk-ubah" hidden>Ajukan Perubahan</button>
+          </div>
+        </div>
+        <p id="lk-nav-msg" class="form-msg lk-nav-msg" role="alert"></p>
         <nav class="lk-nav" aria-label="Halaman LKPD">
           <button type="button" class="btn" id="lk-prev">Sebelumnya</button>
           <span id="lk-dots" class="lk-dots">
@@ -215,6 +237,33 @@
         </nav>
         <p id="lk-page-no" class="muted small lk-page-no"></p>
       </div>
+      <button type="button" id="btn-papan" class="btn papan-toggle" aria-expanded="false" aria-controls="papan-rumus" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 10h1M9.5 10h1M13 10h1M16.5 10h1M6 13.5h1M17 13.5h1M9 14h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Papan Rumus
+      </button>
+      <div id="papan-rumus" class="papan" role="group" aria-label="Papan rumus" hidden>
+        <div class="papan-inner">
+          <div class="papan-head">
+            <div class="papan-tabs" role="tablist" aria-label="Jenis tombol">
+              <button type="button" class="papan-tab" role="tab" data-tab="123" aria-selected="true">123</button>
+              <button type="button" class="papan-tab" role="tab" data-tab="f(x)" aria-selected="false">f(x)</button>
+              <button type="button" class="papan-tab" role="tab" data-tab="ABC" aria-selected="false">ABC</button>
+            </div>
+            <span id="papan-status" class="papan-status" role="status"></span>
+            <button type="button" class="papan-tab" id="papan-hp" title="Tutup papan dan pakai keyboard HP">Keyboard HP</button>
+            <button type="button" class="papan-tab papan-x" id="papan-tutup" aria-label="Tutup papan rumus">✕</button>
+          </div>
+          <div id="papan-keys" class="papan-keys"></div>
+        </div>
+      </div>
+      <dialog id="dlg-hasil" class="dialog dialog-wide" aria-labelledby="hasil-judul">
+        <h3 id="hasil-judul">Hasil LKPD</h3>
+        <div id="lk-hasil-body"></div>
+        <div class="row-buttons">
+          <button type="button" class="btn btn-primary" id="btn-hasil-pdf">Unduh PDF</button>
+          <button type="button" class="btn" id="btn-hasil-tutup">Tutup</button>
+        </div>
+      </dialog>
       <dialog id="dlg-ubah" class="dialog">
         <form id="form-ubah" method="dialog">
           <p>Ajukan perubahan jawaban. Tulis alasan singkat; guru akan menyetujui atau menolak.</p>

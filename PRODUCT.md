@@ -55,10 +55,10 @@ dan animasi. Tidak satu pun mengubah p.
 
 1. **Menu utama**: langit berbintang, siluet kastil, kartu menu. Isi: Universitas Sriwijaya, judul,
    by Kelompok 17, input Nama Siswa (maks. 40 karakter) dan Kelas (maks. 15 karakter), tombol Mulai
-   Petualangan (aktif hanya jika keduanya terisi), Cara Bermain, Setting Guru, keterangan sumber p,
+   Petualangan (aktif hanya jika keduanya terisi), Cara Bermain, Setting Peluang, keterangan sumber p,
    dan tombol Layar Penuh.
 2. **Cara Bermain**: penjelasan singkat, kontrol laptop dan HP (format "tombol: aksi"), lalu tips.
-3. **Setting Guru**: mencoba p tiap tahap sebagai latihan (angka di antara 0 dan 1, paling banyak dua
+3. **Setting Peluang**: mencoba p tiap tahap sebagai latihan (angka di antara 0 dan 1, paling banyak dua
    desimal, setiap tahap berbeda). Tombol Pakai untuk Latihan dan Kembalikan Bawaan. Peluang latihan hanya
    berlaku di tab itu (sessionStorage); hasil latihan tidak disimpan dan tidak dipakai LKPD. Tautan `?p=`
    dihapus.
@@ -101,7 +101,7 @@ Pertanyaan refleksi di rekap dan PDF:
 ## 6. Konsep yang diajarkan dan aturannya di kode
 
 - Setiap tahap adalah satu percobaan Bernoulli dengan dua hasil saja: MENANG (X = 1) atau KALAH (X = 0).
-- p dibaca sekali saat petualangan dimulai (peluang latihan Setting Guru di tab itu jika ada, selain itu
+- p dibaca sekali saat petualangan dimulai (peluang latihan Setting Peluang di tab itu jika ada, selain itu
   bawaan) dan dibekukan selama sesi.
 - Serangan Penentu memanggil `decisiveRoll(p)` di `js/bernoulli.js`: satu bilangan acak U di [0, 1)
   dari `crypto.getRandomValues`, X = 1 jika U < p, selain itu X = 0. Satu undian per tahap, tidak bisa
@@ -180,7 +180,7 @@ Lihat Rekap", "Buka PDF di Tab Baru").
 
 ## 12. Data dan privasi
 
-- Saat ini: belum ada data yang dikirim ke server. Hasil hanya ada selama halaman terbuka. Setting Guru dan
+- Saat ini: belum ada data yang dikirim ke server. Hasil hanya ada selama halaman terbuka. Setting Peluang dan
   pilihan Efek gerak disimpan di localStorage browser itu.
 - Setelah rencana Firebase dikerjakan: nama, kelas, email, hasil permainan, dan jawaban LKPD
   disimpan di Firestore milik akun Firebase pemilik. Siswa hanya bisa membaca datanya sendiri; guru bisa
@@ -211,7 +211,7 @@ js/  bernoulli.js  config.js  main.js  player.js  boss.js  mystic.js  arena.js
 - Setelah tab ditinggal lalu dibuka lagi, pengukur fps di `js/main.js` dapat menurunkan grafis laptop
   ke kualitas rendah secara permanen. Perbaikannya ada di loop render (area terlarang) dan menunggu izin
   pemilik.
-- Siswa bisa membuka Setting Guru untuk latihan; permainan latihan ditandai dan tidak disimpan.
+- Siswa bisa membuka Setting Peluang untuk latihan; permainan latihan ditandai dan tidak disimpan.
 
 ## 16. Aturan untuk semua perintah impeccable berikutnya
 
@@ -227,7 +227,7 @@ js/  bernoulli.js  config.js  main.js  player.js  boss.js  mystic.js  arena.js
 
 - **Nilai p bawaan resmi: 50, 60, 70, 40, 30** (0,5; 0,6; 0,7; 0,4; 0,3), semuanya berbeda. Nilai ini
   yang dipertahankan dan tidak boleh diubah.
-- **Setting Guru tetap ada untuk latihan** (mencoba-coba p). Permainan biasa selalu memakai p bawaan;
+- **Setting Peluang tetap ada untuk latihan** (mencoba-coba p). Permainan biasa selalu memakai p bawaan;
   peluang latihan tidak tersimpan permanen dan tautan siswa `?p=` dihapus (keputusan pemilik setelah p
   latihan sempat terbawa ke permainan biasa).
 - Fitur yang sudah ada dan dipertahankan: tombol "Efek gerak: Nyaman/Penuh" di menu jeda, kustomisasi
@@ -251,12 +251,15 @@ mengganti prinsip "tanpa backend". Aturan 6 tetap berlaku: semua pustaka dimuat 
 - **Login email dan kata sandi** (Firebase; bukan Google, keputusan pemilik). Siswa mendaftar sendiri dengan
   email, kata sandi, nama, dan kelas; akun guru dibuat pemilik di Console. Data tersimpan di
   akun sehingga bisa pindah perangkat.
-- **Satu permainan per siswa** (tahap 1 sampai 5) dengan p bawaan. Tidak ada putaran kedua. Setting Guru tetap
+- **Satu permainan per siswa** (tahap 1 sampai 5) dengan p bawaan. Tidak ada putaran kedua. Setting Peluang tetap
   terlihat untuk latihan; aturan database menolak permainan dengan p selain bawaan.
 - **LKPD digital** hanya tentang distribusi Bernoulli (permintaan dosen), terbuka setelah permainan ber-p
   bawaan tercatat. LKPD memakai permainan terbaru sampai LKPD dikirim; setelah itu data dan jawaban terkunci. Struktur dan isi: `docs/LKPD-struktur-dan-isi.md`.
-  Desain dari kelompok, dikodekan 1:1. Semua isian memakai editor persamaan. Tidak ada tanda benar/salah
-  otomatis. Setelah dikirim, perubahan hanya dengan persetujuan guru.
+  Desain dari kelompok, ditampilkan 1:1: halaman 1 sampai 5 adalah gambar asli draf (`assets/lkpd/`,
+  tidak boleh diubah), kolom isian ditempel di atas kotak jawabannya, satu halaman per layar, zoom dengan
+  cubit, papan rumus mirip GeoGebra lewat tombol, semua isian wajib, Nama dan Kelas ditulis manual di bar
+  halaman 5 bersama Kirim, Lihat Hasil, dan Unduh PDF. Tidak ada tanda benar/salah otomatis. Setelah
+  dikirim, perubahan hanya dengan persetujuan guru. Rincian: `docs/spesifikasi-login-dan-lkpd.md` Bagian 4.
 - **Akun guru** (4 email dari pemilik): memantau hasil permainan, PDF, progres dan jawaban LKPD,
   menyetujui pengajuan perubahan, menerbitkan data kelas. Penilaian dilakukan kelompok di luar website.
 - Rancangan teknis: `docs/rancangan-firebase.md`; tutorial pemasangan: `docs/tutorial-firebase.md`;

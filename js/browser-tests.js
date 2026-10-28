@@ -32,8 +32,8 @@ export function runBrowserTests() {
   const roll = B.decisiveRoll(50);
   check("decisiveRoll mengembalikan {U, X} dengan X hanya 0 atau 1", roll.U >= 0 && roll.U < 1 && (roll.X === 0 || roll.X === 1), JSON.stringify(roll));
   check("config: p bawaan = 50, 60, 70, 40, 30 (semua berbeda)", CONFIG.stages.map((s) => s.p).join() === "50,60,70,40,30");
-  check("Setting Guru: '0,45' dibaca 45; '1' dan '0,123' ditolak", parseP("0,45") === 45 && parseP("1") === null && parseP("0,123") === null);
-  check("Setting Guru: p yang sama ditolak", validatePs([50, 60, 70, 50, 30]) !== null && validatePs([50, 60, 70, 40, 30]) === null);
+  check("Setting Peluang: '0,45' dibaca 45; '1' dan '0,123' ditolak", parseP("0,45") === 45 && parseP("1") === null && parseP("0,123") === null);
+  check("Setting Peluang: p yang sama ditolak", validatePs([50, 60, 70, 50, 30]) !== null && validatePs([50, 60, 70, 40, 30]) === null);
   check("config: data tahap dibekukan (p tidak bisa diubah)", Object.isFrozen(CONFIG.stages[0]) && Object.isFrozen(CONFIG.stages));
 
   const failed = results.filter((r) => r.hasil !== "LULUS").length;

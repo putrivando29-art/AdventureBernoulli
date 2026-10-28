@@ -129,7 +129,7 @@ berguling, **sapuan** (satu lengan ditarik ke samping) dihindari dengan jongkok,
   | 4 | Arca Durgaraksa lebih kuat | 0,4 = 2/5 | 0,6 = 3/5 |
   | 5 | Arca Durgaraksa murka | 0,3 = 3/10 | 0,7 = 7/10 |
 
-- **Setting Guru** (menu utama) untuk mencoba-coba p tiap tahap sebagai **latihan**: angka di antara
+- **Setting Peluang** (menu utama) untuk mencoba-coba p tiap tahap sebagai **latihan**: angka di antara
   0 dan 1 dengan paling banyak dua desimal, setiap tahap harus berbeda. Peluang latihan hanya berlaku di
   tab browser itu sampai tab ditutup atau tombol Kembalikan Bawaan ditekan. Permainan biasa selalu
   memakai p bawaan; hasil latihan tidak disimpan ke akun dan tidak dipakai LKPD.
@@ -162,7 +162,7 @@ berguling, **sapuan** (satu lengan ditarik ke samping) dihindari dengan jongkok,
   Guru) tidak disimpan. Pemasangan Firebase: `docs/tutorial-firebase.md`; aturan akses: `firestore.rules`.
 - Durasi fase hack and slash diatur lewat `power` tiap tahap dan `potions` di `js/config.js`.
   Durasi untuk siswa sungguhan masih perkiraan dan perlu dicek saat uji coba.
-- Siswa juga bisa membuka Setting Guru dan mengubah p sebelum bermain. Periksa baris "Sumber
+- Siswa juga bisa membuka Setting Peluang dan mengubah p sebelum bermain. Periksa baris "Sumber
   nilai p" di PDF rekap siswa.
 - Badge hosting (misalnya "Powered by Netlify") muncul di pojok kanan bawah dan tidak bisa
   dihapus dari kode game. Area itu sengaja dikosongkan dari tombol dan teks penting.
@@ -188,4 +188,7 @@ tests/bernoulli.test.js
 js/  bernoulli.js  config.js  main.js  player.js  boss.js  mystic.js  arena.js
      controls.js  combat.js  stages.js  ui.js  shaders.js  pdf.js  audio.js  browser-tests.js
      cutscene.js  qte.js  potions.js  spells.js  settings.js  teacher.js
+     firebase-config.js  akun.js  masuk.js  lkpd.js  lkpd-lembar.js  papan-rumus.js
+assets/lkpd/hal-1.png ... hal-5.png   gambar asli halaman LKPD draf kelompok (jangan diedit)
+firestore.rules, docs/
 ```

@@ -1,4 +1,4 @@
-// Setting Guru: peluang latihan untuk mencoba-coba nilai p. Permainan biasa selalu memakai p bawaan
+// Setting Peluang: peluang latihan untuk mencoba-coba nilai p. Permainan biasa selalu memakai p bawaan
 // js/config.js. Peluang latihan hanya berlaku di tab browser ini (sessionStorage) dan hilang saat tab
 // ditutup, sehingga tidak pernah terbawa diam-diam ke permainan berikutnya.
 // Nilai dibaca SEKALI saat petualangan dimulai dan tidak berubah selama sesi.
@@ -71,5 +71,5 @@ export function clearPs() {
 
 export const SOURCE_LABEL = {
   bawaan: "nilai bawaan game",
-  guru: "latihan dari Setting Guru",
+  guru: "latihan dari Setting Peluang",
 };

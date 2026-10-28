@@ -284,7 +284,7 @@ export function renderRecap({ student, stages, records, closing, date, latihan }
       <p class="muted">Universitas Sriwijaya · by Kelompok 17</p>
       <p>${RECAP_INTRO}</p>
       <p>Nama Siswa: <strong>${escapeHtml(student.nama)}</strong> · Kelas: <strong>${escapeHtml(student.kelas)}</strong> · ${escapeHtml(date)}</p>
-      ${latihan ? '<p class="latihan-note">Mode latihan: peluang diubah lewat Setting Guru, jadi hasil ini tidak disimpan dan tidak dipakai LKPD.</p>' : ""}
+      ${latihan ? '<p class="latihan-note">Mode latihan: peluang diubah lewat Setting Peluang, jadi hasil ini tidak disimpan dan tidak dipakai LKPD.</p>' : ""}
     </header>
     ${closing ? `<div class="resi-line"><div class="portrait" aria-hidden="true"><i></i><i></i></div><p>${escapeHtml(closing)}</p></div>` : ""}
     <div class="table-scroll"><table class="data-table">

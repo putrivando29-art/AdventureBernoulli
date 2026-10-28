@@ -1,6 +1,6 @@
 // Alur 5 tahap: pilih karakter, percakapan singkat, pembuka tahap, hack and slash (dengan ramuan),
 // Serangan Penentu (dengan QTE), kebangkitan, hasil tahap, fitur berhenti, dan rekap.
-// Nilai p dibaca SEKALI saat petualangan dimulai (bawaan CONFIG atau Setting Guru), dibekukan,
+// Nilai p dibaca SEKALI saat petualangan dimulai (bawaan CONFIG atau Setting Peluang), dibekukan,
 // dan hanya dipakai di satu undian decisiveRoll per tahap.
 import * as THREE from "three";
 import { CONFIG } from "./config.js";
@@ -714,7 +714,7 @@ export class Adventure {
     this.saveToAccount();
   }
 
-  /** Permainan latihan: p berbeda dari nilai bawaan (diubah lewat Setting Guru). */
+  /** Permainan latihan: p berbeda dari nilai bawaan (diubah lewat Setting Peluang). */
   isPractice() {
     return this.stages.map((s) => s.p).join() !== CONFIG.stages.map((s) => s.p).join();
   }

@@ -24,7 +24,7 @@ terlampaui, layanan berhenti sampai periode berikutnya. Perkiraan pemakaian [Dug
 
 1. Buka website → **Masuk** dengan email dan kata sandi, atau **Daftar** (email, kata sandi, nama, kelas).
 2. Nama dan kelas tersimpan di akun.
-3. **Bermain satu kali**, tahap 1 sampai 5, dengan p bawaan (0,5; 0,6; 0,7; 0,4; 0,3). Setting Guru dan
+3. **Bermain satu kali**, tahap 1 sampai 5, dengan p bawaan (0,5; 0,6; 0,7; 0,4; 0,3). Setting Peluang dan
    tautan `?p=` tidak berlaku untuk akun siswa. Sampai rekap →
    permainan tersimpan.
 4. **LKPD** terbuka setelah tercatat permainan ber-p bawaan dengan minimal 1 tahap dimainkan. Jawaban
@@ -34,7 +34,7 @@ terlampaui, layanan berhenti sampai periode berikutnya. Perkiraan pemakaian [Dug
 6. **Kirim LKPD** → id permainan yang dipakai disimpan di dokumen LKPD, sehingga data dan jawaban
    terkunci. Bermain lagi sesudahnya tidak mengubah LKPD dan tidak membuka LKPD baru. **Ajukan Perubahan**
    (dengan alasan) → menunggu guru. Guru juga bisa menghapus data siswa agar ia mulai dari awal.
-7. Permainan dengan p dari Setting Guru (mode latihan) tidak disimpan dan tidak dipakai LKPD.
+7. Permainan dengan p dari Setting Peluang (mode latihan) tidak disimpan dan tidak dipakai LKPD.
 
 ## 3. Alur guru
 

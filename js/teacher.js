@@ -1,4 +1,4 @@
-// Layar Setting Guru: mencoba-coba p tiap tahap sebagai latihan (hanya di tab ini) dan mengembalikan bawaan.
+// Layar Setting Peluang: mencoba-coba p tiap tahap sebagai latihan (hanya di tab ini) dan mengembalikan bawaan.
 import { CONFIG } from "./config.js";
 import { loadPs, savePs, clearPs, defaultPs, parseP, validatePs, SOURCE_LABEL } from "./settings.js";
 import { $, probParts, escapeHtml } from "./ui.js";

@@ -15,7 +15,7 @@ Buka situs
   → Bermain tahap 1 sampai 5 (boleh berhenti)
   → Rekap ringkas: hasil menang dan kalah
   → Tombol "Kerjakan LKPD"
-  → LKPD (5 halaman) → Kirim LKPD
+  → LKPD (5 halaman asli draf, isian di atas kotak) → Kirim LKPD
 Akun guru (email terdaftar) → tab "Guru" di menu
 ```
 
@@ -42,88 +42,85 @@ Akun guru (email terdaftar) → tab "Guru" di menu
 | Fitur | Perilaku |
 |---|---|
 | Penyimpanan | Saat rekap tampil, permainan disimpan ke akun jika memakai p bawaan dan minimal 1 tahap dimainkan |
-| Mode latihan | Jika p diubah lewat Setting Guru, menu menampilkan "Mode latihan: peluang diubah, hasil tidak dipakai LKPD". Permainan latihan tidak disimpan |
+| Mode latihan | Jika p diubah lewat Setting Peluang, menu menampilkan "Mode latihan: peluang diubah, hasil tidak dipakai LKPD". Permainan latihan tidak disimpan |
 | Rekap di layar dan PDF | Judul, kalimat pembuka ("Berikut catatan pertarunganmu melawan Arca Durgaraksa di Kerajaan Swarnadwipa."), nama, kelas, tanggal, tabel Tahap, Kondisi, p, Hasil, dan jumlah menang, kalah, tidak dimainkan. Tanpa rumus, perhitungan, atau refleksi |
 | Tombol di rekap | **Unduh PDF Rekap**, **Buka PDF di Tab Baru**, **Kerjakan LKPD**, **Kembali ke Menu Utama** |
 
 ---
 
-## 4. LKPD untuk siswa
+## 4. LKPD untuk siswa (sudah dikodekan)
 
 ### 4.1 Akses dan data
 
 | Fitur | Perilaku |
 |---|---|
-| Kunci akses | LKPD terbuka jika sudah ada permainan tersimpan (p bawaan, minimal 1 tahap dimainkan). Jika belum, tombol LKPD menampilkan "Selesaikan permainan dulu" |
+| Kunci akses | LKPD terbuka jika sudah ada permainan tersimpan (p bawaan, minimal 1 tahap dimainkan). Jika belum, muncul "Selesaikan permainan dulu" |
 | Data yang dipakai | Sebelum LKPD dikirim: permainan **terbaru**. Setelah dikirim: permainan yang dipakai saat itu **dikunci** |
-| Pemberitahuan data berubah | Jika siswa bermain lagi sebelum mengirim, LKPD menampilkan "Datamu berubah karena kamu bermain lagi. Periksa kembali jawabanmu." |
-| Panel Rekap | Tombol **Lihat Rekapku** di setiap halaman LKPD menampilkan hasil permainan (tahap, p, hasil) agar siswa bisa menyalin ke tabel |
+| Pemberitahuan data berubah | Jika siswa bermain lagi sebelum mengirim: "Datamu berubah karena kamu bermain lagi. Periksa kembali jawabanmu." |
+| Progres permainan | Di atas lembar: hasil tiap tahap (T1 Menang, T2 Kalah, T3 -, ...) dan "Tahap terakhir yang dimainkan: n" |
 
-### 4.2 Tampilan
+### 4.2 Tampilan 1:1 dengan draf kelompok
 
-- Lima halaman siswa mengikuti draf 1:1 (halaman 6, Lampiran Kunci dan Rubrik, hanya di akun guru).
-- Navigasi: tombol **Sebelumnya** dan **Berikutnya**, penanda "Halaman 3 dari 5", dan daftar halaman.
-- Di HP: satu kolom, kotak jawaban selebar layar; di laptop: lebar maksimum seperti halaman A4.
-- Sampul: nama dan kelas terisi dari akun (bukan garis kosong).
+- Halaman 1 sampai 5 adalah **gambar asli** draf Word kelompok (`assets/lkpd/hal-1.png` sampai `hal-5.png`,
+  200 dpi, dibuat dari PDF draf tanpa diubah). Teks soal, kotak, warna, dan tata letak tidak diubah sama sekali.
+  Halaman 6 (kunci dan rubrik) tidak ditampilkan ke siswa.
+- Kolom isian ditempel tepat di atas kotak "Jawaban" dan sel tabel. Koordinatnya diukur dari PDF draf
+  (150 dpi, 1241 x 1754 piksel per halaman) dan disimpan di `js/lkpd-lembar.js`. Jika draf diganti, gambar
+  dan koordinat harus diukur ulang.
+- Satu halaman per layar. **Berikutnya** baru bisa ditekan jika semua isian di halaman itu terisi; isian yang
+  kosong ditandai merah. Tombol nomor halaman juga mengikuti aturan ini.
+- **Zoom:** cubit dua jari di lembar (HP), Ctrl + gulir atau tombol − dan + (laptop), tombol **Pas Layar**.
+  Di HP, kotak yang diketuk otomatis diperbesar sampai selebar layar. Selama LKPD terbuka, zoom bawaan
+  browser dimatikan agar iPhone tidak memperbesar halaman sendiri saat kotak diketuk.
+- Jawaban panjang: kotak bisa digulir di dalamnya (ukuran kotak mengikuti draf).
+- Tabel halaman 3: tahap yang tidak dimainkan diarsir tipis dan otomatis berisi "-" (sesuai catatan di bawah
+  tabel draf); ceklisnya tidak bisa diketuk. Ceklis Menang dan Kalah: satu per baris, ketuk lagi untuk menghapus.
+- Huruf jawaban: Arial berwarna biru tua, ukuran sama dengan teks draf (sekitar 10,6 pt).
 
 ### 4.3 Isian dan ID kolom
 
 | ID | Bagian draf | Jenis isian |
 |---|---|---|
-| `s1` | Soal 1 | Uraian |
-| `s2` | Soal 2 | Uraian (boleh rumus) |
-| `tabel.t{n}.q` | Kolom Peluang Kalah (q), tahap n = 1 sampai 5 | Angka |
-| `tabel.t{n}.hasil` | Kolom Menang / Kalah | Ceklis satu dari dua (atau kosong jika tidak dimainkan) |
-| `tabel.t{n}.x` | Kolom X | Angka atau "-" |
-| `tabel.t{n}.px` | Kolom P(X = x) | Angka atau "-" |
-| `s3` | Soal 3 | Uraian dengan rumus |
-| `s4` | Soal 4 | Uraian dengan rumus |
-| `s5` | Soal 5 | Uraian |
-| `s6` | Soal 6 a, b, c (satu kotak, seperti draf) | Uraian dengan rumus |
-| `s7` | Soal 7 | Uraian |
-| `refleksi` | Refleksi | Uraian |
+| `nama`, `kelas` | Garis Nama dan Kelas di sampul | Ditulis siswa di bar halaman 5, tampil di garis sampul |
+| `s1`, `s2` | Soal 1 dan 2 | Uraian |
+| `t{n}_q`, `t{n}_x`, `t{n}_px` | Kolom q, X, dan P(X = x), tahap n = 1 sampai 5 | Sel tabel (hanya tahap yang dimainkan) |
+| `t{n}_hasil` | Kolom Menang / Kalah | Ceklis satu dari dua |
+| `s3`, `s4`, `s5` | Soal 3, 4, 5 | Uraian |
+| `s6` | Soal 6 a, b, c (satu kotak, seperti draf) | Uraian |
+| `s7`, `refleksi` | Soal 7 dan Refleksi | Uraian |
 
-Kolom Peluang menang (p) di tabel diisi sistem (0,5; 0,6; 0,7; 0,4; 0,3) dan tidak bisa diubah.
+Semua isian wajib diisi, kecuali baris tabel tahap yang tidak dimainkan.
 
-### 4.4 Papan rumus (sudah dikodekan)
+### 4.4 Papan rumus (mirip keyboard GeoGebra)
 
-- Setiap kotak jawaban punya tombol **Rumus** yang membuka papan rumus: tombol **Pangkat x²** dan
-  **Indeks x₂** (saat aktif, angka, huruf x, n, p, i, tanda kurung, plus, dan minus yang diketik menjadi
-  pangkat atau indeks bawah), serta simbol · − × = ≠ ≤ ≥ √ ( ) /.
-- Dipakai karakter Unicode, bukan editor LaTeX (MathLive), karena lebih ringan, berjalan di semua HP tanpa
-  pustaka tambahan, dan bisa diuji. Batasnya: huruf q tidak punya bentuk pangkat di Unicode, dan pangkat
-  tampil kecil. Jika perlu editor penuh, MathLive bisa ditambahkan kemudian.
-- Di PDF, pangkat ditulis sebagai `^(...)` dan indeks sebagai `_(...)` karena font PDF tidak memuat
-  karakter pangkat.
+- Tombol **Papan Rumus** di kiri bawah membuka papan di bagian bawah layar. Selama papan terbuka, keyboard
+  bawaan HP tidak muncul (seperti GeoGebra); tombol **Keyboard HP** menutup papan dan memunculkan keyboard HP lagi.
+- Tab **123**: angka, koma, operasi, kurung, panah kursor, hapus. Tab **f(x)**: x², mode pangkat xⁿ, mode
+  indeks x₂, √, π, ±, p, q, x, X, n, P(X = x), E(X), Var(X), pˣ · q¹⁻ˣ, 1 − p, ≤, ≥. Tab **ABC**: huruf.
+- Pangkat dan indeks memakai karakter Unicode. Batasnya [Pasti]: pecahan bertingkat (pembilang di atas
+  penyebut) tidak bisa; pecahan ditulis dengan garis miring, misalnya 1/2. Huruf q tidak punya bentuk pangkat
+  di Unicode.
 
-### 4.5 Penyimpanan, kirim, dan perubahan
+### 4.5 Bar halaman 5, kirim, hasil, dan PDF
 
 | Fitur | Perilaku |
 |---|---|
-| Simpan otomatis | Setiap kali siswa pindah dari satu kotak jawaban, jawaban disimpan. Penanda di atas: "Menyimpan..." lalu "Tersimpan" |
-| Sinyal putus | Jawaban disimpan sementara di perangkat dan dikirim ke server saat sinyal kembali |
-| Kemajuan | Penanda "12 dari 20 isian terisi" di setiap halaman |
+| Bar halaman 5 | Di bawah lembar halaman 5: isian Nama dan Kelas (ditulis manual), tombol **Kirim LKPD**, **Lihat Hasil**, **Unduh PDF**, dan **Ajukan Perubahan** (setelah terkirim) |
+| Tulisan tombol di gambar | Tulisan "[ Kirim LKPD ]", "[ Unduh LKPD (PDF) ]", dan "[ Ajukan Perubahan ]" di gambar halaman 5 juga bisa diketuk |
+| Syarat | Kirim, Lihat Hasil, dan Unduh PDF hanya jalan jika semua isian terisi; jika belum, muncul daftar halaman yang masih kosong |
+| Simpan otomatis | Jawaban disimpan sekitar 0,6 detik setelah berhenti mengetik. Penanda "Menyimpan..." lalu "Tersimpan" |
+| Kirim LKPD | Konfirmasi sekali ("Tekan Kirim LKPD sekali lagi"), lalu semua isian terkunci |
+| Lihat Hasil | Ringkasan: nama, kelas, status, progres permainan (menang/kalah/tidak dimainkan), dan semua jawaban |
+| Unduh PDF | 5 halaman LKPD persis seperti di layar (gambar draf + jawaban di kotaknya) ditambah 1 halaman **Hasil Singkat**. Jika jawaban terlalu panjang untuk kotaknya, huruf di PDF dikecilkan; jika masih tidak muat, lanjutannya ada di halaman Hasil Singkat. Nama file `LKPD_Bernoulli_<nama>.pdf` |
+| Ajukan Perubahan | Siswa menulis alasan singkat; status "Menunggu persetujuan guru" |
 | Tanpa koreksi otomatis | Tidak ada tanda benar atau salah |
-| Kirim LKPD | Tombol di halaman 5. Jika masih ada isian kosong, muncul daftar isian kosong dan pilihan **Kembali mengisi** atau **Tetap kirim** |
-| Setelah terkirim | Semua kotak terkunci (hanya baca). Status "Terkirim" beserta tanggal dan jam |
-| Ajukan Perubahan | Muncul setelah terkirim. Siswa menulis alasan singkat. Status menjadi "Menunggu persetujuan guru" |
-| Disetujui guru | Kotak terbuka lagi; siswa mengubah lalu menekan Kirim LKPD lagi |
-| Ditolak guru | Status kembali "Terkirim" dengan catatan "Pengajuan ditolak" |
-| Unduh LKPD (PDF) | Kapan saja. Berisi sampul, soal, dan jawaban siswa sesuai susunan draf. Nama file `LKPD_Bernoulli_<nama>.pdf` |
 
-### 4.6 Teks soal yang menyesuaikan data
+### 4.6 Teks soal
 
-Draf memakai "tahap terakhir" dan "2 tahap terakhir". Agar tidak ambigu, versi digital menuliskan nomor
-tahapnya langsung dari data siswa:
-
-| Soal | Teks di draf | Teks di layar (contoh siswa yang berhenti di tahap 4) |
-|---|---|---|
-| 2 | "Pada tahap TERAKHIR..." | "Pada tahap terakhir yang kamu mainkan (**tahap 4**)..." |
-| 3 | "...pada tahap terakhir yang kamu mainkan" | "...pada tahap terakhir yang kamu mainkan (**tahap 4**)" |
-| 4 | "...untuk 2 tahap terakhir" | "...untuk **tahap 3 dan tahap 4**" |
-
-Jika siswa hanya memainkan tahap 1, soal 4 memakai tahap 1 dan tahap 2 (E(X) dan Var(X) tetap bisa dihitung
-karena hanya bergantung pada p). Usulan ini menunggu persetujuan kelompok (lihat bagian 7).
+Teks soal tidak diubah karena memakai gambar asli. Akibatnya [Pasti]: soal 2 tetap berbunyi "Pada tahap
+TERAKHIR" dan soal 4 "2 tahap terakhir". Sebagai bantuan, di atas lembar ditampilkan "Tahap terakhir yang
+dimainkan: n". Jika kelompok ingin teks soal diperjelas, ubah di Word, ekspor PDF, lalu gambar dan koordinat
+diukur ulang (lihat bagian 7).
 
 ---
 

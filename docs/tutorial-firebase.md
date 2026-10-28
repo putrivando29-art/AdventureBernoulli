@@ -143,7 +143,7 @@ service cloud.firestore {
 Arti aturan ini:
 - Siswa hanya bisa membaca dan menulis datanya sendiri; guru bisa membaca semua.
 - Permainan yang tersimpan wajib memakai p bawaan (0,5; 0,6; 0,7; 0,4; 0,3). Permainan latihan dengan p
-  dari Setting Guru tidak disimpan.
+  dari Setting Peluang tidak disimpan.
 - Setelah LKPD dikirim, siswa hanya bisa mengajukan perubahan; guru yang memutuskan.
 - Hanya guru yang bisa menghapus data siswa.
 

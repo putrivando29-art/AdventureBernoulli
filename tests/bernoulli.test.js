@@ -60,7 +60,7 @@ test("pecahan peluang", () => {
   assert.equal(B.fraction(70), "7/10");
 });
 
-test("format p dua desimal dari Setting Guru", () => {
+test("format p dua desimal dari Setting Peluang", () => {
   assert.equal(B.fmtP(45), "0,45");
   assert.equal(B.fmtP(5), "0,05");
   assert.equal(B.fmtVar(45), "0,2475");

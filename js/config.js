@@ -1,6 +1,6 @@
 // Data 5 tahap Adventure Bernoulli. Satu-satunya sumber nilai p di seluruh game.
 // p disimpan dalam perseratus (60 berarti 0,6) agar cocok dengan js/bernoulli.js.
-// Ini nilai p BAWAAN. Guru bisa menggantinya lewat Setting Guru di menu utama (js/settings.js)
+// Ini nilai p BAWAAN. Setting Peluang di menu utama (js/settings.js) hanya mengganti p untuk latihan
 // sebelum permainan dimulai; selama sesi berjalan p tidak berubah.
 // Teks {p} dan {q} di dialog diganti peluang menang dan kalah tahap itu (dalam persen).
 // Perlengkapan (power), ramuan, sihir, dan QTE hanya memengaruhi fase hack and slash dan animasi, BUKAN p.

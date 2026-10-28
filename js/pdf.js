@@ -41,7 +41,7 @@ export function buildRecapPdf({ student, stages, records, date, latihan }) {
   para(`Nama Siswa: ${student.nama}`, 10.5);
   para(`Kelas: ${student.kelas}`, 10.5);
   para(`Tanggal: ${date}`, 10.5, "normal", latihan ? 1.5 : 4);
-  if (latihan) para("Mode latihan: peluang diubah lewat Setting Guru; hasil ini tidak dipakai LKPD.", 10, "italic", 4);
+  if (latihan) para("Mode latihan: peluang diubah lewat Setting Peluang; hasil ini tidak dipakai LKPD.", 10, "italic", 4);
 
   // tabel hasil
   const cols = [["Tahap", 18], ["Kondisi", 92], ["p", 22], ["Hasil", 50]];
