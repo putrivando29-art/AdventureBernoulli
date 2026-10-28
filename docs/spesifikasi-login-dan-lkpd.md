@@ -81,8 +81,9 @@ Akun guru (email terdaftar) → tab "Guru" di menu
 
 | ID | Bagian draf | Jenis isian |
 |---|---|---|
-| `nama`, `kelas` | Garis Nama dan Kelas di sampul | Ditulis siswa di bar halaman 5, tampil di garis sampul |
+| `nama`, `kelas` | Garis Nama dan Kelas di sampul (halaman 1) | Ditulis siswa langsung di garis sampul |
 | `s1`, `s2` | Soal 1 dan 2 | Uraian |
+| `s2_menang`, `s2_kalah` | Titik-titik "...." di kalimat soal 2 | Isian pendek berhuruf tebal, ditulis di atas titik-titik |
 | `t{n}_q`, `t{n}_x`, `t{n}_px` | Kolom q, X, dan P(X = x), tahap n = 1 sampai 5 | Sel tabel (hanya tahap yang dimainkan) |
 | `t{n}_hasil` | Kolom Menang / Kalah | Ceklis satu dari dua |
 | `s3`, `s4`, `s5` | Soal 3, 4, 5 | Uraian |
@@ -105,7 +106,7 @@ Semua isian wajib diisi, kecuali baris tabel tahap yang tidak dimainkan.
 
 | Fitur | Perilaku |
 |---|---|
-| Bar halaman 5 | Di bawah lembar halaman 5: isian Nama dan Kelas (ditulis manual), tombol **Kirim LKPD**, **Lihat Hasil**, **Unduh PDF**, dan **Ajukan Perubahan** (setelah terkirim) |
+| Bar halaman 5 | Di bawah lembar halaman 5: tombol **Kirim LKPD**, **Lihat Hasil**, **Unduh PDF**, dan **Ajukan Perubahan** (setelah terkirim). Nama dan Kelas tidak ada di sini; keduanya diisi di sampul |
 | Tulisan tombol di gambar | Tulisan "[ Kirim LKPD ]", "[ Unduh LKPD (PDF) ]", dan "[ Ajukan Perubahan ]" di gambar halaman 5 juga bisa diketuk |
 | Syarat | Kirim, Lihat Hasil, dan Unduh PDF hanya jalan jika semua isian terisi; jika belum, muncul daftar halaman yang masih kosong |
 | Simpan otomatis | Jawaban disimpan sekitar 0,6 detik setelah berhenti mengetik. Penanda "Menyimpan..." lalu "Tersimpan" |

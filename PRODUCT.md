@@ -257,9 +257,14 @@ mengganti prinsip "tanpa backend". Aturan 6 tetap berlaku: semua pustaka dimuat 
   bawaan tercatat. LKPD memakai permainan terbaru sampai LKPD dikirim; setelah itu data dan jawaban terkunci. Struktur dan isi: `docs/LKPD-struktur-dan-isi.md`.
   Desain dari kelompok, ditampilkan 1:1: halaman 1 sampai 5 adalah gambar asli draf (`assets/lkpd/`,
   tidak boleh diubah), kolom isian ditempel di atas kotak jawabannya, satu halaman per layar, zoom dengan
-  cubit, papan rumus mirip GeoGebra lewat tombol, semua isian wajib, Nama dan Kelas ditulis manual di bar
-  halaman 5 bersama Kirim, Lihat Hasil, dan Unduh PDF. Tidak ada tanda benar/salah otomatis. Setelah
+  cubit, papan rumus mirip GeoGebra lewat tombol, semua isian wajib, Nama dan Kelas ditulis langsung di
+  garis sampul, titik-titik "...." di soal juga menjadi isian (huruf tebal), dan bar halaman 5 berisi Kirim,
+  Lihat Hasil, dan Unduh PDF. Tidak ada tanda benar/salah otomatis. Setelah
   dikirim, perubahan hanya dengan persetujuan guru. Rincian: `docs/spesifikasi-login-dan-lkpd.md` Bagian 4.
+- **Jika kelompok merevisi LKPD** (keputusan pemilik): versi digital mengikuti revisi dengan cara yang sama.
+  PDF revisi diubah menjadi gambar `assets/lkpd/hal-N.png` (200 dpi) tanpa diubah isinya, lalu posisi setiap
+  kotak "Jawaban", sel tabel, garis isian, dan titik-titik "...." diukur ulang dan ditulis di `BIDANG`
+  (`js/lkpd-lembar.js`). Bagian yang berupa titik-titik atau garis kosong dijadikan isian di tempatnya.
 - **Akun guru** (4 email dari pemilik): memantau hasil permainan, PDF, progres dan jawaban LKPD,
   menyetujui pengajuan perubahan, menerbitkan data kelas. Penilaian dilakukan kelompok di luar website.
 - Rancangan teknis: `docs/rancangan-firebase.md`; tutorial pemasangan: `docs/tutorial-firebase.md`;

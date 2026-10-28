@@ -98,7 +98,7 @@ function zoomBrowser(boleh) {
 /** Di HP, kotak yang diketuk diperbesar sampai selebar layar agar tulisan terbaca. */
 function perbesarKe(el) {
   if (terkunci() || vp().clientWidth >= 600 || !el.closest(".lk-sheet")) return;
-  const tabel = !el.classList.contains("lk-f-uraian");
+  const tabel = el.classList.contains("lk-f-sel") || el.classList.contains("lk-f-ceklis");
   const [x1, x2] = tabel ? [L.TABEL_X[0] - 6, L.TABEL_X[1] + 6] : [140, 1102];
   const z = Math.min(ZOOM_MAKS, (vp().clientWidth - 8) / (lebarPas() * ((x2 - x1) / L.HAL_W)));
   if (st.zoom >= z - 0.05) return;
@@ -120,7 +120,6 @@ function tampilMain() {
 function setLocked() {
   const kunci = terkunci();
   L.kunciLembar($("#screen-lkpd"), kunci);
-  ["#lk-nama", "#lk-kelas"].forEach((s) => ($(s).readOnly = kunci));
   $("#btn-lk-kirim").hidden = kunci;
   $("#btn-lk-ubah").hidden = st.lkpd.status !== "terkirim";
   document.querySelectorAll('.lk-hotspot[data-aksi="kirim"]').forEach((b) => (b.disabled = kunci));
@@ -343,11 +342,12 @@ export function initLkpd() {
   scr.addEventListener("input", (e) => {
     const el = e.target.closest("textarea[data-f], input[data-f]");
     if (!el || el.readOnly) return;
-    if (el.id === "lk-nama" || el.id === "lk-kelas") {
+    // nama dan kelas juga dicetak di halaman Hasil Singkat (font PDF bawaan): emoji dan simbol khusus dihapus
+    if (el.classList.contains("lk-f-identitas")) {
       const clean = printableText(el.value);
       if (clean !== el.value) el.value = clean;
-      scr.querySelectorAll(`[data-tampil="${el.dataset.f}"]`).forEach((s) => (s.textContent = el.value));
     }
+    if (el.classList.contains("lk-f-titik")) L.pasHuruf(el);
     st.konfirmasi = false;
     queueSave(el.dataset.f, el.value);
     if ($("#lk-send-msg").textContent && !L.idKosong(st.main, st.lkpd.isian).length) pesan("");

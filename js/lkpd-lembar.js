@@ -36,11 +36,13 @@ function selTabel() {
   return out;
 }
 
-/** Semua isian. Nama dan Kelas ditulis di bar halaman 5 (halIsi) dan tampil di garis sampul halaman 1. */
+/** Semua isian. Titik-titik soal 2 diisi dengan huruf tebal (isian "titik"); lebarnya mengikuti ruang kosong di gambar. */
 export const BIDANG = [
-  { id: "nama", hal: 1, halIsi: 5, jenis: "identitas", x: 464, y: 644, w: 414, h: 38, label: "Nama" },
-  { id: "kelas", hal: 1, halIsi: 5, jenis: "identitas", x: 462, y: 689, w: 414, h: 38, label: "Kelas" },
+  { id: "nama", hal: 1, jenis: "identitas", x: 464, y: 644, w: 414, h: 38, label: "Nama", maks: 40 },
+  { id: "kelas", hal: 1, jenis: "identitas", x: 462, y: 689, w: 414, h: 38, label: "Kelas", maks: 15 },
   uraian("s1", 3, 243, 359, "Jawaban soal 1"),
+  { id: "s2_menang", hal: 3, jenis: "titik", x: 736, y: 372, w: 38, h: 27, label: "Soal 2: peluang kamu menang" },
+  { id: "s2_kalah", hal: 3, jenis: "titik", x: 221, y: 405, w: 200, h: 27, label: "Soal 2: peluang kamu kalah" },
   uraian("s2", 3, 453, 568, "Jawaban soal 2"),
   ...selTabel(),
   uraian("s3", 4, 259, 417, "Jawaban soal 3"),
@@ -67,10 +69,7 @@ export const STATUS_TEKS = {
 
 export const dimainkan = (main, i) => main.x[i] === 0 || main.x[i] === 1;
 export const terisi = (v) => typeof v === "string" && v.trim() !== "";
-export const halamanIsi = (id) => {
-  const b = BIDANG.find((x) => x.id === id);
-  return b.halIsi || b.hal;
-};
+export const halamanIsi = (id) => BIDANG.find((x) => x.id === id).hal;
 
 /** ID isian wajib. Baris tabel untuk tahap yang tidak dimainkan tidak diisi siswa (otomatis "-"). */
 export function idWajib(main) {
@@ -116,7 +115,9 @@ export function bangunLembar(n, main) {
   for (const b of BIDANG.filter((x) => x.hal === n)) {
     const main_ok = b.tahap === undefined || dimainkan(main, b.tahap);
     if (b.jenis === "identitas") {
-      html += `<span class="lk-f-identitas" data-tampil="${b.id}" style="${pct(b)}" aria-label="${b.label} (ditulis di halaman 5)"></span>`;
+      html += `<input type="text" class="lk-f lk-f-identitas" data-f="${b.id}" maxlength="${b.maks}" aria-label="${b.label}" autocomplete="off" spellcheck="false" style="${pct(b)}">`;
+    } else if (b.jenis === "titik") {
+      html += `<input type="text" class="lk-f lk-f-titik${b.w < 100 ? " is-tengah" : ""}" data-f="${b.id}" maxlength="30" aria-label="${b.label}" autocomplete="off" spellcheck="false" style="${pct(b)}">`;
     } else if (b.jenis === "uraian") {
       html += `<textarea class="lk-f lk-f-uraian" data-f="${b.id}" aria-label="${b.label}" spellcheck="false" style="${pct(b, 8, LABEL_H, -16, -LABEL_H - 6)}"></textarea>`;
     } else if (!main_ok) {
@@ -134,6 +135,12 @@ export function bangunLembar(n, main) {
   return el;
 }
 
+/** Isian titik-titik sempit: huruf dikecilkan sampai muat (paling kecil 55%) agar tidak menutupi teks soal. */
+export function pasHuruf(el) {
+  el.style.fontSize = "";
+  for (let f = 1; f > 0.55 && el.scrollWidth > el.clientWidth + 1; f -= 0.05) el.style.fontSize = f.toFixed(2) + "em";
+}
+
 /** Mengisi semua kolom di dalam root dengan isian tersimpan. */
 export function isiLembar(root, isian) {
   root.querySelectorAll("textarea[data-f], input[data-f]").forEach((el) => {
@@ -141,7 +148,7 @@ export function isiLembar(root, isian) {
     if (el.value !== v) el.value = v;
   });
   root.querySelectorAll(".lk-f-ceklis").forEach((el) => el.setAttribute("aria-pressed", String(isian[el.dataset.f] === el.dataset.nilai)));
-  root.querySelectorAll("[data-tampil]").forEach((el) => (el.textContent = isian[el.dataset.tampil] || ""));
+  root.querySelectorAll(".lk-f-titik").forEach(pasHuruf);
 }
 
 export function kunciLembar(root, kunci) {
@@ -165,7 +172,8 @@ export function ringkasan(main, isian) {
     permainan: CONFIG.stages.map((s, i) => ({ tahap: s.id, p: B().fmtP(main.p[i]), hasil: hasilTeks(main.x[i]) })),
     jawaban: [
       ["Soal 1", v("s1")],
-      ["Soal 2", v("s2")],
+      ["Soal 2 (titik-titik)", `Peluang menang: ${v("s2_menang")}; peluang kalah: ${v("s2_kalah")}`],
+      ["Soal 2 (kotak jawaban)", v("s2")],
       ["Tabel hasil permainan", tabel],
       ["Soal 3", v("s3")],
       ["Soal 4", v("s4")],
@@ -262,10 +270,10 @@ function tulisKotak(ctx, teks, x, y, w, h) {
   return potong;
 }
 
-function tulisSatuBaris(ctx, teks, x, y, w, h, tengah) {
+function tulisSatuBaris(ctx, teks, x, y, w, h, tengah, tebal = "") {
   let s = UKURAN;
   for (; s > 10; s -= 1) {
-    ctx.font = `${s}px ${HURUF}`;
+    ctx.font = `${tebal}${s}px ${HURUF}`;
     if (ctx.measureText(teks).width <= w) break;
   }
   ctx.textAlign = tengah ? "center" : "left";
@@ -292,6 +300,8 @@ export async function kanvasHalaman(n, main, isian) {
       if (v) potong = tulisKotak(ctx, v, b.x + 12, b.y + LABEL_H + 2, b.w - 24, b.h - LABEL_H - 8) || potong;
     } else if (b.jenis === "identitas") {
       if (v) tulisSatuBaris(ctx, v, b.x + 6, b.y, b.w - 12, b.h, false);
+    } else if (b.jenis === "titik") {
+      if (v) tulisSatuBaris(ctx, v, b.x + 1, b.y - 3, b.w - 2, b.h - 4, b.w < 100, "bold ");
     } else if (b.jenis === "sel") {
       const t = main_ok ? v : "-";
       if (t) tulisSatuBaris(ctx, t, b.x + 6, b.y, b.w - 12, b.h, true);
