@@ -8,7 +8,7 @@ const B = () => window.Bernoulli;
 export function renderPSource() {
   const { ps, source } = loadPs();
   $("#p-source").textContent = `Peluang menang tiap tahap: ${ps.map((p) => B().fmtP(p)).join(" · ")} (${SOURCE_LABEL[source]})`;
-  // p bukan bawaan: permainan hanya latihan, tidak disimpan ke akun dan tidak dipakai LKPD
+  // p bukan bawaan: permainan hanya latihan, tidak disimpan ke akun dan tidak dipakai LKM
   $("#latihan-note").hidden = ps.join() === defaultPs().join();
 }
 
@@ -71,7 +71,7 @@ export function initTeacher() {
     if (err) return message(err, false);
     message(
       savePs(ps)
-        ? "Dipakai untuk latihan di tab ini. Hasil latihan tidak disimpan ke akun dan tidak dipakai LKPD. Tekan Kembalikan Bawaan untuk bermain biasa."
+        ? "Dipakai untuk latihan di tab ini. Hasil latihan tidak disimpan ke akun dan tidak dipakai LKM. Tekan Kembalikan Bawaan untuk bermain biasa."
         : "Browser menolak penyimpanan peluang latihan.",
       true
     );

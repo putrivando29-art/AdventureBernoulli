@@ -74,7 +74,7 @@
             <label class="field" for="daftar-sandi2"><span>Ulangi kata sandi</span>
               <input id="daftar-sandi2" type="password" autocomplete="new-password" minlength="6" required></label>
             <label class="show-pass"><input type="checkbox" data-show-pass="daftar-sandi daftar-sandi2"> Tampilkan kata sandi</label>
-            <label class="field" for="daftar-nama"><span>Nama Siswa</span>
+            <label class="field" for="daftar-nama"><span>Nama Mahasiswa</span>
               <input id="daftar-nama" type="text" maxlength="40" autocomplete="name" required></label>
             <label class="field" for="daftar-kelas"><span>Kelas</span>
               <input id="daftar-kelas" type="text" maxlength="15" autocomplete="off" required></label>
@@ -88,7 +88,7 @@
           <p class="akun-line">Masuk sebagai <strong id="akun-email"></strong>
             <button type="button" class="btn btn-ghost btn-keluar" id="btn-keluar">Keluar</button></p>
           <label class="field" for="student-name">
-            <span>Nama Siswa</span>
+            <span>Nama Mahasiswa</span>
             <input id="student-name" name="nama" type="text" maxlength="40" autocomplete="off" required>
           </label>
           <label class="field" for="student-class">
@@ -98,8 +98,8 @@
           <p id="menu-msg" class="form-msg" role="alert"></p>
           <div class="menu-buttons">
             <button type="submit" class="btn btn-primary btn-lg" id="btn-start" aria-describedby="start-hint" disabled>Mulai Petualangan</button>
-            <p id="start-hint" class="muted small start-hint">Isi Nama Siswa dan Kelas untuk memulai.</p>
-            <button type="button" class="btn" id="btn-menu-lkpd">Kerjakan LKPD</button>
+            <p id="start-hint" class="muted small start-hint">Isi Nama Mahasiswa dan Kelas untuk memulai.</p>
+            <button type="button" class="btn" id="btn-menu-lkpd">Kerjakan LKM</button>
           </div>
         </form>
         <div class="menu-buttons menu-shared">
@@ -108,12 +108,12 @@
         </div>
         <p class="muted small p-source" id="p-source"></p>
         <div class="latihan-note" id="latihan-note" hidden>
-          <p>Mode latihan: peluang diubah lewat Setting Peluang, jadi hasil permainan tidak disimpan dan tidak dipakai LKPD.</p>
+          <p>Mode latihan: peluang diubah lewat Setting Peluang, jadi hasil permainan tidak disimpan dan tidak dipakai LKM.</p>
           <button type="button" class="btn" id="btn-latihan-off">Kembali ke Peluang Bawaan</button>
         </div>
         <p class="muted small fs-note" id="fs-note" hidden>Browser ini tidak mendukung layar penuh. Di iPhone, pakai menu Bagikan lalu "Tambahkan ke Layar Utama".</p>
       </div>
-      <!-- di akhir agar urutan Tab dimulai dari Nama Siswa; posisinya tetap di pojok kanan atas -->
+      <!-- di akhir agar urutan Tab dimulai dari Nama Mahasiswa; posisinya tetap di pojok kanan atas -->
       <button type="button" class="btn fs-btn menu-fs" data-fullscreen>Layar Penuh</button>
     </section>
 
@@ -165,7 +165,7 @@
       </div>
     </section>
 
-    <!-- ============ SETTING GURU ============ -->
+    <!-- ============ SETTING PELUANG ============ -->
     <section id="screen-teacher" class="screen screen-page" aria-labelledby="teacher-title">
       <header class="page-head">
         <button class="btn btn-ghost" data-go="menu">← Kembali ke Menu</button>
@@ -173,7 +173,7 @@
       </header>
       <div class="page-body">
         <p class="prose">Coba berbagai peluang menang <strong>p</strong> untuk setiap tahap sebagai <strong>latihan</strong>. Isi angka di antara 0 dan 1 dengan paling banyak dua desimal (contoh 0,45). Setiap tahap harus punya peluang yang berbeda.</p>
-        <p class="prose">Permainan biasa selalu memakai peluang bawaan (0,5; 0,6; 0,7; 0,4; 0,3). Peluang latihan hanya berlaku di tab browser ini sampai tab ditutup atau tombol Kembalikan Bawaan ditekan. Hasil latihan tidak disimpan ke akun dan tidak dipakai LKPD.</p>
+        <p class="prose">Permainan biasa selalu memakai peluang bawaan (0,5; 0,6; 0,7; 0,4; 0,3). Peluang latihan hanya berlaku di tab browser ini sampai tab ditutup atau tombol Kembalikan Bawaan ditekan. Hasil latihan tidak disimpan ke akun dan tidak dipakai LKM.</p>
         <form id="teacher-form" novalidate>
           <div id="teacher-rows" class="teacher-rows"></div>
           <p id="teacher-msg" class="form-msg" role="status" aria-live="polite"></p>
@@ -185,13 +185,13 @@
       </div>
     </section>
 
-    <!-- ============ LKPD ============ -->
+    <!-- ============ LKM (Lembar Kerja Mahasiswa) ============ -->
     <section id="screen-lkpd" class="screen screen-page screen-lkpd" aria-labelledby="lkpd-title">
       <header class="page-head">
         <button class="btn btn-ghost" data-go="menu">← Kembali ke Menu</button>
-        <h2 id="lkpd-title">LKPD Distribusi Bernoulli</h2>
+        <h2 id="lkpd-title">LKM Distribusi Bernoulli</h2>
       </header>
-      <p id="lk-load" class="page-body" role="status">Memuat LKPD...</p>
+      <p id="lk-load" class="page-body" role="status">Memuat LKM...</p>
       <div id="lk-body" hidden>
         <div class="lk-bar">
           <span id="lk-status" class="lk-status"></span>
@@ -205,22 +205,23 @@
           </span>
         </div>
         <div id="lk-main" class="lk-main"></div>
-        <p id="lk-hint" class="muted small lk-hint">Ketuk kotak untuk menulis langsung di LKPD. Cubit dua jari untuk memperbesar. Papan Rumus ada di kiri bawah.</p>
+        <p id="lk-hint" class="muted small lk-hint">Ketuk kotak untuk menulis langsung di LKM. Cubit dua jari untuk memperbesar. Tombol Rumus ada di kiri bawah.</p>
         <p id="lk-changed" class="latihan-note" hidden>Datamu berubah karena kamu bermain lagi. Periksa kembali jawabanmu.</p>
         <div id="lk-viewport" class="lk-viewport"><div id="lk-pages" class="lk-pages"></div></div>
         <div id="lk-akhir" class="lk-akhir page-body" hidden>
           <h3>Kirim dan Hasil</h3>
-          <p class="muted small">Semua isian di halaman 1 sampai 5 wajib terisi, termasuk Nama dan Kelas di sampul.</p>
+          <p class="muted small">Semua isian di halaman 1 sampai 5 wajib terisi, termasuk Nama, NIM, dan Kelas di sampul.</p>
           <p id="lk-send-msg" class="form-msg" role="status"></p>
           <div class="row-buttons">
-            <button type="button" class="btn btn-primary" id="btn-lk-kirim">Kirim LKPD</button>
+            <button type="button" class="btn btn-primary" id="btn-lk-kirim">Kirim LKM</button>
             <button type="button" class="btn" id="btn-lk-hasil">Lihat Hasil</button>
-            <button type="button" class="btn" id="btn-lk-pdf">Unduh PDF</button>
+            <button type="button" class="btn" id="btn-lk-pdf">Unduh LKM (PDF)</button>
             <button type="button" class="btn" id="btn-lk-ubah" hidden>Ajukan Perubahan</button>
+            <button type="button" class="btn btn-primary" id="btn-lk-materi" hidden>Buka Rangkuman Materi</button>
           </div>
         </div>
         <p id="lk-nav-msg" class="form-msg lk-nav-msg" role="alert"></p>
-        <nav class="lk-nav" aria-label="Halaman LKPD">
+        <nav class="lk-nav" aria-label="Halaman LKM">
           <button type="button" class="btn" id="lk-prev">Sebelumnya</button>
           <span id="lk-dots" class="lk-dots">
             <button type="button" class="btn" data-go2="1" aria-label="Halaman 1">1</button>
@@ -233,9 +234,9 @@
         </nav>
         <p id="lk-page-no" class="muted small lk-page-no"></p>
       </div>
-      <button type="button" id="btn-papan" class="btn papan-toggle" aria-expanded="false" aria-controls="papan-rumus" hidden>
+      <button type="button" id="btn-papan" class="btn papan-toggle" aria-expanded="false" aria-controls="papan-rumus" aria-label="Rumus: buka papan rumus" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 10h1M9.5 10h1M13 10h1M16.5 10h1M6 13.5h1M17 13.5h1M9 14h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        Papan Rumus
+        Rumus
       </button>
       <div id="papan-rumus" class="papan" role="group" aria-label="Papan rumus" hidden>
         <div class="papan-inner">
@@ -253,7 +254,7 @@
         </div>
       </div>
       <dialog id="dlg-hasil" class="dialog dialog-wide" aria-labelledby="hasil-judul">
-        <h3 id="hasil-judul">Hasil LKPD</h3>
+        <h3 id="hasil-judul">Hasil LKM</h3>
         <div id="lk-hasil-body"></div>
         <div class="row-buttons">
           <button type="button" class="btn btn-primary" id="btn-hasil-pdf">Unduh PDF</button>
@@ -262,7 +263,7 @@
       </dialog>
       <dialog id="dlg-ubah" class="dialog">
         <form id="form-ubah" method="dialog">
-          <p>Ajukan perubahan jawaban. Tulis alasan singkat; guru akan menyetujui atau menolak.</p>
+          <p>Ajukan perubahan jawaban. Tulis alasan singkat; dosen akan menyetujui atau menolak.</p>
           <label class="field" for="ubah-alasan"><span>Alasan</span><textarea id="ubah-alasan" rows="3" maxlength="300"></textarea></label>
           <p id="ubah-msg" class="form-msg" role="alert"></p>
           <div class="row-buttons">
@@ -271,6 +272,15 @@
           </div>
         </form>
       </dialog>
+    </section>
+
+    <!-- ============ RANGKUMAN MATERI (terbuka setelah LKM dikirim) ============ -->
+    <section id="screen-materi" class="screen screen-page" aria-labelledby="materi-title">
+      <header class="page-head">
+        <button type="button" class="btn btn-ghost" id="btn-materi-kembali">← Kembali ke LKM</button>
+        <h2 id="materi-title">Rangkuman: Distribusi Bernoulli</h2>
+      </header>
+      <div id="materi-isi" class="page-body prose materi"></div>
     </section>
 
     <!-- ============ AREA GAME 3D ============ -->

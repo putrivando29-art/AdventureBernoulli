@@ -1,8 +1,10 @@
-// LKPD siswa: halaman asli draf Kelompok 17 ditampilkan satu per satu, kolom isian ada di atas kotak
-// jawabannya (lihat js/lkpd-lembar.js). Data permainan diambil dari akun siswa.
+// LKM mahasiswa: halaman asli LKM Kelompok 17 ditampilkan satu per satu, kolom isian ada di atas kotak
+// jawabannya (lihat js/lkpd-lembar.js). Data permainan diambil dari akun mahasiswa.
+// Nama file, ID elemen, dan koleksi Firestore masih memakai "lkpd" agar data dan aturan akses tidak berubah.
 import * as akun from "./akun.js";
 import * as L from "./lkpd-lembar.js";
 import { initPapanRumus, syncTombol, tutupPapan } from "./papan-rumus.js";
+import { bukaMateri } from "./materi.js";
 import { $, printableText, show } from "./ui.js";
 
 const TERKUNCI = ["terkirim", "minta-ubah"];
@@ -87,8 +89,8 @@ function initCubit() {
   ["gesturestart", "gesturechange"].forEach((t) => el.addEventListener(t, (e) => e.preventDefault()));
 }
 
-// Selama LKPD terbuka, zoom bawaan browser dimatikan agar iPhone tidak memperbesar halaman sendiri saat
-// kotak diketuk; cubit tetap bisa karena ditangani lembar LKPD.
+// Selama LKM terbuka, zoom bawaan browser dimatikan agar iPhone tidak memperbesar halaman sendiri saat
+// kotak diketuk; cubit tetap bisa karena ditangani lembar LKM.
 const META = document.querySelector('meta[name="viewport"]');
 const META_ASLI = META ? META.content : "";
 function zoomBrowser(boleh) {
@@ -98,8 +100,7 @@ function zoomBrowser(boleh) {
 /** Di HP, kotak yang diketuk diperbesar sampai selebar layar agar tulisan terbaca. */
 function perbesarKe(el) {
   if (terkunci() || vp().clientWidth >= 600 || !el.closest(".lk-sheet")) return;
-  const tabel = el.classList.contains("lk-f-sel") || el.classList.contains("lk-f-ceklis");
-  const [x1, x2] = tabel ? [L.TABEL_X[0] - 6, L.TABEL_X[1] + 6] : [140, 1102];
+  const [x1, x2] = L.LEBAR_KOTAK;
   const z = Math.min(ZOOM_MAKS, (vp().clientWidth - 8) / (lebarPas() * ((x2 - x1) / L.HAL_W)));
   if (st.zoom >= z - 0.05) return;
   st.zoom = z;
@@ -123,7 +124,8 @@ function setLocked() {
   $("#btn-lk-kirim").hidden = kunci;
   $("#btn-lk-ubah").hidden = st.lkpd.status !== "terkirim";
   document.querySelectorAll('.lk-hotspot[data-aksi="kirim"]').forEach((b) => (b.disabled = kunci));
-  document.querySelectorAll('.lk-hotspot[data-aksi="ubah"]').forEach((b) => (b.disabled = st.lkpd.status !== "terkirim"));
+  // rangkuman materi terbuka setelah LKM pernah dikirim (sesuai catatan di halaman 5 LKM)
+  $("#btn-lk-materi").hidden = st.lkpd.status === "draf";
   $("#lk-status").textContent = L.STATUS_TEKS[st.lkpd.status] || "";
   $("#lk-hint").hidden = kunci;
   syncTombol();
@@ -193,7 +195,7 @@ async function flushSave() {
     await akun.simpanIsian(batch, progress(), st.lkpd.status === "draf" ? st.main.id : null);
     el.textContent = "Tersimpan";
   } catch (e) {
-    console.error("Gagal menyimpan LKPD:", e);
+    console.error("Gagal menyimpan LKM:", e);
     Object.assign(pending, batch);
     el.textContent = "Gagal menyimpan. Periksa koneksi; jawaban dicoba lagi saat kamu mengetik.";
   } finally {
@@ -223,14 +225,14 @@ async function kirim() {
   if (!lengkap("mengirim")) return;
   if (!st.konfirmasi) {
     st.konfirmasi = true;
-    pesan("Setelah dikirim, jawaban terkunci dan hanya bisa diubah dengan persetujuan guru. Tekan Kirim LKPD sekali lagi untuk mengirim.");
+    pesan("Setelah dikirim, jawaban terkunci dan hanya bisa diubah dengan persetujuan dosen. Tekan Kirim LKM sekali lagi untuk mengirim.");
     return;
   }
   st.konfirmasi = false;
   try {
     await akun.kirimLkpd(st.main.id, progress());
     st.lkpd.status = "terkirim";
-    pesan("LKPD terkirim. Terima kasih!", true);
+    pesan("LKM terkirim. Terima kasih! Rangkuman materi distribusi Bernoulli sekarang bisa dibuka.", true);
     setLocked();
   } catch (e) {
     pesan(akun.pesanGalat(e));
@@ -253,7 +255,7 @@ async function unduh(btn) {
   try {
     await L.unduhPdf({ main: st.main, isian: st.lkpd.isian, status: st.lkpd.status });
   } catch (e) {
-    console.error("PDF LKPD gagal dibuat:", e);
+    console.error("PDF LKM gagal dibuat:", e);
     pesan("PDF gagal dibuat. Coba lagi.");
   } finally {
     if (btn) {
@@ -294,7 +296,7 @@ function initDialog() {
   });
 }
 
-// ---------- buka LKPD ----------
+// ---------- buka LKM ----------
 export async function bukaLkpd() {
   show("lkpd");
   zoomBrowser(false);
@@ -302,14 +304,19 @@ export async function bukaLkpd() {
   const msg = $("#lk-load");
   body.hidden = true;
   msg.hidden = false;
-  msg.textContent = "Memuat LKPD...";
+  msg.textContent = "Memuat LKM...";
   try {
     let lkpd = await akun.bacaLkpd();
     let main;
     if (lkpd && lkpd.status !== "draf") main = await akun.bacaPermainan(lkpd.permainanId);
     else main = await akun.permainanTerbaru();
     if (!main) {
-      msg.textContent = "Selesaikan permainan dulu (minimal satu tahap dengan peluang bawaan). Setelah layar rekap muncul, LKPD bisa dibuka.";
+      msg.textContent = `Mainkan game dulu dengan peluang bawaan, minimal sampai tahap ${L.SYARAT_TAHAP}. Setelah layar rekap muncul, LKM bisa dibuka.`;
+      return;
+    }
+    // Petunjuk LKM: mainkan minimal sampai tahap 3 (soal 5, 7, dan 9 memakai tahap 3)
+    if ((!lkpd || lkpd.status === "draf") && L.tahapTerakhir(main) < L.SYARAT_TAHAP) {
+      msg.textContent = `Permainan terakhirmu berhenti di tahap ${L.tahapTerakhir(main)}. Sesuai petunjuk LKM, mainkan game minimal sampai tahap ${L.SYARAT_TAHAP}: kembali ke menu, lalu tekan Mulai Petualangan lagi.`;
       return;
     }
     let changed = false;
@@ -332,7 +339,7 @@ export async function bukaLkpd() {
     terapkanZoom();
     tampilHal(1);
   } catch (e) {
-    console.error("LKPD gagal dimuat:", e);
+    console.error("LKM gagal dimuat:", e);
     msg.textContent = akun.pesanGalat(e);
   }
 }
@@ -387,11 +394,21 @@ export function initLkpd() {
     st.zoom = 1;
     terapkanZoom();
   });
+  $("#btn-lk-materi").addEventListener("click", () => {
+    flushSave();
+    tutupPapan();
+    zoomBrowser(true);
+    bukaMateri();
+  });
+  $("#btn-materi-kembali").addEventListener("click", () => {
+    show("lkpd");
+    zoomBrowser(false);
+  });
   initCubit();
   initDialog();
   initPapanRumus({ aktif: () => !!st && !terkunci() });
   window.addEventListener("resize", () => st && terapkanZoom());
-  // keluar dari layar LKPD: zoom browser dan papan rumus kembali seperti semula
+  // keluar dari layar LKM: zoom browser dan papan rumus kembali seperti semula
   document.addEventListener("click", (e) => {
     const go = e.target.closest("[data-go]");
     if (go && go.dataset.go !== "lkpd") {

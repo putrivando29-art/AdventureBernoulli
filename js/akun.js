@@ -1,4 +1,4 @@
-// Akun siswa dan guru: login email dan kata sandi (Firebase Authentication) dan penyimpanan data (Firestore).
+// Akun mahasiswa dan dosen (koleksi Firestore "guru"): login email dan kata sandi (Firebase Authentication) dan penyimpanan data (Firestore).
 // SDK Firebase dimuat dari CDN lewat import map (lihat index.html), bukan npm.
 import { firebaseConfig } from "./firebase-config.js";
 
@@ -49,7 +49,7 @@ export async function keluar() {
   await A.signOut(auth);
 }
 
-/** Profil akun yang sedang masuk, atau null jika belum ada (misalnya akun guru yang dibuat di Console). */
+/** Profil akun yang sedang masuk, atau null jika belum ada (misalnya akun dosen yang dibuat di Console). */
 export async function bacaProfil() {
   const u = penggunaSekarang();
   if (!u) return null;
@@ -73,7 +73,7 @@ export async function simpanProfil(nama, kelas) {
   }
 }
 
-/** Akun guru dikenali dari dokumen guru/{uid} yang dibuat pemilik di Firebase Console. */
+/** Akun dosen dikenali dari dokumen guru/{uid} yang dibuat pemilik di Firebase Console. */
 export async function cekGuru() {
   const u = penggunaSekarang();
   if (!u) return false;
@@ -113,14 +113,14 @@ export async function bacaPermainan(id) {
 // ---------- LKPD: users/{uid}/lkpd/jawaban ----------
 const lkpdRef = () => F.doc(db, "users", penggunaSekarang().uid, "lkpd", "jawaban");
 
-/** Dokumen LKPD milik akun yang sedang masuk, atau null jika belum pernah dibuka. */
+/** Dokumen LKM milik akun yang sedang masuk, atau null jika belum pernah dibuka. */
 export async function bacaLkpd() {
   if (!penggunaSekarang()) return null;
   const snap = await F.getDoc(lkpdRef());
   return snap.exists() ? snap.data() : null;
 }
 
-/** Membuat LKPD baru berstatus draf (aturan Firestore hanya mengizinkan status draf saat dibuat). */
+/** Membuat LKM baru berstatus draf (aturan Firestore hanya mengizinkan status draf saat dibuat). */
 export async function buatLkpd(permainanId) {
   const data = { isian: {}, status: "draf", progres: 0, permainanId, dibuat: F.serverTimestamp(), diperbarui: F.serverTimestamp() };
   await F.setDoc(lkpdRef(), data);
@@ -135,12 +135,12 @@ export async function simpanIsian(perubahan, progres, permainanId) {
   await F.updateDoc(lkpdRef(), data);
 }
 
-/** Mengirim LKPD: jawaban dan permainan yang dipakai terkunci. */
+/** Mengirim LKM: jawaban dan permainan yang dipakai terkunci. */
 export async function kirimLkpd(permainanId, progres) {
   await F.updateDoc(lkpdRef(), { status: "terkirim", permainanId, progres, dikirim: F.serverTimestamp(), diperbarui: F.serverTimestamp() });
 }
 
-/** Mengajukan perubahan setelah terkirim; guru yang memutuskan. */
+/** Mengajukan perubahan setelah terkirim; dosen yang memutuskan. */
 export async function ajukanPerubahan(alasan) {
   await F.updateDoc(lkpdRef(), { status: "minta-ubah", alasanUbah: alasan });
 }
@@ -159,8 +159,8 @@ export function pesanGalat(err) {
     "auth/invalid-login-credentials": "Email atau kata sandi salah.",
     "auth/too-many-requests": "Terlalu banyak percobaan. Tunggu beberapa menit, lalu coba lagi.",
     "auth/network-request-failed": "Tidak ada koneksi internet.",
-    "auth/user-disabled": "Akun ini dinonaktifkan. Hubungi guru.",
-    "permission-denied": "Akses ditolak. Hubungi guru.",
+    "auth/user-disabled": "Akun ini dinonaktifkan. Hubungi dosen.",
+    "permission-denied": "Akses ditolak. Hubungi dosen.",
     unavailable: "Tidak ada koneksi internet.",
   };
   return map[code] || "Terjadi kesalahan. Coba lagi.";

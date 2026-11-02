@@ -1,9 +1,9 @@
 // Rekap PDF dengan jsPDF (window.jspdf.jsPDF dari CDN): hanya hasil menang dan kalah.
-// Perhitungan peluang dikerjakan siswa di LKPD.
+// Perhitungan peluang dikerjakan mahasiswa di LKM.
 
 export function pdfFileName(nama) {
   const safe = String(nama).normalize("NFKD").replace(/[^A-Za-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
-  return `Rekap_Bernoulli_${safe || "Siswa"}.pdf`;
+  return `Rekap_Bernoulli_${safe || "Mahasiswa"}.pdf`;
 }
 
 export function buildRecapPdf({ student, stages, records, date, latihan }) {
@@ -38,10 +38,10 @@ export function buildRecapPdf({ student, stages, records, date, latihan }) {
   doc.line(L, y, R, y);
   y += 6;
   para("Berikut catatan pertarunganmu melawan Arca Durgaraksa di Kerajaan Swarnadwipa.", 10.5, "normal", 3);
-  para(`Nama Siswa: ${student.nama}`, 10.5);
+  para(`Nama Mahasiswa: ${student.nama}`, 10.5);
   para(`Kelas: ${student.kelas}`, 10.5);
   para(`Tanggal: ${date}`, 10.5, "normal", latihan ? 1.5 : 4);
-  if (latihan) para("Mode latihan: peluang diubah lewat Setting Peluang; hasil ini tidak dipakai LKPD.", 10, "italic", 4);
+  if (latihan) para("Mode latihan: peluang diubah lewat Setting Peluang; hasil ini tidak dipakai LKM.", 10, "italic", 4);
 
   // tabel hasil
   const cols = [["Tahap", 18], ["Kondisi", 92], ["p", 22], ["Hasil", 50]];

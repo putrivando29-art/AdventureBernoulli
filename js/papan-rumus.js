@@ -1,4 +1,4 @@
-// Papan rumus LKPD, mirip keyboard GeoGebra: dibuka lewat tombol Papan Rumus, lalu tombolnya menulis
+// Papan rumus LKM, mirip keyboard GeoGebra: dibuka lewat tombol Rumus (sesuai petunjuk LKM), lalu tombolnya menulis
 // langsung ke kotak jawaban yang sedang dipilih. Pangkat dan indeks memakai karakter Unicode (x², pˣ, q₁),
 // jadi pecahan bertingkat tidak bisa; pecahan ditulis dengan garis miring, misalnya 1/2.
 import { $, printableText } from "./ui.js";
@@ -212,13 +212,13 @@ function tampakkan(el) {
   else if (r.top < 8) window.scrollBy(0, r.top - 8);
 }
 
-/** Tombol Papan Rumus tampil hanya saat LKPD masih bisa diisi. */
+/** Tombol Rumus tampil hanya saat LKM masih bisa diisi. */
 export function syncTombol() {
   $("#btn-papan").hidden = st.buka || !st.aktif();
   if (st.buka && !st.aktif()) tutupPapan();
 }
 
-/** aktif(): apakah LKPD sedang bisa diisi (bukan terkunci). */
+/** aktif(): apakah LKM sedang bisa diisi (bukan terkunci). */
 export function initPapanRumus({ aktif }) {
   st.aktif = aktif;
   const papan = $("#papan-rumus");

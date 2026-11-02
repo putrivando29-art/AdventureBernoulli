@@ -46,7 +46,7 @@ export function syncStart() {
   $("#start-hint").hidden = filled;
 }
 
-/** Menu utama: Nama Siswa dan Kelas wajib diisi sebelum mulai. */
+/** Menu utama: Nama Mahasiswa dan Kelas wajib diisi sebelum mulai. */
 export function initMenu(onStart) {
   document.addEventListener("click", (ev) => {
     const el = ev.target.closest("[data-go]");
@@ -75,7 +75,7 @@ export function initMenu(onStart) {
     classInput.setAttribute("aria-invalid", String(!kelas));
     const msg = $("#menu-msg");
     if (!nama || !kelas) {
-      msg.textContent = !nama && !kelas ? "Nama Siswa dan Kelas wajib diisi." : !nama ? "Nama Siswa wajib diisi." : "Kelas wajib diisi.";
+      msg.textContent = !nama && !kelas ? "Nama Mahasiswa dan Kelas wajib diisi." : !nama ? "Nama Mahasiswa wajib diisi." : "Kelas wajib diisi.";
       (!nama ? nameInput : classInput).focus();
       return;
     }
@@ -267,7 +267,7 @@ export function showStageResult(stage, record, isLast) {
 // ---------- rekap ----------
 export const RECAP_INTRO = "Berikut catatan pertarunganmu melawan Arca Durgaraksa di Kerajaan Swarnadwipa.";
 
-/** Rekap ringkas: hanya hasil menang dan kalah. Perhitungan peluang dikerjakan siswa di LKPD. */
+/** Rekap ringkas: hanya hasil menang dan kalah. Perhitungan peluang dikerjakan mahasiswa di LKM. */
 export function renderRecap({ student, stages, records, closing, date, latihan }) {
   const b = B();
   const summary = b.summarize(records.map((r, i) => ({ p: stages[i].p, x: r.x })));
@@ -283,8 +283,8 @@ export function renderRecap({ student, stages, records, closing, date, latihan }
       <h2 id="recap-title">Rekap Adventure Bernoulli</h2>
       <p class="muted">Universitas Sriwijaya · by Kelompok 17</p>
       <p>${RECAP_INTRO}</p>
-      <p>Nama Siswa: <strong>${escapeHtml(student.nama)}</strong> · Kelas: <strong>${escapeHtml(student.kelas)}</strong> · ${escapeHtml(date)}</p>
-      ${latihan ? '<p class="latihan-note">Mode latihan: peluang diubah lewat Setting Peluang, jadi hasil ini tidak disimpan dan tidak dipakai LKPD.</p>' : ""}
+      <p>Nama Mahasiswa: <strong>${escapeHtml(student.nama)}</strong> · Kelas: <strong>${escapeHtml(student.kelas)}</strong> · ${escapeHtml(date)}</p>
+      ${latihan ? '<p class="latihan-note">Mode latihan: peluang diubah lewat Setting Peluang, jadi hasil ini tidak disimpan dan tidak dipakai LKM.</p>' : ""}
     </header>
     ${closing ? `<div class="resi-line"><div class="portrait" aria-hidden="true"><i></i><i></i></div><p>${escapeHtml(closing)}</p></div>` : ""}
     <div class="table-scroll"><table class="data-table">
@@ -300,7 +300,7 @@ export function renderRecap({ student, stages, records, closing, date, latihan }
     <div class="row-buttons" id="recap-buttons">
       <button type="button" class="btn btn-primary btn-lg" id="btn-pdf">Unduh PDF Rekap</button>
       <button type="button" class="btn" id="btn-pdf-open">Buka PDF di Tab Baru</button>
-      <button type="button" class="btn btn-primary" id="btn-recap-lkpd" hidden>Kerjakan LKPD</button>
+      <button type="button" class="btn btn-primary" id="btn-recap-lkpd" hidden>Kerjakan LKM</button>
       <button type="button" class="btn" id="btn-menu">Kembali ke Menu Utama</button>
     </div>`;
   showOverlay("#ov-recap");

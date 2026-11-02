@@ -177,7 +177,7 @@ export class Adventure {
         location.reload();
       }
       if (e.target.closest("#btn-save-retry")) this.saveToAccount();
-      // LKPD dibuka lewat muat ulang halaman (game 3D dimatikan); hasil sudah tersimpan di akun
+      // LKM dibuka lewat muat ulang halaman (game 3D dimatikan); hasil sudah tersimpan di akun
       if (e.target.closest("#btn-recap-lkpd") && this.saved) location.search = "?lkpd=1";
       const pdfBtn = e.target.closest("#btn-pdf, #btn-pdf-open");
       // klik ganda dalam 1,5 detik diabaikan agar PDF tidak terunduh atau terbuka dua kali
@@ -743,8 +743,12 @@ export class Adventure {
       await akun.simpanPermainan({ p: this.stages.map((s) => s.p), x, karakter: this.characterLabel(), mulai: this.mulai });
       this.saved = true;
       msg.className = "form-msg save-msg txt-win";
-      msg.textContent = "Hasil permainan tersimpan di akunmu. Sekarang kerjakan LKPD.";
-      ui.$("#btn-recap-lkpd").hidden = false;
+      // petunjuk LKM: game dimainkan minimal sampai tahap 3
+      const sampai3 = x[2] === 0 || x[2] === 1;
+      msg.textContent = sampai3
+        ? "Hasil permainan tersimpan di akunmu. Sekarang kerjakan LKM."
+        : "Hasil permainan tersimpan di akunmu. Untuk LKM, mainkan minimal sampai tahap 3: kembali ke menu, lalu tekan Mulai Petualangan lagi.";
+      ui.$("#btn-recap-lkpd").hidden = !sampai3;
     } catch (err) {
       console.error("Gagal menyimpan permainan:", err);
       msg.className = "form-msg save-msg";

@@ -88,7 +88,7 @@ export function initMasuk() {
     if (!email.trim()) return pesan(msg, "Email wajib diisi.");
     if (sandi.length < 6) return pesan(msg, "Kata sandi minimal 6 karakter.");
     if (sandi !== $("#daftar-sandi2").value) return pesan(msg, "Kata sandi tidak sama.");
-    if (!nama || !kelas) return pesan(msg, !nama && !kelas ? "Nama Siswa dan Kelas wajib diisi." : !nama ? "Nama Siswa wajib diisi." : "Kelas wajib diisi.");
+    if (!nama || !kelas) return pesan(msg, !nama && !kelas ? "Nama Mahasiswa dan Kelas wajib diisi." : !nama ? "Nama Mahasiswa wajib diisi." : "Kelas wajib diisi.");
     sibuk($("#btn-daftar"), true, "Daftar");
     try {
       await akun.daftar(email, sandi, nama, kelas);
@@ -133,7 +133,7 @@ export function initMasuk() {
       console.warn("Profil belum bisa dibaca:", e);
     }
     syncStart();
-    // datang dari tombol Kerjakan LKPD di rekap
+    // datang dari tombol Kerjakan LKM di rekap
     const url = new URL(location.href);
     if (url.searchParams.has("lkpd")) {
       url.searchParams.delete("lkpd");

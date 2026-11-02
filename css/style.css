@@ -631,10 +631,10 @@ kbd {
 .lk-hint { margin: 0 0 .6rem; }
 .lk-viewport { overflow-x: auto; overflow-y: hidden; touch-action: pan-x pan-y; padding: 6px 0; background: #2b241b; border-radius: 8px; }
 .lk-sheet {
-  position: relative; margin: 0 auto; aspect-ratio: 1241 / 1754; background: #fff;
+  position: relative; margin: 0 auto; aspect-ratio: 1240 / 1754; background: #faf6ee;
   font-family: Arial, "Helvetica Neue", Helvetica, "Liberation Sans", sans-serif;
-  /* 22 piksel pada lebar asli 1241, sama dengan ukuran huruf di PDF unduhan */
-  font-size: calc(var(--sw, 800) * .01773px); color: #1d3f8f; color-scheme: light;
+  /* 22 piksel pada lebar asli 1240, sama dengan ukuran huruf di PDF unduhan */
+  font-size: calc(var(--sw, 800) * .017742px); color: #1d3f8f; color-scheme: light;
   box-shadow: 0 2px 12px rgba(0, 0, 0, .45);
 }
 .lk-sheet-img { position: absolute; inset: 0; width: 100%; height: 100%; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; pointer-events: none; }
@@ -683,6 +683,12 @@ kbd {
 .lk-hasil-id dd, .lk-hasil-jawab dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .lk-hasil-jawab { display: grid; gap: .6rem; margin: 0; }
 .lk-hasil-jawab div { padding-bottom: .5rem; border-bottom: 1px solid var(--line); }
+.materi h3 { font-size: 1.15rem; color: var(--accent); margin: 1.2rem 0 .4rem; }
+.materi h3:first-child { margin-top: 0; }
+.materi h4 { margin: 1rem 0 .4rem; color: var(--text); }
+.materi ul { padding-left: 1.2rem; }
+.materi .data-table { margin: .4rem 0 .8rem; }
+.materi-rumus { margin: .5rem 0; padding: .6rem .9rem; border-left: 3px solid var(--accent); background: rgba(246, 196, 83, .08); font-weight: 700; font-size: 1.05rem; }
 #ubah-alasan { width: 100%; font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: .6em .75em; resize: vertical; }
 
 /* Papan rumus, tata letak seperti keyboard GeoGebra */

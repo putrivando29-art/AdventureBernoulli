@@ -5,7 +5,7 @@ import { $ } from "./ui.js";
 const NAMES = { resi: "Resi Bayang", arca: "Arca Durgaraksa" };
 
 /**
- * lines: [{ who: "resi" | "arca" | "player", text }]. Teks "{nama}" diganti nama siswa.
+ * lines: [{ who: "resi" | "arca" | "player", text }]. Teks "{nama}" diganti nama mahasiswa.
  * opts: { playerName, playerColors: { skin, hair, shirt }, onLine(line) }
  */
 export function playCutscene(lines, opts) {

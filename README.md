@@ -132,7 +132,7 @@ berguling, **sapuan** (satu lengan ditarik ke samping) dihindari dengan jongkok,
 - **Setting Peluang** (menu utama) untuk mencoba-coba p tiap tahap sebagai **latihan**: angka di antara
   0 dan 1 dengan paling banyak dua desimal, setiap tahap harus berbeda. Peluang latihan hanya berlaku di
   tab browser itu sampai tab ditutup atau tombol Kembalikan Bawaan ditekan. Permainan biasa selalu
-  memakai p bawaan; hasil latihan tidak disimpan ke akun dan tidak dipakai LKPD.
+  memakai p bawaan; hasil latihan tidak disimpan ke akun dan tidak dipakai LKM.
 - p dibaca sekali saat petualangan dimulai lalu dibekukan; selama sesi p tidak berubah karena
   cara bermain, sisa HP, pilihan karakter, atau hasil tahap sebelumnya.
 
@@ -157,16 +157,16 @@ berguling, **sapuan** (satu lengan ditarik ke samping) dihindari dengan jongkok,
 
 - Butuh internet untuk memuat Three.js, jsPDF, dan Firebase. Tanpa internet, game menampilkan pesan
   "Game membutuhkan koneksi internet. Periksa koneksi lalu muat ulang halaman."
-- Siswa wajib masuk dengan email dan kata sandi (Firebase Authentication). Hasil permainan ber-p
+- Mahasiswa wajib masuk dengan email dan kata sandi (Firebase Authentication). Hasil permainan ber-p
   bawaan disimpan ke akun di Firestore saat rekap tampil; permainan latihan (p diubah lewat Setting
-  Guru) tidak disimpan. Pemasangan Firebase: `docs/tutorial-firebase.md`; aturan akses: `firestore.rules`.
+  Dosen) tidak disimpan. Pemasangan Firebase: `docs/tutorial-firebase.md`; aturan akses: `firestore.rules`.
 - Durasi fase hack and slash diatur lewat `power` tiap tahap dan `potions` di `js/config.js`.
-  Durasi untuk siswa sungguhan masih perkiraan dan perlu dicek saat uji coba.
-- Siswa juga bisa membuka Setting Peluang dan mengubah p sebelum bermain. Periksa baris "Sumber
-  nilai p" di PDF rekap siswa.
+  Durasi untuk mahasiswa sungguhan masih perkiraan dan perlu dicek saat uji coba.
+- Mahasiswa juga bisa membuka Setting Peluang dan mengubah p sebelum bermain. Periksa baris "Sumber
+  nilai p" di PDF rekap mahasiswa.
 - Badge hosting (misalnya "Powered by Netlify") muncul di pojok kanan bawah dan tidak bisa
   dihapus dari kode game. Area itu sengaja dikosongkan dari tombol dan teks penting.
-- QTE bisa disalahpahami sebagai penentu hasil. Guru sebaiknya menegaskan bahwa hasil hanya
+- QTE bisa disalahpahami sebagai penentu hasil. Dosen sebaiknya menegaskan bahwa hasil hanya
   dari undian; pertanyaan refleksi nomor 2 dan 3 di PDF membantu membahasnya.
 - Membuka `index.html` dengan klik dua kali menampilkan pesan cara membuka yang benar, karena
   game memang tidak bisa berjalan dari `file://`.
@@ -188,7 +188,7 @@ tests/bernoulli.test.js
 js/  bernoulli.js  config.js  main.js  player.js  boss.js  mystic.js  arena.js
      controls.js  combat.js  stages.js  ui.js  shaders.js  pdf.js  audio.js  browser-tests.js
      cutscene.js  qte.js  potions.js  spells.js  settings.js  teacher.js
-     firebase-config.js  akun.js  masuk.js  lkpd.js  lkpd-lembar.js  papan-rumus.js
-assets/lkpd/hal-1.png ... hal-5.png   gambar asli halaman LKPD draf kelompok (jangan diedit)
+     firebase-config.js  akun.js  masuk.js  lkpd.js  lkpd-lembar.js  papan-rumus.js  materi.js
+assets/lkpd/hal-1.png ... hal-5.png   gambar asli halaman LKM revisi kelompok (jangan diedit)
 firestore.rules, docs/
 ```
