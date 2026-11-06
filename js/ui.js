@@ -254,6 +254,21 @@ export function showStageResult(stage, record, isLast) {
 // ---------- rekap ----------
 export const RECAP_INTRO = "Berikut catatan pertarunganmu melawan Arca Durgaraksa di Kerajaan Swarnadwipa.";
 
+/** Penjelasan saat peluang dibuka di rekap: peluang tadi sudah diatur, dan hasil ditentukan oleh undian dengan peluang itu. */
+export function penjelasanPeluang(stages, records) {
+  const b = B();
+  const main = stages.map((s, i) => ({ id: s.id, p: s.p, x: records[i].x })).filter((t) => t.x === 0 || t.x === 1);
+  if (!main.length) return [];
+  const out = [
+    "Inilah peluang menang yang sudah diatur untuk setiap tahap tadi. Menang atau kalahmu di setiap tahap ditentukan oleh satu undian dengan peluang itu, bukan oleh cara bermainmu.",
+  ];
+  const kejutan = main.find((t) => t.x === 1 && t.p <= 40) || main.find((t) => t.x === 0 && t.p >= 60);
+  if (kejutan && kejutan.x === 1) out.push(`Contohnya tahap ${kejutan.id}: peluang menangmu hanya ${b.fmtP(kejutan.p)}, tetapi kamu menang. Peluang kecil tidak berarti pasti kalah.`);
+  else if (kejutan) out.push(`Contohnya tahap ${kejutan.id}: peluang menangmu ${b.fmtP(kejutan.p)}, tetapi kamu kalah. Peluang besar tidak menjamin menang.`);
+  else out.push(`Contohnya tahap ${main[0].id}: peluang menangmu ${b.fmtP(main[0].p)} dan kamu ${main[0].x === 1 ? "menang" : "kalah"}. Peluang besar tidak menjamin menang, dan peluang kecil tidak berarti pasti kalah.`);
+  return out;
+}
+
 /** Rekap ringkas: hanya hasil menang dan kalah. Perhitungan peluang dikerjakan mahasiswa di LKM. */
 export function renderRecap({ student, stages, records, closing, date, latihan }) {
   const b = B();
@@ -278,6 +293,7 @@ export function renderRecap({ student, stages, records, closing, date, latihan }
       <thead><tr><th>Tahap</th><th>Kondisi</th><th>Peluang menang (p)</th><th>Hasil</th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div>
+    ${penjelasanPeluang(stages, records).map((t) => `<p class="recap-explain">${escapeHtml(t)}</p>`).join("")}
     ${summary.played === 0
       ? "<p><strong>Belum ada percobaan yang dilakukan.</strong></p>"
       : `<p>Tahap dimainkan: <strong>${summary.played}</strong> · Menang: <strong>${summary.wins}</strong> · Kalah: <strong>${summary.losses}</strong> · Tidak dimainkan: <strong>${summary.notPlayed}</strong></p>`}

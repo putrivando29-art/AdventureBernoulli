@@ -205,6 +205,7 @@ kbd {
 .portrait i:first-child { left: 17px; }
 .portrait i:last-child { right: 17px; }
 .resi-line { display: flex; gap: 12px; align-items: flex-start; margin: .8rem 0; padding: 10px; background: rgba(58, 31, 92, .35); border-radius: 10px; }
+.recap-explain { margin: .6rem 0; padding: .6rem .8rem; border-left: 3px solid var(--accent); background: rgba(246, 196, 83, .08); border-radius: 0 8px 8px 0; }
 .resi-line p { margin: 0 0 .3rem; font-weight: 500; color: var(--text-2); }
 
 /* overlay */

@@ -154,6 +154,10 @@ Rekap sengaja **hanya berisi hasil menang dan kalah**; semua perhitungan peluang
 - Tabel 4 kolom: Tahap, Kondisi, Peluang menang (p), Hasil (Menang / Kalah / Tidak dimainkan). Rekap adalah tempat
   pertama mahasiswa melihat peluang. Peluang kalah sengaja tidak ditulis karena soal 2 langkah 2 LKM meminta
   mahasiswa menentukannya sendiri.
+- Di bawah tabel ada penjelasan: "Inilah peluang menang yang sudah diatur untuk setiap tahap tadi. Menang atau
+  kalahmu di setiap tahap ditentukan oleh satu undian dengan peluang itu, bukan oleh cara bermainmu." ditambah
+  satu contoh dari hasil mahasiswa sendiri (diutamakan tahap yang menang dengan peluang kecil atau kalah dengan
+  peluang besar). Penjelasan yang sama ada di PDF rekap.
 - Ringkasan: Tahap dimainkan, Menang, Kalah, Tidak dimainkan. Jika tidak ada tahap dimainkan: "Belum ada
   percobaan yang dilakukan."
 - Status penyimpanan ke akun: "Menyimpan hasil ke akunmu...", "Koneksi lambat. Jangan tutup halaman ini; ...",
@@ -428,8 +432,8 @@ js/  bernoulli.js  config.js  main.js  player.js  boss.js  mystic.js  arena.js
 - **Peluang dirahasiakan selama bermain (saran dosen):** menu, Setting Peluang, pembuka tahap, HUD, Serangan
   Penentu, dan hasil tahap tidak menampilkan angka peluang; peluang menang tiap tahap baru diperlihatkan di
   rekap. Akibatnya kalimat LKM revisi yang menyuruh membaca kotak peluang selama bermain (petunjuk game nomor 3,
-  soal 2 langkah 1, soal 5) perlu direvisi kelompok. Dialog Resi yang menyebut angka peluang menunggu persetujuan
-  teks pengganti.
+  soal 2 langkah 1, soal 5) perlu direvisi kelompok. Dialog Resi tidak menyebut angka; Resi hanya menyatakan
+  bahwa peluang menang dan kalah sudah diatur sebelum bertarung dan angkanya diberitahukan di akhir.
 - **LKM 1:1 dengan LKM revisi kelompok** (menggantikan LKPD draf lama; istilah siswa menjadi mahasiswa, LKPD
   menjadi LKM, guru menjadi dosen): gambar asli tidak diubah; isian ditempel di atas kotak dan garisnya; Nama,
   NIM, dan Kelas diisi di sampul; titik-titik menjadi isian berhuruf tebal; satu halaman per layar; semua isian

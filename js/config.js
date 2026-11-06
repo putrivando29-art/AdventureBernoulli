@@ -2,7 +2,7 @@
 // p disimpan dalam perseratus (60 berarti 0,6) agar cocok dengan js/bernoulli.js.
 // Ini nilai p BAWAAN. Setting Peluang di menu utama (js/settings.js) hanya mengganti p untuk latihan
 // sebelum permainan dimulai; selama sesi berjalan p tidak berubah.
-// Teks {p} dan {q} di dialog diganti peluang menang dan kalah tahap itu (dalam persen).
+// Dialog tidak menyebut angka peluang: peluang dirahasiakan selama bermain dan baru diperlihatkan di rekap (saran dosen).
 // Perlengkapan (power), ramuan, sihir, dan QTE hanya memengaruhi fase hack and slash dan animasi, BUKAN p.
 // Serangan Penentu dipicu oleh yang lebih dulu terjadi: HP boss 20% atau HP player 1.
 // Keduanya satu percobaan Bernoulli yang sama dengan peluang p tahap itu.
@@ -36,7 +36,7 @@ export const CONFIG = deepFreeze({
       p: 50,
       gear: { sword: "wood", armor: null, shield: null, cape: false },
       boss: "normal",
-      resi: "Peluangmu menang {p}, peluangmu kalah {q}. Jumlahnya selalu 100%.",
+      resi: "Peluang menang dan kalahmu sudah diatur sebelum pertarungan dimulai. Angkanya baru kuberitahu setelah kamu selesai bermain.",
       cutscene: [
         { who: "resi", text: "Kau sudah bangun, Pengembara. Inilah ruang singgasana Swarnadwipa." },
         { who: "arca", text: "SIAPA BERANI MENGUSIK SINGGASANA INI?" },
@@ -53,7 +53,7 @@ export const CONFIG = deepFreeze({
       p: 60,
       gear: { sword: "iron", armor: null, shield: null, cape: false },
       boss: "normal",
-      resi: "Dengan pedang ini peluang menangmu {p}. Tapi {p} bukan berarti pasti menang.",
+      resi: "Pedang baru sudah di tanganmu. Peluang menang dan kalahmu di tahap ini juga sudah diatur, dan angkanya kuberitahu di akhir.",
       cutscene: [
         { who: "resi", text: "Ambillah pedang besi ini. Bilahnya jauh lebih tajam." },
         { who: "arca", text: "Pedang baru tidak membuatmu kebal, manusia kecil." },
@@ -69,7 +69,7 @@ export const CONFIG = deepFreeze({
       p: 70,
       gear: { sword: "iron", armor: "silver", shield: null, cape: false },
       boss: "normal",
-      resi: "Dengan pedang dan armor, peluang menangmu {p}. Kekalahan masih mungkin terjadi.",
+      resi: "Pedang dan armor melindungimu. Peluang tahap ini sudah diatur sejak awal, dan kekalahan tetap mungkin terjadi.",
       cutscene: [
         { who: "resi", text: "Armor perak ini warisan para penjaga kerajaan. Pakailah." },
         { who: "player", text: "Berat juga... tapi aku siap!" },
@@ -85,7 +85,7 @@ export const CONFIG = deepFreeze({
       p: 40,
       gear: { sword: "knight", armor: "silver", shield: "knight", cape: false },
       boss: "strong",
-      resi: "Sang arca bangkit lebih kuat. Peluang menangmu kini {p}, peluang kalahmu {q}.",
+      resi: "Sang arca bangkit lebih kuat. Peluang menang dan kalahmu untuk tahap ini sudah diatur, tapi masih kurahasiakan.",
       cutscene: [
         { who: "arca", text: "Batu-batuku menyatu kembali... LEBIH KERAS DARI SEBELUMNYA!" },
         { who: "resi", text: "Ia menyerap kristal ungu. Bawalah pedang dan perisai ksatria ini." },
@@ -101,7 +101,7 @@ export const CONFIG = deepFreeze({
       p: 30,
       gear: { sword: "flame", armor: "gold", shield: "gold", cape: true },
       boss: "enraged",
-      resi: "Sang arca murka. Peluang menangmu {p}. Apa pun peluangnya, hasilnya baru diketahui setelah undian.",
+      resi: "Sang arca murka. Peluangnya sudah diatur; hasilnya baru diketahui setelah undian, dan angkanya kau lihat di akhir.",
       cutscene: [
         { who: "arca", text: "CUKUP! RASAKAN MURKA SANG PENJAGA!" },
         { who: "player", text: "Pedang api ini akan menjawabmu." },
@@ -119,7 +119,7 @@ export const CONFIG = deepFreeze({
       "Tidak apa-apa beristirahat. Percobaan yang tidak dilakukan tidak punya hasil, jadi tidak dihitung menang ataupun kalah.",
     penutup: "Lihatlah catatanmu. Setiap tahap adalah satu percobaan Bernoulli dengan peluangnya sendiri.",
     // Serangan Penentu yang dipicu saat PLAYER sekarat (peluangnya tetap p tahap itu)
-    sekarat: "Kau sekarat! Satu serangan balik terakhir akan diundi. Peluangnya tetap sama: {p}.",
+    sekarat: "Kau sekarat! Satu serangan balik terakhir akan diundi dengan peluang yang sama seperti tahap ini.",
     beruntung: [
       "Hahaha! Kau sangat beruntung, Pengembara!",
       "Serangan balikmu tepat mengenai retakan di dadanya. Ayo, kita lanjutkan!",

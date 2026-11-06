@@ -1,5 +1,6 @@
 // Rekap PDF dengan jsPDF (window.jspdf.jsPDF dari CDN): hanya hasil menang dan kalah.
 // Perhitungan peluang dikerjakan mahasiswa di LKM.
+import { penjelasanPeluang } from "./ui.js";
 
 export function pdfFileName(nama) {
   const safe = String(nama).normalize("NFKD").replace(/[^A-Za-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
@@ -69,7 +70,9 @@ export function buildRecapPdf({ student, stages, records, date, latihan }) {
     const r = records[i];
     drawRow([s.id, s.kondisi, B.fmtP(s.p), r.x === 1 ? "Menang" : r.x === 0 ? "Kalah" : "Tidak dimainkan"]);
   });
-  y += 6;
+  y += 5;
+  penjelasanPeluang(stages, records).forEach((t) => para(t, 10.5, "normal", 2));
+  y += 2;
 
   // ringkasan
   const summary = B.summarize(records.map((r, i) => ({ p: stages[i].p, x: r.x })));
