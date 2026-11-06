@@ -266,8 +266,8 @@ export class Adventure {
     ui.$("#intro-title").textContent = s.nama;
     ui.$("#intro-player").textContent = s.kondisiPlayer;
     ui.$("#intro-boss").textContent = s.kondisiBoss;
-    ui.$("#intro-prob").innerHTML = ui.probBoxHtml(s.p);
-    ui.$("#intro-prob-hint").textContent = ui.probHint(s.p);
+    ui.$("#intro-prob").innerHTML = ui.probHiddenHtml();
+    ui.$("#intro-prob-hint").textContent = "Hasil tahap ini ditentukan oleh satu undian dengan peluang menang yang sudah ditetapkan sebelum bertarung.";
     ui.$("#intro-resi").innerHTML =
       (i === 0 ? `<p>${ui.escapeHtml(CONFIG.dialog.pembuka)}</p>` : "") + `<p>${ui.escapeHtml(s.resi)}</p>`;
     // Tahap 1: daftar kontrol sesuai perangkat

@@ -1,13 +1,13 @@
 // Layar Setting Peluang: mencoba-coba p tiap tahap sebagai latihan (hanya di tab ini) dan mengembalikan bawaan.
 import { CONFIG } from "./config.js";
-import { loadPs, savePs, clearPs, defaultPs, parseP, validatePs, SOURCE_LABEL } from "./settings.js";
+import { loadPs, savePs, clearPs, defaultPs, parseP, validatePs } from "./settings.js";
 import { $, probParts, escapeHtml } from "./ui.js";
+// Peluang bawaan dirahasiakan sampai rekap (saran dosen): menu tidak menampilkannya dan form latihan dimulai kosong.
 
 const B = () => window.Bernoulli;
 
 export function renderPSource() {
-  const { ps, source } = loadPs();
-  $("#p-source").textContent = `Peluang menang tiap tahap: ${ps.map((p) => B().fmtP(p)).join(" · ")} (${SOURCE_LABEL[source]})`;
+  const { ps } = loadPs();
   // p bukan bawaan: permainan hanya latihan, tidak disimpan ke akun dan tidak dipakai LKM
   $("#latihan-note").hidden = ps.join() === defaultPs().join();
 }
@@ -17,7 +17,7 @@ function renderRows(ps) {
     .map(
       (s, i) => `<div class="teacher-row">
         <label class="field" for="tp-${i}"><span>${escapeHtml(s.nama)}</span>
-          <input id="tp-${i}" type="text" inputmode="decimal" value="${B().fmtP(ps[i])}" autocomplete="off"></label>
+          <input id="tp-${i}" type="text" inputmode="decimal" value="${ps ? B().fmtP(ps[i]) : ""}" placeholder="contoh 0,45" autocomplete="off"></label>
         <p class="teacher-preview" id="tpv-${i}"></p>
       </div>`
     )
@@ -29,7 +29,7 @@ function preview(i) {
   const p = parseP($("#tp-" + i).value);
   const el = $("#tpv-" + i);
   if (p === null) {
-    el.innerHTML = `<span class="txt-lose">Isi angka di antara 0 dan 1, contoh 0,45</span>`;
+    el.innerHTML = $("#tp-" + i).value.trim() ? `<span class="txt-lose">Isi angka di antara 0 dan 1, contoh 0,45</span>` : `<span class="muted">Isi angka di antara 0 dan 1, contoh 0,45</span>`;
     return;
   }
   const t = probParts(p);
@@ -50,7 +50,8 @@ export function initTeacher() {
   renderPSource();
   document.addEventListener("click", (e) => {
     if (e.target.closest('[data-go="teacher"]')) {
-      renderRows(loadPs().ps);
+      const { ps, source } = loadPs();
+      renderRows(source === "guru" ? ps : null);
       message("", true);
     }
   });
@@ -83,7 +84,7 @@ export function initTeacher() {
   });
   $("#btn-teacher-reset").addEventListener("click", () => {
     clearPs();
-    renderRows(defaultPs());
+    renderRows(null);
     renderPSource();
     message("Peluang dikembalikan ke nilai bawaan.", true);
   });

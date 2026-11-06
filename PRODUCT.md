@@ -92,8 +92,8 @@ dari profil, bisa diubah dan ikut tersimpan ke profil saat mulai), tombol **Mula
 jika keduanya terisi; jika belum, muncul "Isi Nama Mahasiswa dan Kelas untuk memulai."), dan tombol
 **Kerjakan LKM**.
 
-Di bawahnya untuk semua: tombol **Cara Bermain** dan **Setting Peluang**, baris sumber peluang ("Peluang menang
-tiap tahap: 0,5 · 0,6 · 0,7 · 0,4 · 0,3 (nilai bawaan game)"), dan, jika peluang latihan aktif, catatan "Mode
+Di bawahnya untuk semua: tombol **Cara Bermain** dan **Setting Peluang** (tidak ada angka peluang di menu, karena
+peluang dirahasiakan sampai rekap), dan, jika peluang latihan aktif, catatan "Mode
 latihan: peluang diubah lewat Setting Peluang, jadi hasil permainan tidak disimpan dan tidak dipakai LKM."
 dengan tombol **Kembali ke Peluang Bawaan**.
 
@@ -106,7 +106,7 @@ lanjut), kontrol laptop dan HP dalam format "tombol: aksi", lalu tips.
 ### 6.3 Setting Peluang (sudah jalan, hanya latihan)
 
 - Mengisi p tiap tahap: angka di antara 0 dan 1, paling banyak dua desimal (contoh 0,45), setiap tahap
-  berbeda.
+  berbeda. Kotaknya dimulai kosong; peluang bawaan tidak ditulis di layar ini agar tetap rahasia sampai rekap.
 - Tombol **Pakai untuk Latihan** dan **Kembalikan Bawaan**.
 - Peluang latihan hanya berlaku di tab browser itu (sessionStorage) sampai tab ditutup atau dikembalikan.
 - Permainan latihan ditandai "Mode latihan" di rekap dan PDF, **tidak disimpan ke akun, dan tidak dipakai LKM**.
@@ -121,17 +121,17 @@ Pilih. Hanya tampilan.
 
 1. **Percakapan singkat** gaya visual novel: Resi Bayang, Arca Durgaraksa, dan pemain. Ketuk atau Enter untuk
    lanjut, Lewati untuk melewati.
-2. **Pembuka tahap**: nama tahap, kondisi pemain dan arca, kotak peluang ("Peluang menang: 50% (1/2 = 0,5)"
-   dan "Peluang kalah: ..."), keterangan "Peluang bukan jaminan: dari 100 pertarungan seperti ini, kira-kira
-   50 berakhir menang.", pesan Resi, dan di tahap 1 daftar kontrol. Tombol **Mulai Pertarungan** dan
+2. **Pembuka tahap**: nama tahap, kondisi pemain dan arca, kotak "Peluang menang dan kalah tahap ini dirahasiakan.
+   Kamu akan melihatnya di rekap setelah selesai bermain.", keterangan "Hasil tahap ini ditentukan oleh satu undian
+   dengan peluang menang yang sudah ditetapkan sebelum bertarung.", pesan Resi, dan di tahap 1 daftar kontrol. Tombol **Mulai Pertarungan** dan
    **Berhenti dan Lihat Rekap**.
-3. **Fase hack and slash**: HUD (nama tahap, HP pemain, bar HP arca dengan tanda 20%, kotak peluang ringkas
-   Menang/Kalah, tabel mini T1 sampai T5, tombol jeda); ramuan dan gulungan sihir muncul di arena.
+3. **Fase hack and slash**: HUD (nama tahap, HP pemain, bar HP arca dengan tanda 20%, tulisan "Peluang: rahasia
+   sampai rekap", tabel mini T1 sampai T5, tombol jeda); ramuan dan gulungan sihir muncul di arena.
 4. **Serangan Penentu**: dipicu yang lebih dulu terjadi antara HP arca 20% ("gacha serangan") atau HP pemain
-   1 ("gacha kabur"). Bilah sinematik, potongan kamera, kotak peluang, catatan "Tombol yang muncul hanya
+   1 ("gacha kabur"). Bilah sinematik, potongan kamera, kotak peluang yang dirahasiakan, catatan "Tombol yang muncul hanya
    mengubah gaya serangan, bukan peluang menang", tiga QTE (hanya animasi), lalu satu undian dan hasil besar
-   MENANG (X = 1) atau KALAH (X = 0).
-5. **Hasil tahap**: judul hasil, baris "Tercatat: Tahap 1 · Tanpa perlengkapan · p = 0,5 · 1 - p = 0,5 · X = 1",
+   MENANG (X = 1) atau KALAH (X = 0). Baris "U < p" tidak ditampilkan karena memperlihatkan p.
+5. **Hasil tahap**: judul hasil, baris "Tercatat: Tahap 1 · Tanpa perlengkapan · X = 1" (tanpa p),
    baris pemicu, tombol **Lanjut ke Tahap Berikutnya** (di tahap 5: **Lihat Rekap**) dan **Berhenti dan Lihat
    Rekap**. Jika kalah, Resi Bayang membangkitkan pemain (efek dissolve) sebelum lanjut.
 
@@ -150,7 +150,10 @@ Rekap sengaja **hanya berisi hasil menang dan kalah**; semua perhitungan peluang
 - Judul "Rekap Adventure Bernoulli", Universitas Sriwijaya · by Kelompok 17, kalimat "Berikut catatan
   pertarunganmu melawan Arca Durgaraksa di Kerajaan Swarnadwipa.", Nama Mahasiswa, Kelas, tanggal.
 - Pesan penutup Resi Bayang.
-- Tabel 4 kolom: Tahap, Kondisi, p, Hasil (Menang / Kalah / Tidak dimainkan).
+- Kalimat pembuka ditambah "Peluang menang yang dirahasiakan selama bermain sekarang diperlihatkan."
+- Tabel 4 kolom: Tahap, Kondisi, Peluang menang (p), Hasil (Menang / Kalah / Tidak dimainkan). Rekap adalah tempat
+  pertama mahasiswa melihat peluang. Peluang kalah sengaja tidak ditulis karena soal 2 langkah 2 LKM meminta
+  mahasiswa menentukannya sendiri.
 - Ringkasan: Tahap dimainkan, Menang, Kalah, Tidak dimainkan. Jika tidak ada tahap dimainkan: "Belum ada
   percobaan yang dilakukan."
 - Status penyimpanan ke akun: "Menyimpan hasil ke akunmu...", "Koneksi lambat. Jangan tutup halaman ini; ...",
@@ -163,7 +166,7 @@ Rekap sengaja **hanya berisi hasil menang dan kalah**; semua perhitungan peluang
 ### 6.8 PDF rekap (sudah jalan)
 
 Isi sama dengan rekap: kepala (Adventure Bernoulli, Universitas Sriwijaya, by Kelompok 17), kalimat pembuka,
-Nama Mahasiswa, Kelas, Tanggal, catatan mode latihan bila ada, tabel Tahap, Kondisi, p, Hasil, dan ringkasan.
+Nama Mahasiswa, Kelas, Tanggal, catatan mode latihan bila ada, tabel Tahap, Kondisi, Peluang menang (p), Hasil, dan ringkasan.
 Tanpa rumus, tanpa refleksi, tanpa umpan balik aplikasi. Nama file `Rekap_Bernoulli_<nama>.pdf`.
 
 ## 7. LKM digital (sudah jalan untuk mahasiswa)
@@ -421,7 +424,12 @@ js/  bernoulli.js  config.js  main.js  player.js  boss.js  mystic.js  arena.js
   permainan terbaru sampai LKM dikirim.
 - **Rekap dan PDF rekap ringkas:** hanya menang dan kalah. Rumus, perhitungan, dan refleksi pindah ke LKM.
   Keputusan ini mengesampingkan aturan 2 (isi perhitungan PDF) dan aturan 4 khusus untuk rekap dan PDF.
-  Layar hasil tahap, HUD, dan Serangan Penentu tetap menampilkan p, 1 - p, dan X.
+  Layar hasil tahap dan Serangan Penentu tetap menampilkan X.
+- **Peluang dirahasiakan selama bermain (saran dosen):** menu, Setting Peluang, pembuka tahap, HUD, Serangan
+  Penentu, dan hasil tahap tidak menampilkan angka peluang; peluang menang tiap tahap baru diperlihatkan di
+  rekap. Akibatnya kalimat LKM revisi yang menyuruh membaca kotak peluang selama bermain (petunjuk game nomor 3,
+  soal 2 langkah 1, soal 5) perlu direvisi kelompok. Dialog Resi yang menyebut angka peluang menunggu persetujuan
+  teks pengganti.
 - **LKM 1:1 dengan LKM revisi kelompok** (menggantikan LKPD draf lama; istilah siswa menjadi mahasiswa, LKPD
   menjadi LKM, guru menjadi dosen): gambar asli tidak diubah; isian ditempel di atas kotak dan garisnya; Nama,
   NIM, dan Kelas diisi di sampul; titik-titik menjadi isian berhuruf tebal; satu halaman per layar; semua isian

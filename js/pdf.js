@@ -44,7 +44,7 @@ export function buildRecapPdf({ student, stages, records, date, latihan }) {
   if (latihan) para("Mode latihan: peluang diubah lewat Setting Peluang; hasil ini tidak dipakai LKM.", 10, "italic", 4);
 
   // tabel hasil
-  const cols = [["Tahap", 18], ["Kondisi", 92], ["p", 22], ["Hasil", 50]];
+  const cols = [["Tahap", 18], ["Kondisi", 82], ["Peluang menang (p)", 36], ["Hasil", 46]];
   const tableW = cols.reduce((a, c) => a + c[1], 0);
   const drawRow = (cells, bold, fill) => {
     doc.setFont("helvetica", bold ? "bold" : "normal");

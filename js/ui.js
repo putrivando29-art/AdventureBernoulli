@@ -95,16 +95,11 @@ export function probParts(p) {
   };
 }
 
-export function probBoxHtml(p) {
-  const t = probParts(p);
-  // persen dibungkus <b> agar bisa ditonjolkan; isi teks sama dengan probParts
-  const pct = (s) => s.replace(/(\d+(?:,\d+)?%)/, '<b class="pb-pct">$1</b>').replace(/(\(.*\))/, '<span class="pb-frac">$1</span>');
-  return `<span class="pb-win">${pct(t.win)}</span><span class="pb-sep" aria-hidden="true">|</span><span class="pb-lose">${pct(t.lose)}</span>`;
-}
+// Saran dosen: peluang menang dan kalah dirahasiakan selama bermain, baru diperlihatkan di rekap.
+export const PELUANG_RAHASIA = "Peluang menang dan kalah tahap ini dirahasiakan. Kamu akan melihatnya di rekap setelah selesai bermain.";
 
-/** Satu baris keterangan bahwa peluang bukan jaminan. */
-export function probHint(p) {
-  return `Peluang bukan jaminan: dari 100 pertarungan seperti ini, kira-kira ${p} berakhir menang.`;
+export function probHiddenHtml() {
+  return `<span class="pb-hidden">${PELUANG_RAHASIA}</span>`;
 }
 
 export const CONTROLS_LAPTOP = [
@@ -159,14 +154,7 @@ export function updateHud({ stageName, playerHp, bossHp, p, records }) {
     $("#hp-player-num").textContent = Math.round(playerHp);
   }
   if (bossHp !== undefined) $("#hp-boss").style.width = bossHp + "%";
-  if (p !== undefined) {
-    const t = probParts(p);
-    const b = B();
-    const q = b.complement(p);
-    $("#hud-prob").innerHTML =
-      `<span class="pb-win">Menang ${b.fmtPercent(p)} (${b.fraction(p)} = ${b.fmtP(p)})</span>` +
-      `<span class="pb-lose">Kalah ${b.fmtPercent(q)} (${b.fraction(q)} = ${b.fmtP(q)})</span>`;
-  }
+  if (p !== undefined) $("#hud-prob").innerHTML = '<span class="pb-hidden">Peluang: rahasia sampai rekap</span>';
   if (records) {
     $("#mini-table").innerHTML = records
       .map((r, i) => {
@@ -222,7 +210,7 @@ export function confirmStop() {
 
 // ---------- Serangan Penentu ----------
 export function showDecisive(p, sub = "") {
-  $("#decisive-prob").innerHTML = probBoxHtml(p);
+  $("#decisive-prob").innerHTML = probHiddenHtml();
   $("#decisive-sub").textContent = sub;
   const title = $("#decisive-title");
   title.classList.remove("slam");
@@ -239,9 +227,8 @@ export function showDecisiveResult(x, U, p) {
   r.textContent = x === 1 ? "MENANG (X = 1)" : "KALAH (X = 0)";
   r.hidden = false;
   $("#ov-decisive").className = "decisive " + (x === 1 ? "is-win" : "is-lose");
-  const u = $("#decisive-u");
-  u.textContent = `Bilangan acak U = ${B().fmtU(U)} ${x === 1 ? "<" : "≥"} p = ${B().fmtP(p)}`;
-  u.hidden = false;
+  // baris "U < p" tidak ditampilkan karena memperlihatkan p; peluang baru dibuka di rekap
+  $("#decisive-u").hidden = true;
 }
 
 export function hideDecisive() {
@@ -257,8 +244,8 @@ export function showStageResult(stage, record, isLast) {
   t.className = record.x === 1 ? "txt-win" : "txt-lose";
   const trig = record.trigger === "player" ? "kamu sekarat" : "arca sekarat";
   $("#result-line").textContent =
-    `Tercatat: Tahap ${stage.id} · ${stage.kondisi} · p = ${b.fmtP(stage.p)} · 1 - p = ${b.fmtP(b.complement(stage.p))} · X = ${record.x}`;
-  $("#result-trig").textContent = `Serangan Penentu dipicu saat ${trig}; peluangnya tetap p.`;
+    `Tercatat: Tahap ${stage.id} · ${stage.kondisi} · X = ${record.x}`;
+  $("#result-trig").textContent = `Serangan Penentu dipicu saat ${trig}; peluangnya tetap peluang tahap ini, yang diperlihatkan di rekap.`;
   $("#btn-next").textContent = isLast ? "Lihat Rekap" : "Lanjut ke Tahap Berikutnya";
   $("#btn-stop-result").hidden = isLast;
   showOverlay("#ov-result");
@@ -282,13 +269,13 @@ export function renderRecap({ student, stages, records, closing, date, latihan }
     <header class="recap-head">
       <h2 id="recap-title">Rekap Adventure Bernoulli</h2>
       <p class="muted">Universitas Sriwijaya · by Kelompok 17</p>
-      <p>${RECAP_INTRO}</p>
+      <p>${RECAP_INTRO} Peluang menang yang dirahasiakan selama bermain sekarang diperlihatkan.</p>
       <p>Nama Mahasiswa: <strong>${escapeHtml(student.nama)}</strong> · Kelas: <strong>${escapeHtml(student.kelas)}</strong> · ${escapeHtml(date)}</p>
       ${latihan ? '<p class="latihan-note">Mode latihan: peluang diubah lewat Setting Peluang, jadi hasil ini tidak disimpan dan tidak dipakai LKM.</p>' : ""}
     </header>
     ${closing ? `<div class="resi-line"><div class="portrait" aria-hidden="true"><i></i><i></i></div><p>${escapeHtml(closing)}</p></div>` : ""}
     <div class="table-scroll"><table class="data-table">
-      <thead><tr><th>Tahap</th><th>Kondisi</th><th>p</th><th>Hasil</th></tr></thead>
+      <thead><tr><th>Tahap</th><th>Kondisi</th><th>Peluang menang (p)</th><th>Hasil</th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div>
     ${summary.played === 0

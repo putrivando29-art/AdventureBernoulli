@@ -106,7 +106,6 @@
           <button type="button" class="btn" data-go="howto">Cara Bermain</button>
           <button type="button" class="btn" data-go="teacher">Setting Peluang</button>
         </div>
-        <p class="muted small p-source" id="p-source"></p>
         <div class="latihan-note" id="latihan-note" hidden>
           <p>Mode latihan: peluang diubah lewat Setting Peluang, jadi hasil permainan tidak disimpan dan tidak dipakai LKM.</p>
           <button type="button" class="btn" id="btn-latihan-off">Kembali ke Peluang Bawaan</button>
@@ -125,7 +124,7 @@
       </header>
       <div class="page-body prose">
         <p>Lawan Arca Durgaraksa dalam 5 tahap. Tebas sang arca sampai HP-nya tinggal 20%, lalu <strong>Serangan Penentu</strong> menentukan hasil akhirnya.</p>
-        <p>Setiap tahap adalah <strong>satu percobaan Bernoulli</strong>: hasilnya hanya dua, <strong>MENANG (X = 1)</strong> atau <strong>KALAH (X = 0)</strong>. Peluang menang <em>p</em> tiap tahap sudah ditetapkan dari awal dan tidak berubah karena cara bermainmu. Menang atau kalah, kamu tetap lanjut ke tahap berikutnya.</p>
+        <p>Setiap tahap adalah <strong>satu percobaan Bernoulli</strong>: hasilnya hanya dua, <strong>MENANG (X = 1)</strong> atau <strong>KALAH (X = 0)</strong>. Peluang menang <em>p</em> tiap tahap sudah ditetapkan dari awal dan tidak berubah karena cara bermainmu. Angka peluangnya <strong>dirahasiakan selama bermain</strong> dan baru diperlihatkan di rekap. Menang atau kalah, kamu tetap lanjut ke tahap berikutnya.</p>
 
         <div class="controls-grid">
           <div>
@@ -173,7 +172,7 @@
       </header>
       <div class="page-body">
         <p class="prose">Coba berbagai peluang menang <strong>p</strong> untuk setiap tahap sebagai <strong>latihan</strong>. Isi angka di antara 0 dan 1 dengan paling banyak dua desimal (contoh 0,45). Setiap tahap harus punya peluang yang berbeda.</p>
-        <p class="prose">Permainan biasa selalu memakai peluang bawaan (0,5; 0,6; 0,7; 0,4; 0,3). Peluang latihan hanya berlaku di tab browser ini sampai tab ditutup atau tombol Kembalikan Bawaan ditekan. Hasil latihan tidak disimpan ke akun dan tidak dipakai LKM.</p>
+        <p class="prose">Permainan biasa selalu memakai peluang bawaan, yang dirahasiakan sampai rekap. Peluang latihan hanya berlaku di tab browser ini sampai tab ditutup atau tombol Kembalikan Bawaan ditekan. Hasil latihan tidak disimpan ke akun dan tidak dipakai LKM.</p>
         <form id="teacher-form" novalidate>
           <div id="teacher-rows" class="teacher-rows"></div>
           <p id="teacher-msg" class="form-msg" role="status" aria-live="polite"></p>
@@ -412,7 +411,7 @@
         <p class="decisive-title" id="decisive-title">Serangan Penentu</p>
         <p class="decisive-sub" id="decisive-sub"></p>
         <div id="decisive-prob" class="prob-box"></div>
-        <p id="decisive-note" class="decisive-note">Tombol yang muncul hanya mengubah gaya serangan, bukan peluang menang. Hasil ditentukan oleh satu undian dengan peluang p.</p>
+        <p id="decisive-note" class="decisive-note">Tombol yang muncul hanya mengubah gaya serangan, bukan peluang menang. Hasil ditentukan oleh satu undian dengan peluang menang tahap ini, yang diperlihatkan di rekap.</p>
         <p id="decisive-result" class="decisive-result" hidden></p>
         <p id="decisive-u" class="decisive-u" hidden></p>
       </section>
