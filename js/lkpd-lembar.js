@@ -42,18 +42,26 @@ function selTabel() {
   return out;
 }
 
-// Tabel soal 9: baris x = 0 dan x = 1; kolom pˣ, q¹⁻ˣ, dan kolom "Tuliskan rumusnya di bawah ini". Sel kolom rumus
-// digambar sebagai kotak jawaban yang jelas (kotak: true) agar mahasiswa tahu itu harus diisi.
+// Tabel soal 9: baris x = 0 dan x = 1; kolom pˣ dan q¹⁻ˣ diisi mahasiswa. Kolom keempat: judulnya "Tuliskan rumusnya
+// di bawah ini:" jadi kotak jawaban rumus (s9_rumus) ada tepat di bawah tulisan itu, di dalam sel judul; sel baris
+// x = 0 dan x = 1 berisi nilai tetap (0,3 dan 0,7), bukan isian.
 function selSoal9() {
-  const kol = { p: [203, 364, "pˣ"], q: [368, 529, "q¹⁻ˣ"], h: [535, 893, "rumus"] };
+  const kol = { p: [203, 364, "pˣ"], q: [368, 529, "q¹⁻ˣ"] };
   const out = [];
   [[0, 1199, 37], [1, 1239, 38]].forEach(([x, y, h]) => {
     for (const [k, [x1, x2, nama]] of Object.entries(kol)) {
-      out.push({ id: `s9_${k}${x}`, hal: 4, jenis: "sel", kotak: k === "h", x: x1, y, w: x2 - x1, h, label: `Soal 9, x = ${x}: ${nama}` });
+      out.push({ id: `s9_${k}${x}`, hal: 4, jenis: "sel", x: x1, y, w: x2 - x1, h, label: `Soal 9, x = ${x}: ${nama}` });
     }
   });
+  out.push({ id: "s9_rumus", hal: 4, jenis: "sel", kotak: true, x: 545, y: 1138, w: 338, h: 49, label: "Soal 9: rumus yang kamu tuliskan" });
   return out;
 }
+
+/** Nilai tetap di dalam gambar (bukan isian): kolom keempat tabel soal 9 untuk x = 0 (q tahap 3) dan x = 1 (p tahap 3). */
+export const STATIS = [
+  { hal: 4, x: 535, y: 1199, w: 358, h: 37, teks: () => B().fmtP(100 - CONFIG.stages[2].p) },
+  { hal: 4, x: 535, y: 1239, w: 358, h: 38, teks: () => B().fmtP(CONFIG.stages[2].p) },
+];
 
 /** Semua isian, urut sesuai halaman. Titik-titik "..." diisi dengan huruf tebal (jenis "titik"). */
 export const BIDANG = [
@@ -143,6 +151,7 @@ export function bangunLembar(n, main) {
       }
     });
   }
+  for (const st of STATIS.filter((x) => x.hal === n)) html += `<span class="lk-f-statis" style="${pct(st)}">${st.teks()}</span>`;
   for (const b of BIDANG.filter((x) => x.hal === n)) {
     const main_ok = b.tahap === undefined || dimainkan(main, b.tahap);
     if (b.jenis === "identitas") {
@@ -197,7 +206,7 @@ export function ringkasan(main, isian) {
       return `Tahap ${s.id}: peluang menang = ${v(t + "_p")}; peluang kalah = ${v(t + "_q")}; centang ${v(t + "_hasil")}`;
     })
     .join("\n");
-  const soal9 = [0, 1].map((x) => `x = ${x}: pˣ = ${v("s9_p" + x)}; q¹⁻ˣ = ${v("s9_q" + x)}; kolom terakhir = ${v("s9_h" + x)}`).join("\n");
+  const soal9 = [0, 1].map((x) => `x = ${x}: pˣ = ${v("s9_p" + x)}; q¹⁻ˣ = ${v("s9_q" + x)}`).join("\n") + `\nRumus: ${v("s9_rumus")}`;
   return {
     nama: isian.nama || "",
     nim: isian.nim || "",
@@ -337,6 +346,9 @@ export async function kanvasHalaman(n, main, isian) {
   ctx.strokeStyle = TINTA;
   ctx.textBaseline = "top";
   let potong = false;
+  ctx.fillStyle = "#1a1a1a";
+  for (const st of STATIS.filter((x) => x.hal === n)) tulisSatuBaris(ctx, st.teks(), st.x, st.y, st.w, st.h, true, "bold ");
+  ctx.fillStyle = TINTA;
   for (const b of BIDANG.filter((x) => x.hal === n)) {
     const main_ok = b.tahap === undefined || dimainkan(main, b.tahap);
     const v = isian[b.id] || "";

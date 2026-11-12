@@ -645,7 +645,8 @@ kbd {
 }
 .lk-f-uraian { resize: none; overflow-y: auto; scrollbar-width: thin; }
 .lk-f-sel { text-align: center; }
-.lk-f-kotak { border: 2px solid #8a6d2f; background: #fffdf9; border-radius: 3px; text-align: left; padding-left: .4em; }
+.lk-f-statis { position: absolute; display: grid; place-items: center; color: #1a1a1a; font-weight: 700; pointer-events: none; }
+.lk-f-kotak { border: 2px solid #8a6d2f; background: #fffdf9; border-radius: 3px; text-align: left; padding-left: .5em; }
 .lk-f-kotak:focus, .lk-f-kotak:focus-visible { box-shadow: 0 0 0 2px #b8862a; background: #fff6d6; }
 .lk-f-kotak[readonly]:focus { background: #fffdf9; box-shadow: none; }
 .lk-f:focus, .lk-f:focus-visible { outline: none; box-shadow: inset 0 0 0 2px #b8862a; background: rgba(255, 246, 214, .55); }
