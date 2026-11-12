@@ -204,8 +204,8 @@ data dan aturan akses tidak berubah.
 |---|---|---|
 | 1. Sampul | Lembar Kerja Mahasiswa, "Adventure Bernoulli: Eksplorasi Distribusi Bernoulli", "Catatan Pertarungan di Kerajaan Swarnadwipa", kotak Identitas, ilustrasi Pengembara, Arca Durgaraksa, dan Resi Bayang, Universitas Sriwijaya · Kelompok 17 | **Nama**, **NIM**, **Kelas** di garis identitas |
 | 2. Tujuan dan petunjuk | Tujuan Pembelajaran (mengidentifikasi ciri percobaan Bernoulli; menemukan fungsi peluang distribusi Bernoulli; menjelaskan percobaan dan distribusi Bernoulli dengan bahasa sendiri), Petunjuk Pengerjaan LKM, Petunjuk Penggunaan Game | Tidak ada isian |
-| 3. Bagian A dan awal Bagian B | Soal 1 (hasil Serangan Penentu dan banyaknya), soal 2 (tabel 5 tahap: peluang menang, peluang kalah, centang Menang/Kalah, peluang dari hasil yang didapat), soal 3 (cara menentukan peluang kalah), soal 4 (berapa kali Serangan Penentu dalam satu tahap), soal 5 (apakah peluang tahap 3 masih 0,7) | Kotak soal 1, 3, 4, 5; sel tabel soal 2 |
-| 4. Bagian B dan C | Soal 6 (pengaruh hasil tahap 1 pada tahap 2), Kotak Informasi 1 (percobaan Bernoulli, X = 1, X = 0, p, q), soal 7 (tabel tahap 3: P(X = 1) = ..., P(X = 0) = ...), soal 8 (P(X = 1) = ... dan P(X = 0) = ... dengan p dan q), soal 9 (tabel x, pˣ, q¹⁻ˣ, kolom terakhir; lalu pertanyaan cara mengoperasikan) | Kotak soal 6 dan 9; titik-titik soal 7 dan 8 (huruf tebal); 6 sel tabel soal 9 |
+| 3. Bagian A dan awal Bagian B | Soal 1 (hasil Serangan Penentu dan banyaknya), soal 2 (tabel 5 tahap: peluang menang, peluang kalah, centang Menang/Kalah; langkah 1: setelah selesai bermain, amati tabel rekap), soal 3 (cara menentukan peluang kalah), soal 4 (berapa kali Serangan Penentu dalam satu tahap), soal 5 (apakah peluang tahap 3 masih 0,7) | Kotak soal 1, 3, 4, 5; sel tabel soal 2 |
+| 4. Bagian B dan C | Soal 6 (pengaruh hasil tahap 1 pada tahap 2), Kotak Informasi 1 (percobaan Bernoulli, X = 1, X = 0, p, q), soal 7 (tabel tahap 3: P(X = 1) = ..., P(X = 0) = ...), soal 8 (P(X = 1) = ... dan P(X = 0) = ... dengan p dan q), soal 9 (tabel x, pˣ, q¹⁻ˣ, kolom terakhir; lalu pertanyaan cara mengoperasikan) | Kotak soal 6 dan 9; titik-titik soal 7 dan 8 (huruf tebal); 6 sel tabel soal 9; sel kolom "Tuliskan rumusnya di bawah ini" digambar sebagai kotak jawaban yang jelas (ikut tercetak di PDF) |
 | 5. Bagian D | Kotak Informasi 2 (peubah acak, berdistribusi Bernoulli, fungsi peluang P(X = x) = pˣ × q¹⁻ˣ), soal 10 (apa itu percobaan Bernoulli; apa itu distribusi Bernoulli), Refleksi, "[ Kirim LKM ] [ Unduh LKM (PDF) ]", catatan "Setelah LKM dikirim, materi distribusi Bernoulli dapat dibuka di website sebagai rangkuman." | Kotak soal 10 bagian 1 dan 2, kotak refleksi; tulisan tombol di gambar bisa diketuk |
 
 ### 7.4 Cara mengisi
@@ -311,7 +311,7 @@ users/{uid}/lkpd/jawaban         isian, status, progres, permainanId, dikirim, d
 ```
 
 ID isian LKM: `nama`, `nim`, `kelas`, `s1`, `t1_p` sampai `t5_p`, `t1_q` sampai `t5_q`, `t1_hasil` sampai
-`t5_hasil`, `t1_ph` sampai `t5_ph`, `s3`, `s4`, `s5`, `s6`, `s7_1`, `s7_0`, `s8_1`, `s8_0`, `s9_p0`, `s9_q0`, `s9_h0`,
+`t5_hasil`, `s3`, `s4`, `s5`, `s6`, `s7_1`, `s7_0`, `s8_1`, `s8_0`, `s9_p0`, `s9_q0`, `s9_h0`,
 `s9_p1`, `s9_q1`, `s9_h1`, `s9`, `s10_1`, `s10_2`, `refleksi`.
 
 Aturan akses (`firestore.rules`, harus diterbitkan di Console):
@@ -390,18 +390,13 @@ js/  bernoulli.js  config.js  main.js  player.js  boss.js  mystic.js  arena.js
 - Butuh internet untuk Three.js, jsPDF, Firebase, dan font.
 - Belum diuji di Safari atau iPhone, dan Firebase asli belum diuji dari lingkungan pengembangan.
 - Halaman dosen belum ada; sampai dibuat, pengajuan perubahan LKM belum bisa diputuskan dari website.
-- Teks LKM tidak bisa diubah dari website karena memakai gambar asli. Beberapa kalimat LKM revisi belum sama
-  dengan game, dan perbaikannya harus di dokumen LKM kelompok:
-  - Petunjuk Penggunaan Game nomor 1: "Masuk dengan akun Google, lalu isi nama dan kelas". Game memakai
-    **email dan kata sandi**, bukan Google (keputusan pemilik).
-  - Petunjuk nomor 2: "Jika kalah sebelum tahap 3, ulangi permainan". Di game, kalah tidak menghentikan
-    permainan (menang atau kalah tetap lanjut), jadi tahap 3 hanya tidak tercapai jika mahasiswa menekan
-    Berhenti. Website memakai aturan "minimal sampai tahap 3" itu.
+- Teks LKM tidak bisa diubah dari website karena memakai gambar asli. LKM versi web terbaru
+  (`docs/LKM-Distribusi-Bernoulli-versi-web.pdf`) sudah sesuai dengan game: login email, peluang dibaca dari
+  rekap, soal 2 tanpa kolom terakhir, soal 9 dengan kolom rumus kosong. Yang masih berbeda:
   - Bagian A: "Kerajaan Swarnadwipa dijaga oleh para penguasa dungeon". Di game hanya ada satu lawan, Arca
     Durgaraksa, di ruang singgasana.
   - Halaman 5 hanya mencantumkan Kirim LKM dan Unduh LKM; tombol Ajukan Perubahan tetap ada di bar website
     sesuai keputusan pemilik.
-  - Harapan jawaban soal 9 di halaman 6 berakhir pada "Rumusnya adalah" tanpa rumus.
 - Setelah tab ditinggal lalu dibuka lagi, pengukur fps di `js/main.js` dapat menurunkan grafis laptop ke
   kualitas rendah secara permanen. Perbaikannya ada di loop render (area terlarang) dan menunggu izin pemilik.
 

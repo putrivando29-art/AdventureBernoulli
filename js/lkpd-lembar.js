@@ -7,8 +7,8 @@ import { CONFIG } from "./config.js";
 import { escapeHtml } from "./ui.js";
 import { pdfText } from "./papan-rumus.js";
 
-export const HAL_W = 1240;
-export const HAL_H = 1754;
+export const HAL_W = 1242;
+export const HAL_H = 1756;
 export const JUMLAH_HAL = 5;
 export const SYARAT_TAHAP = 3; // petunjuk LKM: mainkan game minimal sampai tahap 3
 export const gambarHal = (n) => `assets/lkpd/hal-${n}.png`;
@@ -20,10 +20,10 @@ const KW = 991;
 const GARIS_X = 166;
 export const LEBAR_KOTAK = [117, 1124]; // dipakai untuk memperbesar kotak saat diketuk di HP
 // Tabel soal 2
-const KOLOM = { p: [197, 375], q: [377, 534], Menang: [536, 647], Kalah: [648, 758], ph: [759, 1120] };
-const BARIS_Y = 630;
-const BARIS_JARAK = 44;
-const BARIS_H = 42;
+const KOLOM = { p: [227, 484], q: [486, 744], Menang: [745, 931], Kalah: [933, 1120] };
+const BARIS_Y = 575;
+const BARIS_JARAK = 41.4;
+const BARIS_H = 39;
 
 /** Kotak uraian. g1 = letak garis tulis pertama, jarak = jarak antargaris, indent = geser baris pertama (nomor "1."). */
 const uraian = (id, hal, y1, y2, g1, jarak, label, indent = 0) =>
@@ -38,18 +38,18 @@ function selTabel() {
     out.push(sel(`${t}_q`, "q", { jenis: "sel", label: `Peluang kalah tahap ${s.id}` }));
     out.push(sel(`${t}_hasil`, "Menang", { jenis: "ceklis", nilai: "Menang", label: `Centang Menang tahap ${s.id}` }));
     out.push(sel(`${t}_hasil`, "Kalah", { jenis: "ceklis", nilai: "Kalah", label: `Centang Kalah tahap ${s.id}` }));
-    out.push(sel(`${t}_ph`, "ph", { jenis: "sel", label: `Peluang dari hasil tahap ${s.id}` }));
   });
   return out;
 }
 
-// Tabel soal 9: baris x = 0 dan x = 1; kolom pˣ, q¹⁻ˣ, dan kolom terakhir (hasil operasi)
+// Tabel soal 9: baris x = 0 dan x = 1; kolom pˣ, q¹⁻ˣ, dan kolom "Tuliskan rumusnya di bawah ini". Sel kolom rumus
+// digambar sebagai kotak jawaban yang jelas (kotak: true) agar mahasiswa tahu itu harus diisi.
 function selSoal9() {
-  const kol = { p: [201, 306, "pˣ"], q: [307, 412, "q¹⁻ˣ"], h: [413, 519, "kolom terakhir"] };
+  const kol = { p: [203, 364, "pˣ"], q: [368, 529, "q¹⁻ˣ"], h: [535, 893, "rumus"] };
   const out = [];
-  [[0, 1111, 41], [1, 1153, 40]].forEach(([x, y, h]) => {
+  [[0, 1199, 37], [1, 1239, 38]].forEach(([x, y, h]) => {
     for (const [k, [x1, x2, nama]] of Object.entries(kol)) {
-      out.push({ id: `s9_${k}${x}`, hal: 4, jenis: "sel", x: x1, y, w: x2 - x1, h, label: `Soal 9, x = ${x}: ${nama}` });
+      out.push({ id: `s9_${k}${x}`, hal: 4, jenis: "sel", kotak: k === "h", x: x1, y, w: x2 - x1, h, label: `Soal 9, x = ${x}: ${nama}` });
     }
   });
   return out;
@@ -57,24 +57,24 @@ function selSoal9() {
 
 /** Semua isian, urut sesuai halaman. Titik-titik "..." diisi dengan huruf tebal (jenis "titik"). */
 export const BIDANG = [
-  { id: "nama", hal: 1, jenis: "identitas", x: 414, y: 511, w: 546, h: 34, label: "Nama", maks: 40 },
-  { id: "nim", hal: 1, jenis: "identitas", x: 414, y: 559, w: 546, h: 34, label: "NIM", maks: 20 },
-  { id: "kelas", hal: 1, jenis: "identitas", x: 414, y: 607, w: 546, h: 34, label: "Kelas", maks: 15 },
-  uraian("s1", 3, 252, 357, 303.5, 39, "Jawaban soal 1"),
+  { id: "nama", hal: 1, jenis: "identitas", x: 414, y: 514, w: 546, h: 34, label: "Nama", maks: 40 },
+  { id: "nim", hal: 1, jenis: "identitas", x: 414, y: 563, w: 546, h: 34, label: "NIM", maks: 20 },
+  { id: "kelas", hal: 1, jenis: "identitas", x: 414, y: 610, w: 546, h: 34, label: "Kelas", maks: 15 },
+  uraian("s1", 3, 247, 347, 295.5, 38, "Jawaban soal 1"),
   ...selTabel(),
-  uraian("s3", 3, 902, 1007, 953.5, 39, "Jawaban soal 3"),
-  uraian("s4", 3, 1157, 1255, 1204.5, 36, "Jawaban soal 4"),
-  uraian("s5", 3, 1335, 1435, 1384.5, 36, "Jawaban soal 5"),
-  uraian("s6", 4, 168, 307, 217.5, 38.3, "Jawaban soal 6"),
-  { id: "s7_1", hal: 4, jenis: "titik", x: 549, y: 729, w: 131, h: 39, label: "Soal 7: P(X = 1)" },
-  { id: "s7_0", hal: 4, jenis: "titik", x: 549, y: 772, w: 131, h: 39, label: "Soal 7: P(X = 0)" },
-  { id: "s8_1", hal: 4, jenis: "titik", x: 236, y: 903, w: 134, h: 46, label: "Soal 8: P(X = 1)" },
-  { id: "s8_0", hal: 4, jenis: "titik", x: 462, y: 903, w: 650, h: 46, label: "Soal 8: P(X = 0)" },
+  uraian("s3", 3, 828, 927, 876.5, 36, "Jawaban soal 3"),
+  uraian("s4", 3, 1075, 1168, 1120.5, 34, "Jawaban soal 4"),
+  uraian("s5", 3, 1244, 1336, 1289.5, 34, "Jawaban soal 5"),
+  uraian("s6", 4, 166, 300, 214.5, 36.5, "Jawaban soal 6"),
+  { id: "s7_1", hal: 4, jenis: "titik", x: 549, y: 707, w: 168, h: 38, label: "Soal 7: P(X = 1)" },
+  { id: "s7_0", hal: 4, jenis: "titik", x: 549, y: 748, w: 168, h: 38, label: "Soal 7: P(X = 0)" },
+  { id: "s8_1", hal: 4, jenis: "titik", x: 238, y: 872, w: 114, h: 46, label: "Soal 8: P(X = 1)" },
+  { id: "s8_0", hal: 4, jenis: "titik", x: 451, y: 872, w: 661, h: 46, label: "Soal 8: P(X = 0)" },
   ...selSoal9(),
-  uraian("s9", 4, 1334, 1462, 1378.5, 34.5, "Jawaban soal 9"),
-  uraian("s10_1", 5, 524, 727, 579.5, 45.3, "Soal 10 nomor 1: apa itu percobaan Bernoulli", 24),
-  uraian("s10_2", 5, 722, 912, 761.5, 45.3, "Soal 10 nomor 2: apa itu distribusi Bernoulli", 24),
-  uraian("refleksi", 5, 984, 1277, 1039.5, 44.6, "Jawaban refleksi"),
+  uraian("s9", 4, 1325, 1449, 1370.5, 32, "Jawaban soal 9"),
+  uraian("s10_1", 5, 525, 740, 581.5, 45.3, "Soal 10 nomor 1: apa itu percobaan Bernoulli", 24),
+  uraian("s10_2", 5, 735, 912, 762.5, 45.3, "Soal 10 nomor 2: apa itu distribusi Bernoulli", 24),
+  uraian("refleksi", 5, 984, 1278, 1040.5, 44.8, "Jawaban refleksi"),
 ];
 
 /** Tulisan "[ Kirim LKM ]" dan "[ Unduh LKM (PDF) ]" di bawah halaman 5 dibuat bisa diketuk. */
@@ -134,12 +134,12 @@ export function bangunLembar(n, main) {
   const el = document.createElement("div");
   el.className = "lk-sheet";
   el.dataset.hal = n;
-  let html = `<img class="lk-sheet-img" src="${gambarHal(n)}" width="1653" height="2339" alt="LKM Distribusi Bernoulli halaman ${n}" draggable="false">`;
+  let html = `<img class="lk-sheet-img" src="${gambarHal(n)}" width="1656" height="2342" alt="LKM Distribusi Bernoulli halaman ${n}" draggable="false">`;
   if (n === 3) {
     CONFIG.stages.forEach((s, i) => {
       if (!dimainkan(main, i)) {
         const y = BARIS_Y + i * BARIS_JARAK;
-        html += `<div class="lk-row-off" style="${pct({ x: KOLOM.p[0], y, w: KOLOM.ph[1] - KOLOM.p[0], h: BARIS_H })}" title="Tahap ${s.id} tidak dimainkan"></div>`;
+        html += `<div class="lk-row-off" style="${pct({ x: KOLOM.p[0], y, w: KOLOM.Kalah[1] - KOLOM.p[0], h: BARIS_H })}" title="Tahap ${s.id} tidak dimainkan"></div>`;
       }
     });
   }
@@ -154,7 +154,7 @@ export function bangunLembar(n, main) {
     } else if (!main_ok) {
       if (b.jenis === "sel") html += `<span class="lk-f-strip" style="${pct(b)}" aria-hidden="true">-</span>`;
     } else if (b.jenis === "sel") {
-      html += `<input type="text" class="lk-f lk-f-sel" data-f="${b.id}" aria-label="${b.label}" autocomplete="off" spellcheck="false" style="${pct(b, 4, 6, -8, -12)}">`;
+      html += `<input type="text" class="lk-f lk-f-sel${b.kotak ? " lk-f-kotak" : ""}" data-f="${b.id}" aria-label="${b.label}" autocomplete="off" spellcheck="false" style="${pct(b, 4, 6, -8, -12)}">`;
     } else if (b.jenis === "ceklis") {
       html += `<button type="button" class="lk-f-ceklis" data-f="${b.id}" data-nilai="${b.nilai}" aria-pressed="false" aria-label="${b.label}" style="${pct(b, 3, 3, -6, -6)}">${CENTANG}</button>`;
     }
@@ -194,7 +194,7 @@ export function ringkasan(main, isian) {
     .map((s, i) => {
       if (!dimainkan(main, i)) return `Tahap ${s.id}: tidak dimainkan`;
       const t = `t${i + 1}`;
-      return `Tahap ${s.id}: peluang menang = ${v(t + "_p")}; peluang kalah = ${v(t + "_q")}; centang ${v(t + "_hasil")}; peluang dari hasil = ${v(t + "_ph")}`;
+      return `Tahap ${s.id}: peluang menang = ${v(t + "_p")}; peluang kalah = ${v(t + "_q")}; centang ${v(t + "_hasil")}`;
     })
     .join("\n");
   const soal9 = [0, 1].map((x) => `x = ${x}: pˣ = ${v("s9_p" + x)}; q¹⁻ˣ = ${v("s9_q" + x)}; kolom terakhir = ${v("s9_h" + x)}`).join("\n");
@@ -347,6 +347,14 @@ export async function kanvasHalaman(n, main, isian) {
     } else if (b.jenis === "titik") {
       if (v) tulisSatuBaris(ctx, v, b.x + 1, b.y - 3, b.w - 2, b.h - 4, b.w < 100, "bold ");
     } else if (b.jenis === "sel") {
+      if (b.kotak) {
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#8a6d2f";
+        ctx.fillStyle = "#fffdf9";
+        ctx.fillRect(b.x + 2, b.y + 2, b.w - 4, b.h - 4);
+        ctx.strokeRect(b.x + 2, b.y + 2, b.w - 4, b.h - 4);
+        ctx.fillStyle = TINTA;
+      }
       const t = main_ok ? v : "-";
       if (t) tulisSatuBaris(ctx, t, b.x + 6, b.y, b.w - 12, b.h, true);
     } else if (b.jenis === "ceklis" && main_ok && v === b.nilai) {
