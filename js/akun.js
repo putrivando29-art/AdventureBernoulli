@@ -165,3 +165,24 @@ export function pesanGalat(err) {
   };
   return map[code] || "Terjadi kesalahan. Coba lagi.";
 }
+
+// ---------- khusus dosen (aturan Firestore hanya mengizinkan akun di koleksi guru) ----------
+export async function semuaMahasiswa() {
+  const snap = await F.getDocs(F.collection(db, "users"));
+  return Promise.all(snap.docs.map(async (d) => {
+    const lk = await F.getDoc(F.doc(db, "users", d.id, "lkpd", "jawaban"));
+    return { uid: d.id, ...d.data(), lkpd: lk.exists() ? lk.data() : null };
+  }));
+}
+
+export async function permainanMahasiswa(uid, id) {
+  const d = await F.getDoc(F.doc(db, "users", uid, "permainan", id));
+  return d.exists() ? { id, ...d.data() } : null;
+}
+
+/** setuju: status dibuka (mahasiswa boleh mengubah); tolak: kembali terkirim. */
+export async function putuskan(uid, setuju) {
+  await F.updateDoc(F.doc(db, "users", uid, "lkpd", "jawaban"), {
+    status: setuju ? "dibuka" : "terkirim", diputuskanOleh: auth.currentUser.email, diputuskanPada: F.serverTimestamp(),
+  });
+}

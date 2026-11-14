@@ -25,7 +25,7 @@ setiap bagian ditulis jelas: **sudah jalan** atau **belum dibuat**.
 | Masuk dan Daftar (email dan kata sandi), profil, simpan hasil permainan | Sudah jalan |
 | Setting Peluang (latihan) | Sudah jalan |
 | LKM digital 1:1 untuk mahasiswa (isi, simpan otomatis, kirim, Lihat Hasil, PDF, ajukan perubahan) | Sudah jalan |
-| Halaman dosen (lihat LKM mahasiswa, unduh, setujui/tolak perubahan, hapus data) | **Belum dibuat** (Tahap C) |
+| Halaman dosen (lihat LKM mahasiswa, unduh, setujui/tolak perubahan) | Sudah jalan (sederhana); hapus data belum ada |
 
 ## 2. Pengguna dan cara pakai
 
@@ -258,15 +258,13 @@ data dan aturan akses tidak berubah.
 `draf` (bisa diisi) → `terkirim` (terkunci) → `minta-ubah` (menunggu dosen) → `dibuka` (boleh diubah lalu dikirim
 lagi) atau kembali `terkirim` jika ditolak.
 
-## 8. Halaman dosen (belum dibuat, Tahap C)
+## 8. Halaman dosen (sudah jalan, sederhana)
 
-Rencana yang sudah disetujui sebagian:
-- Akun dosen (4 email dari pemilik) dibuat pemilik di Firebase Console dan dikenali dari UID di koleksi `guru`.
-- Melihat LKM tiap mahasiswa **persis seperti yang mereka isi** (tampilan 1:1, hanya baca) dan mengunduhnya.
-- Daftar mahasiswa per kelas, hasil permainan, status dan kemajuan LKM.
-- Tombol Setujui dan Tolak untuk pengajuan perubahan.
-- Hapus data mahasiswa agar mahasiswa bisa mengulang.
-- Tidak menyimpan nilai; penilaian di luar website.
+- Tombol **Dosen** di menu hanya tampil untuk akun yang UID-nya ada di koleksi Firestore `guru` (dibuat pemilik di Console).
+- Daftar semua mahasiswa (urut kelas lalu nama): Nama, Kelas, Status (Belum mulai, Draf, Terkirim, Minta diubah, Dibuka), Isi (%).
+- **Lihat:** menampilkan LKM mahasiswa persis seperti yang diisi (5 halaman, hanya baca) dan tombol **Unduh LKM ini (PDF)**.
+- Pengajuan ubah: alasan mahasiswa tampil; tombol **Setujui** (status Dibuka) dan **Tolak** (kembali Terkirim).
+- Belum ada: hapus data mahasiswa, unduh CSV, dan saring per kelas. Kode: `js/dosen.js`.
 
 ## 9. Konsep yang diajarkan dan aturannya di kode
 
@@ -389,7 +387,6 @@ js/  bernoulli.js  config.js  main.js  player.js  boss.js  mystic.js  arena.js
 
 - Butuh internet untuk Three.js, jsPDF, Firebase, dan font.
 - Belum diuji di Safari atau iPhone, dan Firebase asli belum diuji dari lingkungan pengembangan.
-- Halaman dosen belum ada; sampai dibuat, pengajuan perubahan LKM belum bisa diputuskan dari website.
 - Teks LKM tidak bisa diubah dari website karena memakai gambar asli. LKM versi web terbaru
   (`docs/LKM-Distribusi-Bernoulli-versi-web.pdf`) sudah sesuai dengan game: login email, peluang dibaca dari
   rekap, soal 2 tanpa kolom terakhir, soal 9 dengan kolom rumus kosong. Yang masih berbeda:

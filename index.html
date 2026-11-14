@@ -104,6 +104,7 @@
         </form>
         <div class="menu-buttons menu-shared">
           <button type="button" class="btn" data-go="howto">Cara Bermain</button>
+          <button type="button" class="btn" id="btn-dosen" hidden>Dosen</button>
           <button type="button" class="btn" data-go="teacher">Setting Peluang</button>
         </div>
         <div class="latihan-note" id="latihan-note" hidden>
@@ -271,6 +272,19 @@
           </div>
         </form>
       </dialog>
+    </section>
+
+    <!-- ============ DOSEN ============ -->
+    <section id="screen-dosen" class="screen screen-page" aria-labelledby="dosen-title">
+      <header class="page-head">
+        <button class="btn btn-ghost" data-go="menu">← Kembali ke Menu</button>
+        <h2 id="dosen-title">Halaman Dosen</h2>
+      </header>
+      <div class="page-body">
+        <div id="dosen-daftar" class="table-scroll"></div>
+        <button type="button" class="btn btn-primary" id="dosen-pdf" hidden>Unduh LKM ini (PDF)</button>
+        <div id="dosen-lembar"></div>
+      </div>
     </section>
 
     <!-- ============ RANGKUMAN MATERI (terbuka setelah LKM dikirim) ============ -->

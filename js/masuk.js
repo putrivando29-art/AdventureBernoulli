@@ -1,6 +1,7 @@
 // Kartu menu utama: Masuk atau Daftar dengan email dan kata sandi, lalu menu bermain setelah masuk.
 import * as akun from "./akun.js";
 import { bukaLkpd } from "./lkpd.js";
+import { tampilkanTombolDosen } from "./dosen.js";
 import { $, printableText, syncStart } from "./ui.js";
 
 const rapi = (s) => printableText(s).trim().replace(/\s+/g, " ");
@@ -117,12 +118,14 @@ export function initMasuk() {
     $("#auth-panel").hidden = !!user;
     $("#menu-form").hidden = !user;
     if (!user) {
+      $("#btn-dosen").hidden = true;
       $("#student-name").value = "";
       $("#student-class").value = "";
       syncStart();
       return;
     }
     $("#akun-email").textContent = user.email;
+    tampilkanTombolDosen();
     try {
       const profil = await akun.bacaProfil();
       if (profil) {
