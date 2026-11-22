@@ -13,6 +13,7 @@ export class Controls {
     this.enabled = false;
     this.keys = new Set();
     this.look = { dx: 0, dy: 0 };
+    this.sens = 1; // pengali kecepatan kamera (slider di menu jeda)
     this.edges = { attack: false, jump: false, dodge: false, spell: false };
     this.touch = isTouchDevice();
     this.locked = false;
@@ -193,7 +194,7 @@ export class Controls {
       jump: this.edges.jump,
       dodge: this.edges.dodge,
       spell: this.edges.spell,
-      look: { dx: this.look.dx, dy: this.look.dy },
+      look: { dx: this.look.dx * this.sens, dy: this.look.dy * this.sens },
     };
     this.edges = { attack: false, jump: false, dodge: false, spell: false };
     this.look.dx = this.look.dy = 0;

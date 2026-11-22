@@ -749,3 +749,6 @@ kbd {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+.sens-field { margin: .2rem 0; }
+.sens-field input[type="range"] { width: 100%; padding: 0; border: 0; background: transparent; accent-color: var(--accent); min-height: 32px; }

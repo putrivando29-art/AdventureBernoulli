@@ -159,6 +159,16 @@ export class Adventure {
       /* abaikan */
     }
     applyMotion(saved !== "penuh");
+    // Kecepatan kamera: slider 0,5x sampai 3x, diingat di browser
+    const sl = ui.$("#sens-slider");
+    try { sl.value = localStorage.getItem("ab.sens") || "1"; } catch (e) { /* abaikan */ }
+    const pasSens = () => {
+      this.controls.sens = Number(sl.value);
+      ui.$("#sens-nilai").textContent = Number(sl.value).toFixed(1).replace(".", ",") + "x";
+      try { localStorage.setItem("ab.sens", sl.value); } catch (e) { /* abaikan */ }
+    };
+    sl.addEventListener("input", pasSens);
+    pasSens();
     ui.$("#btn-motion").addEventListener("click", () => applyMotion(!this.engine.rig.comfort));
     ui.$("#btn-controls").addEventListener("click", () => {
       const box = ui.$("#pause-controls");
